@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import NextLink from 'next/link';
 import {
   Box,
   Button,
@@ -16,12 +15,6 @@ import {
   IconButton,
   Stack,
   Text,
-  Link,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
   useToast,
   useColorModeValue,
 } from '@chakra-ui/react';
@@ -41,9 +34,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
-  const { login, loginAdmin, isLoading } = useAuthStore();
+  const { loginAdmin, isLoading } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
-  const [tabIndex, setTabIndex] = useState(0);
 
   const cardBg = useColorModeValue('white', 'gray.800');
 
@@ -57,29 +49,19 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      if (tabIndex === 0) {
-        await login(data.email, data.password);
-        toast({
-          title: 'Welcome back!',
-          status: 'success',
-          duration: 3000,
-        });
-        router.push('/dashboard');
+      await loginAdmin(data.email, data.password);
+      // Get the user from the store after login
+      const user = useAuthStore.getState().user;
+      toast({
+        title: user?.role === 'superAdmin' ? 'Welcome back, Super Admin!' : 'Welcome back, Admin!',
+        status: 'success',
+        duration: 3000,
+      });
+      // Redirect based on role
+      if (user?.role === 'superAdmin') {
+        router.push('/super-admin/dashboard');
       } else {
-        await loginAdmin(data.email, data.password);
-        // Get the user from the store after login
-        const user = useAuthStore.getState().user;
-        toast({
-          title: user?.role === 'superAdmin' ? 'Welcome back, Super Admin!' : 'Welcome back, Admin!',
-          status: 'success',
-          duration: 3000,
-        });
-        // Redirect based on role
-        if (user?.role === 'superAdmin') {
-          router.push('/super-admin/dashboard');
-        } else {
-          router.push('/admin/dashboard');
-        }
+        router.push('/admin/dashboard');
       }
     } catch (error) {
       toast({
@@ -92,128 +74,62 @@ export default function LoginPage() {
   };
 
   return (
-    <Box bg={cardBg} p={8} borderRadius="xl" boxShadow="lg">
+    <Box bg={cardBg} p={8} borderRadius="xl" boxShadow="lg" maxW="400px" w="full">
       <Stack spacing={6}>
         <Box textAlign="center">
           <Heading size="lg" mb={2}>
-            Welcome Back
+            Admin Portal
           </Heading>
-          <Text color="gray.500">Sign in to your account</Text>
+          <Text color="gray.500">Sign in to manage your agency</Text>
         </Box>
 
-        <Tabs
-          index={tabIndex}
-          onChange={setTabIndex}
-          variant="soft-rounded"
-          colorScheme="brand"
-        >
-          <TabList mb={4}>
-            <Tab flex={1}>Client</Tab>
-            <Tab flex={1}>Admin</Tab>
-          </TabList>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={4}>
+            <FormControl isInvalid={!!errors.email}>
+              <FormLabel>Email</FormLabel>
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                {...register('email')}
+              />
+              <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+            </FormControl>
 
-          <TabPanels>
-            <TabPanel p={0}>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Stack spacing={4}>
-                  <FormControl isInvalid={!!errors.email}>
-                    <FormLabel>Email</FormLabel>
-                    <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      {...register('email')}
-                    />
-                    <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
-                  </FormControl>
+            <FormControl isInvalid={!!errors.password}>
+              <FormLabel>Password</FormLabel>
+              <InputGroup>
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  {...register('password')}
+                />
+                <InputRightElement>
+                  <IconButton
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPassword(!showPassword)}
+                  />
+                </InputRightElement>
+              </InputGroup>
+              <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+            </FormControl>
 
-                  <FormControl isInvalid={!!errors.password}>
-                    <FormLabel>Password</FormLabel>
-                    <InputGroup>
-                      <Input
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your password"
-                        {...register('password')}
-                      />
-                      <InputRightElement>
-                        <IconButton
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
-                          icon={showPassword ? <FiEyeOff /> : <FiEye />}
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowPassword(!showPassword)}
-                        />
-                      </InputRightElement>
-                    </InputGroup>
-                    <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-                  </FormControl>
+            <Button
+              type="submit"
+              colorScheme="brand"
+              size="lg"
+              w="full"
+              isLoading={isLoading}
+            >
+              Sign In
+            </Button>
+          </Stack>
+        </form>
 
-                  <Button
-                    type="submit"
-                    colorScheme="brand"
-                    size="lg"
-                    w="full"
-                    isLoading={isLoading}
-                  >
-                    Sign In
-                  </Button>
-                </Stack>
-              </form>
-            </TabPanel>
-
-            <TabPanel p={0}>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Stack spacing={4}>
-                  <FormControl isInvalid={!!errors.email}>
-                    <FormLabel>Email</FormLabel>
-                    <Input
-                      type="email"
-                      placeholder="Enter admin email"
-                      {...register('email')}
-                    />
-                    <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
-                  </FormControl>
-
-                  <FormControl isInvalid={!!errors.password}>
-                    <FormLabel>Password</FormLabel>
-                    <InputGroup>
-                      <Input
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your password"
-                        {...register('password')}
-                      />
-                      <InputRightElement>
-                        <IconButton
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
-                          icon={showPassword ? <FiEyeOff /> : <FiEye />}
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowPassword(!showPassword)}
-                        />
-                      </InputRightElement>
-                    </InputGroup>
-                    <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-                  </FormControl>
-
-                  <Button
-                    type="submit"
-                    colorScheme="brand"
-                    size="lg"
-                    w="full"
-                    isLoading={isLoading}
-                  >
-                    Admin Sign In
-                  </Button>
-                </Stack>
-              </form>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-
-        <Text textAlign="center" color="gray.500">
-          Don&apos;t have an account?{' '}
-          <Link as={NextLink} href="/register" color="brand.400" fontWeight="medium">
-            Sign up
-          </Link>
+        <Text textAlign="center" fontSize="sm" color="gray.500">
+          This portal is for agency administrators only.
         </Text>
       </Stack>
     </Box>
