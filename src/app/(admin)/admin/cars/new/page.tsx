@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { CarForm } from '@/components/forms/CarForm';
-import { useCreateCar } from '@/hooks';
+import { useCreateCar, useSuperAdminAgencies } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
 
 export default function NewCarPage() {
@@ -19,11 +19,45 @@ export default function NewCarPage() {
   const { user } = useAuthStore();
   const createMutation = useCreateCar();
 
+  const isSuperAdmin = user?.role === 'superAdmin';
+
+  // Fetch agencies only for super admin
+  const { data: agenciesData, isLoading: agenciesLoading } = useSuperAdminAgencies(
+    isSuperAdmin ? { limit: 100 } : undefined
+  );
+
   const handleSubmit = async (data: any) => {
+    // For regular admins, use their agency
+    // For super admins, use the selected agency from form
+    let agencyId = data.agencyId;
+
+    if (!isSuperAdmin) {
+      if (!user?.agency?.id) {
+        toast({
+          title: 'Error',
+          description: 'No agency assigned to your account',
+          status: 'error',
+          duration: 5000,
+        });
+        return;
+      }
+      agencyId = user.agency.id;
+    }
+
+    if (!agencyId) {
+      toast({
+        title: 'Error',
+        description: 'Please select an agency',
+        status: 'error',
+        duration: 5000,
+      });
+      return;
+    }
+
     try {
       await createMutation.mutateAsync({
         ...data,
-        agencyId: user?.agencyId || 1, // Use the admin's agency ID
+        agencyId,
       });
       toast({
         title: 'Car created',
@@ -59,6 +93,9 @@ export default function NewCarPage() {
         onSubmit={handleSubmit}
         isLoading={createMutation.isPending}
         submitLabel="Create Car"
+        isSuperAdmin={isSuperAdmin}
+        agencies={agenciesData?.data || []}
+        agenciesLoading={agenciesLoading}
       />
     </Box>
   );

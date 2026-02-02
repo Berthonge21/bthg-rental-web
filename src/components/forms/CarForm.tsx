@@ -12,13 +12,15 @@ import {
   SimpleGrid,
   Stack,
   useColorModeValue,
+  Text,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Car } from '@bthgrentalcar/sdk';
+import type { Car, Agency } from '@bthgrentalcar/sdk';
 
-const carSchema = z.object({
+// Base schema without agencyId (for regular admins)
+const baseCarSchema = z.object({
   brand: z.string().min(1, 'Brand is required').max(100),
   model: z.string().min(1, 'Model is required').max(100),
   year: z.coerce.number().min(1900, 'Invalid year').max(new Date().getFullYear() + 1),
@@ -30,15 +32,19 @@ const carSchema = z.object({
   gearBox: z.string().min(1, 'Gearbox type is required'),
   description: z.string().max(300).optional(),
   image: z.string().url().optional().or(z.literal('')),
+  agencyId: z.coerce.number().optional(),
 });
 
-type CarFormData = z.infer<typeof carSchema>;
+type CarFormData = z.infer<typeof baseCarSchema>;
 
 interface CarFormProps {
   initialData?: Partial<Car>;
   onSubmit: (data: CarFormData) => Promise<void>;
   isLoading?: boolean;
   submitLabel?: string;
+  isSuperAdmin?: boolean;
+  agencies?: Agency[];
+  agenciesLoading?: boolean;
 }
 
 const fuelTypes = ['Gasoline', 'Diesel', 'Electric', 'Hybrid', 'LPG'];
@@ -49,8 +55,19 @@ export function CarForm({
   onSubmit,
   isLoading = false,
   submitLabel = 'Save',
+  isSuperAdmin = false,
+  agencies = [],
+  agenciesLoading = false,
 }: CarFormProps) {
   const cardBg = useColorModeValue('white', 'gray.800');
+
+  // Create schema based on whether super admin needs to select agency
+  const carSchema = isSuperAdmin && !initialData?.agencyId
+    ? baseCarSchema.refine((data) => data.agencyId && data.agencyId > 0, {
+        message: 'Please select an agency',
+        path: ['agencyId'],
+      })
+    : baseCarSchema;
 
   const {
     register,
@@ -70,13 +87,56 @@ export function CarForm({
       gearBox: initialData?.gearBox || '',
       description: initialData?.description || '',
       image: initialData?.image || '',
+      agencyId: initialData?.agencyId,
     },
   });
+
+  // Filter only active agencies
+  const activeAgencies = agencies.filter((a) => a.status === 'activate');
 
   return (
     <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={6}>
+          {/* Agency Selection for Super Admin */}
+          {isSuperAdmin && (
+            <FormControl isInvalid={!!errors.agencyId} isRequired={!initialData?.agencyId}>
+              <FormLabel>Agency</FormLabel>
+              {initialData?.agencyId ? (
+                <>
+                  <Input
+                    value={initialData.Agency?.name || `Agency #${initialData.agencyId}`}
+                    isReadOnly
+                    bg="gray.50"
+                  />
+                  <Text fontSize="xs" color="gray.500" mt={1}>
+                    Agency cannot be changed after creation
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Select
+                    placeholder="Select an agency"
+                    {...register('agencyId')}
+                    isDisabled={agenciesLoading}
+                  >
+                    {activeAgencies.map((agency) => (
+                      <option key={agency.id} value={agency.id}>
+                        {agency.name} - {agency.address}
+                      </option>
+                    ))}
+                  </Select>
+                  <FormErrorMessage>{errors.agencyId?.message}</FormErrorMessage>
+                  {activeAgencies.length === 0 && !agenciesLoading && (
+                    <Text fontSize="sm" color="orange.500" mt={1}>
+                      No active agencies available. Create an agency first.
+                    </Text>
+                  )}
+                </>
+              )}
+            </FormControl>
+          )}
+
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
             <FormControl isInvalid={!!errors.brand}>
               <FormLabel>Brand</FormLabel>

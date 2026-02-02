@@ -67,12 +67,19 @@ export default function LoginPage() {
         router.push('/dashboard');
       } else {
         await loginAdmin(data.email, data.password);
+        // Get the user from the store after login
+        const user = useAuthStore.getState().user;
         toast({
-          title: 'Welcome back, Admin!',
+          title: user?.role === 'superAdmin' ? 'Welcome back, Super Admin!' : 'Welcome back, Admin!',
           status: 'success',
           duration: 3000,
         });
-        router.push('/admin/dashboard');
+        // Redirect based on role
+        if (user?.role === 'superAdmin') {
+          router.push('/super-admin/dashboard');
+        } else {
+          router.push('/admin/dashboard');
+        }
       }
     } catch (error) {
       toast({

@@ -126,7 +126,7 @@ export const superAdminNavItems: NavItem[] = [
   { label: 'Agencies', href: '/super-admin/agencies', icon: FiGrid },
   { label: 'Admins', href: '/super-admin/admins', icon: FiUsers },
   { label: 'Rentals', href: '/super-admin/rentals', icon: FiCalendar },
-  { label: 'Settings', href: '/super-admin/settings', icon: FiSettings },
+  { label: 'Profile', href: '/super-admin/profile', icon: FiUser },
 ];
 
 export const clientNavItems: NavItem[] = [

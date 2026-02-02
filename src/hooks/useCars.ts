@@ -33,6 +33,38 @@ export function useCarAvailability(id: number, startDate: string, endDate: strin
   });
 }
 
+export function useCarAvailabilityCalendar(id: number, year: number, month?: number) {
+  return useQuery({
+    queryKey: [...carKeys.detail(id), 'calendar', year, month],
+    queryFn: () => api.cars.getAvailabilityCalendar(id, year, month),
+    enabled: !!id && !!year,
+  });
+}
+
+export function useBlockDates() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ carId, dates }: { carId: number; dates: string[] }) =>
+      api.cars.blockDates(carId, dates),
+    onSuccess: (_, { carId }) => {
+      queryClient.invalidateQueries({ queryKey: carKeys.detail(carId) });
+    },
+  });
+}
+
+export function useUnblockDates() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ carId, dates }: { carId: number; dates: string[] }) =>
+      api.cars.unblockDates(carId, dates),
+    onSuccess: (_, { carId }) => {
+      queryClient.invalidateQueries({ queryKey: carKeys.detail(carId) });
+    },
+  });
+}
+
 export function useCreateCar() {
   const queryClient = useQueryClient();
 
@@ -40,6 +72,8 @@ export function useCreateCar() {
     mutationFn: (data: CreateCarDto) => api.cars.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: carKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['super-admin', 'dashboard'] });
     },
   });
 }
@@ -64,6 +98,8 @@ export function useDeleteCar() {
     mutationFn: (id: number) => api.cars.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: carKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['super-admin', 'dashboard'] });
     },
   });
 }

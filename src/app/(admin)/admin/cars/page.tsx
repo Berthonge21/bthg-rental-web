@@ -21,17 +21,21 @@ import {
 import { FiPlus, FiEdit2, FiTrash2, FiMoreVertical, FiEye } from 'react-icons/fi';
 import { DataTable, LoadingSpinner, ConfirmDialog, type Column } from '@/components/ui';
 import { useCars, useDeleteCar } from '@/hooks';
+import { useAuthStore } from '@/stores/auth.store';
 import type { Car } from '@bthgrentalcar/sdk';
 
 export default function AdminCarsPage() {
   const router = useRouter();
   const toast = useToast();
+  const { user } = useAuthStore();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { data, isLoading } = useCars({ page, limit: 10 });
+  // Filter by agency for admin users
+  const agencyId = user?.role === 'superAdmin' ? undefined : user?.agency?.id;
+  const { data, isLoading } = useCars({ page, limit: 10, agencyId });
   const deleteMutation = useDeleteCar();
 
   const handleDelete = async () => {

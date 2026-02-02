@@ -69,10 +69,10 @@ export default function SuperAdminAdminsPage() {
       header: 'Agency',
       accessor: (row) => (
         <Text fontSize="sm">
-          {row.agencyName || (
-            <Text as="span" color="gray.400" fontStyle="italic">
+          {row.agency?.name || row.agencyName || (
+            <Badge colorScheme="orange" variant="subtle">
               Not assigned
-            </Text>
+            </Badge>
           )}
         </Text>
       ),

@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import {
   Box,
   Heading,
@@ -8,6 +9,8 @@ import {
   Badge,
   HStack,
   VStack,
+  Button,
+  Avatar,
   useColorModeValue,
 } from '@chakra-ui/react';
 import {
@@ -17,19 +20,29 @@ import {
   FiCalendar,
   FiDollarSign,
   FiUserCheck,
+  FiPlus,
 } from 'react-icons/fi';
 import { StatCard, DataTable, LoadingSpinner, type Column } from '@/components/ui';
-import { useSuperAdminDashboard, useSuperAdminAgencies } from '@/hooks';
-import type { Agency, Status } from '@bthgrentalcar/sdk';
+import { useSuperAdminDashboard, useSuperAdminAgencies, useSuperAdminUsers } from '@/hooks';
+import type { Agency, AdminUser, Status, UserRole } from '@bthgrentalcar/sdk';
 
 const statusColors: Record<Status, string> = {
   activate: 'green',
   deactivate: 'red',
 };
 
+const roleColors: Record<UserRole, string> = {
+  admin: 'blue',
+  superAdmin: 'purple',
+};
+
 export default function SuperAdminDashboardPage() {
+  const router = useRouter();
   const { data: stats, isLoading: statsLoading } = useSuperAdminDashboard();
   const { data: agenciesData, isLoading: agenciesLoading } = useSuperAdminAgencies({
+    limit: 5,
+  });
+  const { data: adminsData, isLoading: adminsLoading } = useSuperAdminUsers({
     limit: 5,
   });
 
@@ -69,11 +82,61 @@ export default function SuperAdminDashboardPage() {
     },
   ];
 
+  const adminColumns: Column<AdminUser>[] = [
+    {
+      header: 'Admin',
+      accessor: (row) => (
+        <HStack spacing={3}>
+          <Avatar size="sm" name={`${row.firstname} ${row.name}`} src={row.image} bg="brand.400" />
+          <VStack align="start" spacing={0}>
+            <Text fontWeight="medium">{row.firstname} {row.name}</Text>
+            <Text fontSize="sm" color="gray.500">{row.email}</Text>
+          </VStack>
+        </HStack>
+      ),
+    },
+    {
+      header: 'Role',
+      accessor: (row) => (
+        <Badge colorScheme={roleColors[row.role]} textTransform="capitalize">
+          {row.role === 'superAdmin' ? 'Super Admin' : 'Admin'}
+        </Badge>
+      ),
+    },
+    {
+      header: 'Agency',
+      accessor: (row) => (
+        <Text fontSize="sm">
+          {row.agency?.name || row.agencyName || (
+            <Badge colorScheme="orange" variant="subtle">Not assigned</Badge>
+          )}
+        </Text>
+      ),
+    },
+  ];
+
   return (
     <Box>
-      <Heading size="lg" mb={6}>
-        Super Admin Dashboard
-      </Heading>
+      <HStack justify="space-between" mb={6}>
+        <Heading size="lg">Super Admin Dashboard</Heading>
+        <HStack spacing={3}>
+          <Button
+            leftIcon={<FiPlus />}
+            colorScheme="brand"
+            onClick={() => router.push('/super-admin/admins/new')}
+          >
+            Add Admin
+          </Button>
+          <Button
+            leftIcon={<FiPlus />}
+            colorScheme="green"
+            variant="outline"
+            onClick={() => router.push('/super-admin/agencies/new')}
+          >
+            Add Agency
+          </Button>
+        </HStack>
+      </HStack>
 
       {/* Stats Grid */}
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 6 }} spacing={4} mb={8}>
@@ -151,19 +214,42 @@ export default function SuperAdminDashboardPage() {
         </Box>
       </SimpleGrid>
 
-      {/* Recent Agencies */}
-      <Box>
-        <Heading size="md" mb={4}>
-          Recent Agencies
-        </Heading>
-        <DataTable
-          columns={agencyColumns}
-          data={agenciesData?.data || []}
-          isLoading={agenciesLoading}
-          keyExtractor={(row) => row.id}
-          emptyMessage="No agencies found"
-        />
-      </Box>
+      {/* Two Column Layout for Lists */}
+      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={6}>
+        {/* Recent Agencies */}
+        <Box>
+          <HStack justify="space-between" mb={4}>
+            <Heading size="md">Recent Agencies</Heading>
+            <Button size="sm" variant="link" colorScheme="brand" onClick={() => router.push('/super-admin/agencies')}>
+              View All
+            </Button>
+          </HStack>
+          <DataTable
+            columns={agencyColumns}
+            data={agenciesData?.data || []}
+            isLoading={agenciesLoading}
+            keyExtractor={(row) => row.id}
+            emptyMessage="No agencies found"
+          />
+        </Box>
+
+        {/* Admin Users */}
+        <Box>
+          <HStack justify="space-between" mb={4}>
+            <Heading size="md">Admin Users</Heading>
+            <Button size="sm" variant="link" colorScheme="brand" onClick={() => router.push('/super-admin/admins')}>
+              View All
+            </Button>
+          </HStack>
+          <DataTable
+            columns={adminColumns}
+            data={adminsData?.data || []}
+            isLoading={adminsLoading}
+            keyExtractor={(row) => row.id}
+            emptyMessage="No admins found"
+          />
+        </Box>
+      </SimpleGrid>
     </Box>
   );
 }

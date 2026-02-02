@@ -50,6 +50,9 @@ export function useCreateAgency() {
     mutationFn: (data: CreateAgencyDto) => api.agencies.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: agencyKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['super-admin', 'agencies'] });
+      queryClient.invalidateQueries({ queryKey: ['super-admin', 'dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['super-admin', 'users'] });
     },
   });
 }

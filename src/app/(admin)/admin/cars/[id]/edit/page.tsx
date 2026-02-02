@@ -12,21 +12,27 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { CarForm } from '@/components/forms/CarForm';
 import { useCar, useUpdateCar } from '@/hooks';
 import { LoadingSpinner } from '@/components/ui';
+import { useAuthStore } from '@/stores/auth.store';
 
 export default function EditCarPage() {
   const router = useRouter();
   const params = useParams();
   const toast = useToast();
   const carId = Number(params.id);
+  const { user } = useAuthStore();
 
   const { data: car, isLoading } = useCar(carId);
   const updateMutation = useUpdateCar();
 
+  const isSuperAdmin = user?.role === 'superAdmin';
+
   const handleSubmit = async (data: any) => {
     try {
+      // Remove agencyId from update data - agency can't be changed
+      const { agencyId, ...updateData } = data;
       await updateMutation.mutateAsync({
         id: carId,
-        data,
+        data: updateData,
       });
       toast({
         title: 'Car updated',
@@ -77,6 +83,7 @@ export default function EditCarPage() {
         onSubmit={handleSubmit}
         isLoading={updateMutation.isPending}
         submitLabel="Update Car"
+        isSuperAdmin={isSuperAdmin}
       />
     </Box>
   );

@@ -96,7 +96,14 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                 <Text fontSize="sm" color="gray.500">{user?.email}</Text>
               </Box>
               <MenuDivider />
-              <MenuItem icon={<FiUser />} onClick={() => router.push('/profile')}>
+              <MenuItem icon={<FiUser />} onClick={() => {
+                const profilePath = user?.role === 'superAdmin'
+                  ? '/super-admin/profile'
+                  : user?.role === 'admin'
+                    ? '/admin/profile'
+                    : '/profile';
+                router.push(profilePath);
+              }}>
                 Profile
               </MenuItem>
               <MenuDivider />

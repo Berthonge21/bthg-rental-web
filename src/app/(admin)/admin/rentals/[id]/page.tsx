@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { FiArrowLeft, FiPlay, FiCheck, FiX } from 'react-icons/fi';
 import { LoadingSpinner } from '@/components/ui';
-import { useRental, useUpdateRentalStatus } from '@/hooks';
+import { useAdminRental, useUpdateRentalStatus } from '@/hooks';
 import type { RentalStatus } from '@bthgrentalcar/sdk';
 import { format } from 'date-fns';
 
@@ -34,7 +34,7 @@ export default function RentalDetailsPage() {
   const toast = useToast();
   const rentalId = Number(params.id);
 
-  const { data: rental, isLoading } = useRental(rentalId);
+  const { data: rental, isLoading } = useAdminRental(rentalId);
   const updateStatusMutation = useUpdateRentalStatus();
 
   const cardBg = useColorModeValue('white', 'gray.800');
