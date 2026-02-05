@@ -231,33 +231,25 @@ export default function AgencyDetailsPage() {
           label="Total Cars"
           value={stats?.totalCars || 0}
           icon={FiTruck}
-          variant="glass"
-          gradientFrom="blue.400"
-          gradientTo="cyan.400"
+          iconBg="blue.500"
         />
         <StatCard
           label="Total Admins"
           value={agencyAdmins.length}
           icon={FiUsers}
-          variant="glass"
-          gradientFrom="purple.400"
-          gradientTo="pink.400"
+          iconBg="purple.500"
         />
         <StatCard
           label="Active Rentals"
           value={stats?.activeRentals || 0}
           icon={FiCalendar}
-          variant="glass"
-          gradientFrom="green.400"
-          gradientTo="teal.400"
+          iconBg="accent.400"
         />
         <StatCard
           label="Total Revenue"
           value={`$${stats?.totalRevenue?.toFixed(2) || '0.00'}`}
           icon={FiDollarSign}
-          variant="glass"
-          gradientFrom="orange.400"
-          gradientTo="yellow.400"
+          iconBg="brand.400"
         />
       </SimpleGrid>
 

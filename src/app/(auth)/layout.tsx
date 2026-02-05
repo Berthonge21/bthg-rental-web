@@ -11,7 +11,7 @@ const features = [
 ];
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
-  const bgColor = useColorModeValue('surface.light', 'surface.dark');
+  const bgColor = useColorModeValue('surface.light', 'navy.800');
 
   return (
     <Flex minH="100vh" bg={bgColor}>
@@ -19,7 +19,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       <Box
         display={{ base: 'none', lg: 'flex' }}
         w="50%"
-        bgGradient="linear(135deg, brand.600, brand.500, mauve.500)"
+        bg="navy.800"
         alignItems="center"
         justifyContent="center"
         position="relative"
@@ -33,7 +33,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           w="400px"
           h="400px"
           borderRadius="full"
-          bg="rgba(255, 255, 255, 0.1)"
+          bg="rgba(201, 162, 39, 0.1)"
         />
         <Box
           position="absolute"
@@ -42,7 +42,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           w="500px"
           h="500px"
           borderRadius="full"
-          bg="rgba(255, 255, 255, 0.05)"
+          bg="rgba(27, 197, 189, 0.05)"
         />
         <Box
           position="absolute"
@@ -51,7 +51,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           w="200px"
           h="200px"
           borderRadius="full"
-          bg="rgba(255, 255, 255, 0.08)"
+          bg="rgba(201, 162, 39, 0.08)"
         />
 
         {/* Content */}
@@ -60,15 +60,13 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           <Box
             w={20}
             h={20}
-            bg="rgba(255, 255, 255, 0.2)"
-            backdropFilter="blur(10px)"
-            borderRadius="2xl"
+            bg="brand.400"
+            borderRadius="xl"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            border="1px solid rgba(255, 255, 255, 0.3)"
           >
-            <Icon as={FiTruck} boxSize={10} />
+            <Icon as={FiTruck} boxSize={10} color="white" />
           </Box>
 
           {/* Heading */}
@@ -76,25 +74,24 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             <Text fontSize="4xl" fontWeight="bold" textAlign="center">
               BTHG Rental Car
             </Text>
-            <Text fontSize="lg" opacity={0.9} textAlign="center">
+            <Text fontSize="lg" opacity={0.8} textAlign="center">
               Your trusted partner for premium car rental services
             </Text>
           </VStack>
 
           {/* Features */}
-          <Flex gap={6} mt={8}>
+          <Flex gap={4} mt={8}>
             {features.map((feature, index) => (
               <VStack
                 key={index}
                 p={4}
-                bg="rgba(255, 255, 255, 0.1)"
-                backdropFilter="blur(10px)"
+                bg="rgba(255, 255, 255, 0.05)"
                 borderRadius="xl"
-                border="1px solid rgba(255, 255, 255, 0.2)"
-                minW="120px"
+                border="1px solid rgba(255, 255, 255, 0.1)"
+                minW="110px"
               >
-                <Icon as={feature.icon} boxSize={6} />
-                <Text fontSize="sm" fontWeight="medium" textAlign="center">
+                <Icon as={feature.icon} boxSize={5} color="brand.400" />
+                <Text fontSize="xs" fontWeight="medium" textAlign="center" opacity={0.9}>
                   {feature.text}
                 </Text>
               </VStack>
@@ -102,18 +99,18 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           </Flex>
 
           {/* Stats */}
-          <Flex gap={12} mt={8}>
+          <Flex gap={10} mt={8}>
             <VStack spacing={0}>
-              <Text fontSize="3xl" fontWeight="bold">500+</Text>
-              <Text fontSize="sm" opacity={0.8}>Vehicles</Text>
+              <Text fontSize="2xl" fontWeight="bold" color="brand.400">500+</Text>
+              <Text fontSize="sm" opacity={0.7}>Vehicles</Text>
             </VStack>
             <VStack spacing={0}>
-              <Text fontSize="3xl" fontWeight="bold">50+</Text>
-              <Text fontSize="sm" opacity={0.8}>Agencies</Text>
+              <Text fontSize="2xl" fontWeight="bold" color="accent.400">50+</Text>
+              <Text fontSize="sm" opacity={0.7}>Agencies</Text>
             </VStack>
             <VStack spacing={0}>
-              <Text fontSize="3xl" fontWeight="bold">10K+</Text>
-              <Text fontSize="sm" opacity={0.8}>Clients</Text>
+              <Text fontSize="2xl" fontWeight="bold" color="brand.400">10K+</Text>
+              <Text fontSize="sm" opacity={0.7}>Clients</Text>
             </VStack>
           </Flex>
         </VStack>
@@ -134,8 +131,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           top={0}
           left={0}
           right={0}
-          h="200px"
-          bgGradient="linear(135deg, brand.600, brand.500, mauve.500)"
+          h="180px"
+          bg="navy.800"
           borderBottomRadius="3xl"
         />
 

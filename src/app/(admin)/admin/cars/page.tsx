@@ -12,13 +12,11 @@ import {
   Text,
   useToast,
   useDisclosure,
-  Badge,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
+  Tooltip,
+  Flex,
+  useColorModeValue,
 } from '@chakra-ui/react';
-import { FiPlus, FiEdit2, FiTrash2, FiMoreVertical, FiEye } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiEye, FiCalendar } from 'react-icons/fi';
 import { DataTable, LoadingSpinner, ConfirmDialog, type Column } from '@/components/ui';
 import { useCars, useDeleteCar } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
@@ -32,6 +30,9 @@ export default function AdminCarsPage() {
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const cardBg = useColorModeValue('white', 'navy.700');
+  const textMuted = useColorModeValue('text.muted', 'gray.400');
 
   // Filter by agency for admin users
   const agencyId = user?.role === 'superAdmin' ? undefined : user?.agency?.id;
@@ -68,15 +69,15 @@ export default function AdminCarsPage() {
             alt={`${row.brand} ${row.model}`}
             boxSize="50px"
             objectFit="cover"
-            borderRadius="md"
+            borderRadius="lg"
             fallbackSrc="https://via.placeholder.com/50"
           />
           <Box>
-            <Text fontWeight="medium">
+            <Text fontWeight="semibold" color="text.primary">
               {row.brand} {row.model}
             </Text>
-            <Text fontSize="sm" color="gray.500">
-              {row.year} - {row.registration}
+            <Text fontSize="sm" color={textMuted}>
+              {row.year} • {row.registration}
             </Text>
           </Box>
         </HStack>
@@ -86,9 +87,9 @@ export default function AdminCarsPage() {
       header: 'Details',
       accessor: (row) => (
         <Box>
-          <Text fontSize="sm">{row.fuel}</Text>
-          <Text fontSize="sm" color="gray.500">
-            {row.gearBox} - {row.door} doors
+          <Text fontSize="sm" color="text.primary">{row.fuel}</Text>
+          <Text fontSize="sm" color={textMuted}>
+            {row.gearBox} • {row.door} doors
           </Text>
         </Box>
       ),
@@ -96,82 +97,113 @@ export default function AdminCarsPage() {
     {
       header: 'Price',
       accessor: (row) => (
-        <Text fontWeight="semibold" color="brand.500">
+        <Text fontWeight="bold" color="brand.400">
           ${row.price}/day
         </Text>
       ),
     },
     {
       header: 'Mileage',
-      accessor: (row) => <Text>{row.mileage.toLocaleString()} km</Text>,
+      accessor: (row) => (
+        <Text color="text.secondary">{row.mileage.toLocaleString()} km</Text>
+      ),
     },
     {
       header: 'Actions',
-      width: '80px',
+      width: '160px',
       accessor: (row) => (
-        <Menu>
-          <MenuButton
-            as={IconButton}
-            icon={<FiMoreVertical />}
-            variant="ghost"
-            size="sm"
-            aria-label="Actions"
-          />
-          <MenuList>
-            <MenuItem
+        <HStack spacing={1}>
+          <Tooltip label="View Details" hasArrow>
+            <IconButton
               icon={<FiEye />}
+              aria-label="View"
+              variant="ghost"
+              size="sm"
+              colorScheme="gray"
               onClick={() => router.push(`/admin/cars/${row.id}`)}
-            >
-              View
-            </MenuItem>
-            <MenuItem
+            />
+          </Tooltip>
+          <Tooltip label="Manage Availability" hasArrow>
+            <IconButton
+              icon={<FiCalendar />}
+              aria-label="Availability"
+              variant="ghost"
+              size="sm"
+              colorScheme="teal"
+              onClick={() => router.push(`/admin/cars/${row.id}/availability`)}
+            />
+          </Tooltip>
+          <Tooltip label="Edit Car" hasArrow>
+            <IconButton
               icon={<FiEdit2 />}
+              aria-label="Edit"
+              variant="ghost"
+              size="sm"
+              colorScheme="blue"
               onClick={() => router.push(`/admin/cars/${row.id}/edit`)}
-            >
-              Edit
-            </MenuItem>
-            <MenuItem
+            />
+          </Tooltip>
+          <Tooltip label="Delete Car" hasArrow>
+            <IconButton
               icon={<FiTrash2 />}
-              color="red.500"
+              aria-label="Delete"
+              variant="ghost"
+              size="sm"
+              colorScheme="red"
               onClick={() => {
                 setDeleteId(row.id);
                 onOpen();
               }}
-            >
-              Delete
-            </MenuItem>
-          </MenuList>
-        </Menu>
+            />
+          </Tooltip>
+        </HStack>
       ),
     },
   ];
 
   return (
     <Box>
-      <HStack justify="space-between" mb={6}>
-        <Heading size="lg">Cars</Heading>
+      {/* Header */}
+      <Flex
+        justify="space-between"
+        align="center"
+        mb={6}
+        flexWrap="wrap"
+        gap={4}
+      >
+        <Box>
+          <Heading size="lg" color="text.primary">Cars</Heading>
+          <Text color={textMuted} fontSize="sm" mt={1}>
+            Manage your fleet of vehicles
+          </Text>
+        </Box>
         <Button
           leftIcon={<FiPlus />}
-          colorScheme="brand"
+          bg="brand.400"
+          color="white"
+          _hover={{ bg: 'brand.500' }}
           onClick={() => router.push('/admin/cars/new')}
         >
           Add Car
         </Button>
-      </HStack>
+      </Flex>
 
-      <DataTable
-        columns={columns}
-        data={data?.data || []}
-        isLoading={isLoading}
-        page={page}
-        totalPages={data?.meta.totalPages || 1}
-        onPageChange={setPage}
-        searchValue={search}
-        onSearchChange={setSearch}
-        searchPlaceholder="Search cars..."
-        keyExtractor={(row) => row.id}
-        emptyMessage="No cars found"
-      />
+      {/* Data Table */}
+      <Box bg={cardBg} borderRadius="xl" boxShadow="card" overflow="hidden">
+        <DataTable
+          columns={columns}
+          data={data?.data || []}
+          isLoading={isLoading}
+          page={page}
+          totalPages={data?.meta.totalPages || 1}
+          onPageChange={setPage}
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search cars..."
+          keyExtractor={(row) => row.id}
+          emptyMessage="No cars found"
+        />
+      </Box>
 
       <ConfirmDialog
         isOpen={isOpen}

@@ -26,11 +26,8 @@ import {
   DrawerHeader,
   DrawerBody,
   VStack,
-  InputGroup,
-  InputLeftElement,
-  Input,
-  Badge,
   Tooltip,
+  Badge,
 } from '@chakra-ui/react';
 import {
   FiHome,
@@ -43,7 +40,6 @@ import {
   FiSun,
   FiMoon,
   FiBell,
-  FiSearch,
   FiLogOut,
   FiSettings,
   FiChevronDown,
@@ -68,12 +64,9 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
   const { user, logout } = useAuthStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const bgColor = useColorModeValue('white', 'gray.900');
-  const borderColor = useColorModeValue('gray.100', 'gray.800');
-  const glassBg = useColorModeValue(
-    'rgba(255, 255, 255, 0.9)',
-    'rgba(15, 23, 42, 0.9)'
-  );
+  const bgColor = useColorModeValue('white', 'navy.800');
+  const borderColor = useColorModeValue('gray.100', 'navy.700');
+  const textMuted = useColorModeValue('text.muted', 'gray.400');
 
   const handleLogout = () => {
     logout();
@@ -90,16 +83,16 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
         left={0}
         right={0}
         zIndex={1000}
-        bg={glassBg}
-        backdropFilter="blur(20px)"
+        bg={bgColor}
         borderBottom="1px"
         borderColor={borderColor}
+        boxShadow="sm"
         px={{ base: 4, md: 6 }}
         py={3}
       >
         <Flex align="center" justify="space-between" maxW="1600px" mx="auto">
-          {/* Left: Brand + Navigation */}
-          <HStack spacing={8}>
+          {/* Left: Brand Logo */}
+          <HStack spacing={3}>
             {/* Mobile Menu Button */}
             <IconButton
               aria-label="Open menu"
@@ -114,54 +107,46 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
               <Box
                 w={10}
                 h={10}
-                bgGradient="linear(135deg, brand.500, mauve.500)"
-                borderRadius="xl"
+                bg="navy.800"
+                borderRadius="lg"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
-                boxShadow="0 4px 14px rgba(99, 102, 241, 0.4)"
               >
-                <Icon as={FiTruck} color="white" boxSize={5} />
+                <Icon as={FiTruck} color="brand.400" boxSize={5} />
               </Box>
               <Text
-                fontSize="xl"
+                fontSize="lg"
                 fontWeight="bold"
-                bgGradient="linear(135deg, brand.500, mauve.500)"
-                bgClip="text"
+                color="navy.800"
                 display={{ base: 'none', md: 'block' }}
               >
                 {brandName}
               </Text>
             </HStack>
-
-            {/* Desktop Navigation Links */}
-            <HStack spacing={1} display={{ base: 'none', lg: 'flex' }}>
-              {items.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-                return (
-                  <NavLink key={item.href} item={item} isActive={isActive} />
-                );
-              })}
-            </HStack>
           </HStack>
 
-          {/* Right: Search, Notifications, User */}
-          <HStack spacing={3}>
-            {/* Search - Desktop only */}
-            <InputGroup maxW="250px" display={{ base: 'none', xl: 'flex' }}>
-              <InputLeftElement>
-                <Icon as={FiSearch} color="gray.400" />
-              </InputLeftElement>
-              <Input
-                placeholder="Search..."
-                variant="filled"
-                borderRadius="full"
-                bg={useColorModeValue('gray.100', 'gray.800')}
-                _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
-                _focus={{ bg: useColorModeValue('white', 'gray.800'), borderColor: 'brand.500' }}
-              />
-            </InputGroup>
+          {/* Center: Navigation Links */}
+          <HStack
+            spacing={1}
+            display={{ base: 'none', lg: 'flex' }}
+            position="absolute"
+            left="50%"
+            transform="translateX(-50%)"
+            bg={useColorModeValue('gray.50', 'navy.700')}
+            borderRadius="full"
+            p={1}
+          >
+            {items.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              return (
+                <NavLink key={item.href} item={item} isActive={isActive} />
+              );
+            })}
+          </HStack>
 
+          {/* Right: Notifications, User */}
+          <HStack spacing={2}>
             {/* Notifications */}
             <Tooltip label="Notifications" hasArrow>
               <IconButton
@@ -171,14 +156,17 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
                     <FiBell />
                     <Badge
                       position="absolute"
-                      top="-8px"
-                      right="-8px"
+                      top="-6px"
+                      right="-6px"
                       colorScheme="red"
                       variant="solid"
                       borderRadius="full"
-                      fontSize="xs"
+                      fontSize="10px"
                       minW={4}
                       h={4}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
                     >
                       3
                     </Badge>
@@ -186,6 +174,7 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
                 }
                 variant="ghost"
                 borderRadius="full"
+                size="md"
               />
             </Tooltip>
 
@@ -196,6 +185,7 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
                 icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
                 variant="ghost"
                 borderRadius="full"
+                size="md"
                 onClick={toggleColorMode}
               />
             </Tooltip>
@@ -207,27 +197,30 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
                 variant="ghost"
                 borderRadius="full"
                 px={2}
-                _hover={{ bg: useColorModeValue('gray.100', 'gray.800') }}
+                py={1}
+                h="auto"
+                _hover={{ bg: useColorModeValue('gray.100', 'navy.700') }}
               >
-                <HStack spacing={3}>
+                <HStack spacing={2}>
                   <Avatar
                     size="sm"
                     name={`${user?.firstname} ${user?.name}`}
-                    bg="linear-gradient(135deg, #6366f1, #d946ef)"
+                    bg="brand.400"
+                    color="white"
                   />
                   <VStack
                     spacing={0}
                     alignItems="flex-start"
                     display={{ base: 'none', md: 'flex' }}
                   >
-                    <Text fontSize="sm" fontWeight="semibold" lineHeight="short">
+                    <Text fontSize="sm" fontWeight="medium" lineHeight="short" color="text.primary">
                       {user?.firstname} {user?.name}
                     </Text>
-                    <Text fontSize="xs" color="gray.500" lineHeight="short">
+                    <Text fontSize="xs" color={textMuted} lineHeight="short">
                       {user?.role === 'superAdmin' ? 'Super Admin' : 'Admin'}
                     </Text>
                   </VStack>
-                  <Icon as={FiChevronDown} display={{ base: 'none', md: 'block' }} />
+                  <Icon as={FiChevronDown} color={textMuted} display={{ base: 'none', md: 'block' }} />
                 </HStack>
               </MenuButton>
               <MenuList>
@@ -250,28 +243,28 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
       {/* Mobile Drawer */}
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent bg={useColorModeValue('white', 'navy.800')}>
           <DrawerCloseButton />
           <DrawerHeader borderBottomWidth="1px">
             <HStack spacing={3}>
               <Box
                 w={8}
                 h={8}
-                bgGradient="linear(135deg, brand.500, mauve.500)"
+                bg="navy.800"
                 borderRadius="lg"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
               >
-                <Icon as={FiTruck} color="white" boxSize={4} />
+                <Icon as={FiTruck} color="brand.400" boxSize={4} />
               </Box>
-              <Text fontWeight="bold" bgGradient="linear(135deg, brand.500, mauve.500)" bgClip="text">
+              <Text fontWeight="bold" color="navy.800">
                 {brandName}
               </Text>
             </HStack>
           </DrawerHeader>
           <DrawerBody p={4}>
-            <VStack spacing={2} align="stretch">
+            <VStack spacing={1} align="stretch">
               {items.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
@@ -292,10 +285,10 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
 }
 
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
-  const activeBg = useColorModeValue('brand.50', 'brand.900');
-  const activeColor = useColorModeValue('brand.600', 'brand.200');
-  const hoverBg = useColorModeValue('gray.100', 'gray.800');
-  const textColor = useColorModeValue('gray.600', 'gray.300');
+  const activeBg = 'accent.400';
+  const activeColor = 'white';
+  const hoverBg = useColorModeValue('gray.100', 'navy.600');
+  const textColor = useColorModeValue('text.secondary', 'gray.300');
 
   return (
     <Box
@@ -311,22 +304,10 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
       fontWeight={isActive ? 'semibold' : 'medium'}
       fontSize="sm"
       transition="all 0.2s"
-      position="relative"
       _hover={{
         bg: isActive ? activeBg : hoverBg,
-        color: isActive ? activeColor : 'brand.500',
+        color: isActive ? activeColor : 'text.primary',
       }}
-      _after={isActive ? {
-        content: '""',
-        position: 'absolute',
-        bottom: '-12px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '20px',
-        height: '3px',
-        bgGradient: 'linear(to-r, brand.500, mauve.500)',
-        borderRadius: 'full',
-      } : undefined}
     >
       <Icon as={item.icon} boxSize={4} mr={2} />
       <Text>{item.label}</Text>
@@ -343,8 +324,8 @@ function MobileNavLink({
   isActive: boolean;
   onClick: () => void;
 }) {
-  const activeBg = useColorModeValue('brand.50', 'brand.900');
-  const activeColor = useColorModeValue('brand.600', 'brand.200');
+  const activeBg = 'accent.400';
+  const activeColor = 'white';
 
   return (
     <Box
@@ -354,12 +335,12 @@ function MobileNavLink({
       alignItems="center"
       px={4}
       py={3}
-      borderRadius="xl"
+      borderRadius="lg"
       bg={isActive ? activeBg : 'transparent'}
       color={isActive ? activeColor : undefined}
       fontWeight={isActive ? 'semibold' : 'medium'}
       onClick={onClick}
-      _hover={{ bg: activeBg }}
+      _hover={{ bg: isActive ? activeBg : 'gray.50' }}
     >
       <Icon as={item.icon} boxSize={5} mr={3} />
       <Text>{item.label}</Text>

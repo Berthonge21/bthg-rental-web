@@ -8,54 +8,56 @@ const config: ThemeConfig = {
 export const theme = extendTheme({
   config,
   colors: {
-    // Primary Blue - Deep royal blue
+    // Primary Gold - for buttons and accents
     brand: {
-      50: '#eef2ff',
-      100: '#e0e7ff',
-      200: '#c7d2fe',
-      300: '#a5b4fc',
-      400: '#818cf8',
-      500: '#6366f1',
-      600: '#4f46e5',
-      700: '#4338ca',
-      800: '#3730a3',
-      900: '#312e81',
+      50: '#fdf8e8',
+      100: '#f9ecc5',
+      200: '#f3d98a',
+      300: '#dfc04f',
+      400: '#C9A227', // Primary gold
+      500: '#b8931f',
+      600: '#9a7a1a',
+      700: '#7c6215',
+      800: '#5e4a10',
+      900: '#40320b',
     },
-    // Mauve/Purple accent
-    mauve: {
-      50: '#fdf4ff',
-      100: '#fae8ff',
-      200: '#f5d0fe',
-      300: '#f0abfc',
-      400: '#e879f9',
-      500: '#d946ef',
-      600: '#c026d3',
-      700: '#a21caf',
-      800: '#86198f',
-      900: '#701a75',
+    // Teal - for active states and success
+    accent: {
+      50: '#e6f9f8',
+      100: '#c0f0ed',
+      200: '#8be5df',
+      300: '#55d9d1',
+      400: '#1BC5BD', // Active teal
+      500: '#18b0a9',
+      600: '#148f89',
+      700: '#106e69',
+      800: '#0c4d49',
+      900: '#082c29',
     },
-    // Ocean blue gradient colors
-    ocean: {
-      50: '#f0f9ff',
-      100: '#e0f2fe',
-      200: '#bae6fd',
-      300: '#7dd3fc',
-      400: '#38bdf8',
-      500: '#0ea5e9',
-      600: '#0284c7',
-      700: '#0369a1',
-      800: '#075985',
-      900: '#0c4a6e',
+    // Navy - for sidebar and dark elements
+    navy: {
+      50: '#e8ecef',
+      100: '#c5cdd4',
+      200: '#9eabb7',
+      300: '#77899a',
+      400: '#506785',
+      500: '#2a4570',
+      600: '#1e3554',
+      700: '#142538',
+      800: '#0B1C2D', // Sidebar navy
+      900: '#060e17',
     },
-    // Background colors
+    // Surface colors
     surface: {
-      light: '#f8fafc',
+      light: '#F9FAFB', // Main background
       dark: '#0f172a',
+      card: '#FFFFFF',
     },
-    // Glass effect colors
-    glass: {
-      light: 'rgba(255, 255, 255, 0.8)',
-      dark: 'rgba(15, 23, 42, 0.8)',
+    // Text colors
+    text: {
+      primary: '#1a202c', // Dark charcoal
+      secondary: '#4a5568',
+      muted: '#718096',
     },
   },
   fonts: {
@@ -65,8 +67,8 @@ export const theme = extendTheme({
   styles: {
     global: (props: { colorMode: string }) => ({
       body: {
-        bg: props.colorMode === 'dark' ? 'surface.dark' : 'surface.light',
-        color: props.colorMode === 'dark' ? 'white' : 'gray.900',
+        bg: props.colorMode === 'dark' ? 'navy.800' : 'surface.light',
+        color: props.colorMode === 'dark' ? 'white' : 'text.primary',
       },
     }),
   },
@@ -77,34 +79,38 @@ export const theme = extendTheme({
       },
       baseStyle: {
         fontWeight: '600',
-        borderRadius: 'xl',
+        borderRadius: 'lg',
       },
       variants: {
         solid: (props: { colorScheme: string }) => ({
-          bg: props.colorScheme === 'brand'
-            ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)'
-            : undefined,
+          bg: props.colorScheme === 'brand' ? 'brand.400' : undefined,
+          color: props.colorScheme === 'brand' ? 'white' : undefined,
           _hover: {
-            transform: 'translateY(-2px)',
-            boxShadow: 'lg',
-            bg: props.colorScheme === 'brand'
-              ? 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #c026d3 100%)'
-              : undefined,
+            bg: props.colorScheme === 'brand' ? 'brand.500' : undefined,
+            transform: 'translateY(-1px)',
+            boxShadow: 'md',
           },
           _active: {
             transform: 'translateY(0)',
           },
         }),
-        glass: {
-          bg: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
+        accent: {
+          bg: 'accent.400',
           color: 'white',
           _hover: {
-            bg: 'rgba(255, 255, 255, 0.2)',
+            bg: 'accent.500',
+            transform: 'translateY(-1px)',
+            boxShadow: 'md',
           },
         },
         ghost: {
+          _hover: {
+            bg: 'gray.100',
+          },
+        },
+        outline: {
+          borderColor: 'brand.400',
+          color: 'brand.400',
           _hover: {
             bg: 'brand.50',
           },
@@ -114,24 +120,36 @@ export const theme = extendTheme({
     Card: {
       baseStyle: (props: { colorMode: string }) => ({
         container: {
-          bg: props.colorMode === 'dark' ? 'gray.800' : 'white',
-          borderRadius: '2xl',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          bg: props.colorMode === 'dark' ? 'navy.700' : 'white',
+          borderRadius: 'xl',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
           border: '1px solid',
-          borderColor: props.colorMode === 'dark' ? 'gray.700' : 'gray.100',
+          borderColor: props.colorMode === 'dark' ? 'navy.600' : 'gray.100',
         },
       }),
     },
     Input: {
       defaultProps: {
-        focusBorderColor: 'brand.500',
+        focusBorderColor: 'brand.400',
       },
       variants: {
         filled: {
           field: {
-            borderRadius: 'xl',
+            borderRadius: 'lg',
+            bg: 'gray.50',
+            _hover: { bg: 'gray.100' },
             _focus: {
-              borderColor: 'brand.500',
+              bg: 'white',
+              borderColor: 'brand.400',
+            },
+          },
+        },
+        outline: {
+          field: {
+            borderRadius: 'lg',
+            _focus: {
+              borderColor: 'brand.400',
+              boxShadow: '0 0 0 1px var(--chakra-colors-brand-400)',
             },
           },
         },
@@ -139,29 +157,32 @@ export const theme = extendTheme({
     },
     Select: {
       defaultProps: {
-        focusBorderColor: 'brand.500',
+        focusBorderColor: 'brand.400',
       },
     },
     Badge: {
       baseStyle: {
-        borderRadius: 'full',
-        px: 3,
-        py: 1,
+        borderRadius: 'md',
+        px: 2,
+        py: 0.5,
         fontWeight: '600',
+        fontSize: 'xs',
       },
     },
     Menu: {
       baseStyle: {
         list: {
-          borderRadius: 'xl',
-          border: 'none',
-          boxShadow: 'xl',
-          p: 2,
+          borderRadius: 'lg',
+          border: '1px solid',
+          borderColor: 'gray.100',
+          boxShadow: 'lg',
+          p: 1,
         },
         item: {
-          borderRadius: 'lg',
+          borderRadius: 'md',
+          fontSize: 'sm',
           _hover: {
-            bg: 'brand.50',
+            bg: 'gray.50',
           },
         },
       },
@@ -171,55 +192,55 @@ export const theme = extendTheme({
         modern: {
           table: {
             borderCollapse: 'separate',
-            borderSpacing: '0 8px',
+            borderSpacing: '0 4px',
           },
           th: {
             border: 'none',
             fontWeight: '600',
-            textTransform: 'none',
-            letterSpacing: 'normal',
-            color: 'gray.500',
-            fontSize: 'sm',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            color: 'text.muted',
+            fontSize: 'xs',
             py: 3,
+            px: 4,
           },
           td: {
             border: 'none',
             py: 4,
             px: 4,
+            bg: 'white',
+            _first: {
+              borderLeftRadius: 'lg',
+            },
+            _last: {
+              borderRightRadius: 'lg',
+            },
           },
           tr: {
-            bg: 'white',
-            borderRadius: 'xl',
-            boxShadow: 'sm',
-            _hover: {
-              boxShadow: 'md',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
+          },
+        },
+      },
+    },
+    Tabs: {
+      variants: {
+        soft: {
+          tab: {
+            borderRadius: 'lg',
+            fontWeight: '500',
+            color: 'text.muted',
+            _selected: {
+              color: 'white',
+              bg: 'brand.400',
             },
           },
         },
       },
     },
   },
-  layerStyles: {
-    glass: {
-      bg: 'rgba(255, 255, 255, 0.8)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '2xl',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
-    },
-    glassDark: {
-      bg: 'rgba(15, 23, 42, 0.8)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '2xl',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-    },
-    gradientCard: {
-      bgGradient: 'linear(135deg, brand.500, mauve.500)',
-      borderRadius: '2xl',
-      color: 'white',
-    },
-  },
   shadows: {
-    glow: '0 0 40px rgba(99, 102, 241, 0.3)',
-    glowMauve: '0 0 40px rgba(217, 70, 239, 0.3)',
+    card: '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
+    cardHover: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    soft: '0 2px 8px rgba(0, 0, 0, 0.06)',
   },
 });

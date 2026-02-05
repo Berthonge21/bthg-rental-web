@@ -228,75 +228,61 @@ export default function SuperAdminDashboardPage() {
       </Flex>
 
       {/* Primary Stats Row */}
-      <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={6} mb={8}>
+      <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={5} mb={8}>
         <StatCard
           label="Total Agencies"
           value={stats?.totalAgencies || 0}
           icon={FiGrid}
-          variant="gradient"
-          gradientFrom="brand.500"
-          gradientTo="mauve.500"
+          iconBg="brand.400"
           change={platformGrowth}
         />
         <StatCard
           label="Total Cars"
           value={stats?.totalCars || 0}
           icon={FiTruck}
-          variant="glass"
-          gradientFrom="ocean.500"
-          gradientTo="blue.500"
+          iconBg="blue.500"
           change={8}
         />
         <StatCard
           label="Total Admins"
           value={stats?.totalAdmins || 0}
           icon={FiUserCheck}
-          variant="glass"
-          gradientFrom="orange.400"
-          gradientTo="yellow.400"
+          iconBg="orange.500"
           change={5}
         />
         <StatCard
           label="Total Revenue"
           value={`$${(stats?.totalRevenue || 0).toLocaleString()}`}
           icon={FiDollarSign}
-          variant="gradient"
-          gradientFrom="green.500"
-          gradientTo="teal.500"
+          iconBg="green.500"
           change={24}
         />
       </SimpleGrid>
 
       {/* Secondary Stats Row */}
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={5} mb={8}>
         {/* Active Agencies */}
         <Box
           bg={cardBg}
-          p={6}
-          borderRadius="2xl"
-          border="1px solid"
-          borderColor={cardBorder}
-          boxShadow="sm"
+          p={5}
+          borderRadius="xl"
+          boxShadow="card"
         >
           <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold">Active Agencies</Text>
-            <Box
-              p={2}
-              bgGradient="linear(135deg, green.400, teal.400)"
-              borderRadius="lg"
-            >
+            <Text fontWeight="semibold" color="text.primary">Active Agencies</Text>
+            <Box p={2} bg="accent.400" borderRadius="lg">
               <Icon as={FiActivity} color="white" boxSize={4} />
             </Box>
           </Flex>
-          <Text fontSize="3xl" fontWeight="bold" mb={2}>
+          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={2}>
             {stats?.activeAgencies || 0}
           </Text>
           <Progress
             value={stats?.totalAgencies ? ((stats.activeAgencies || 0) / stats.totalAgencies) * 100 : 0}
             size="sm"
             borderRadius="full"
-            colorScheme="green"
-            bg={useColorModeValue('gray.100', 'gray.700')}
+            colorScheme="teal"
+            bg={useColorModeValue('gray.100', 'navy.600')}
           />
           <Text fontSize="xs" color={textMuted} mt={2}>
             {stats?.totalAgencies ? Math.round(((stats.activeAgencies || 0) / stats.totalAgencies) * 100) : 0}% of total agencies
@@ -306,28 +292,22 @@ export default function SuperAdminDashboardPage() {
         {/* Total Clients */}
         <Box
           bg={cardBg}
-          p={6}
-          borderRadius="2xl"
-          border="1px solid"
-          borderColor={cardBorder}
-          boxShadow="sm"
+          p={5}
+          borderRadius="xl"
+          boxShadow="card"
         >
           <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold">Total Clients</Text>
-            <Box
-              p={2}
-              bgGradient="linear(135deg, blue.400, purple.400)"
-              borderRadius="lg"
-            >
+            <Text fontWeight="semibold" color="text.primary">Total Clients</Text>
+            <Box p={2} bg="blue.500" borderRadius="lg">
               <Icon as={FiUsers} color="white" boxSize={4} />
             </Box>
           </Flex>
-          <Text fontSize="3xl" fontWeight="bold" mb={1}>
+          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={1}>
             {stats?.totalClients || 0}
           </Text>
           <HStack mt={3} spacing={1}>
-            <Icon as={FiTrendingUp} color="green.500" boxSize={4} />
-            <Text fontSize="sm" color="green.500" fontWeight="medium">
+            <Icon as={FiTrendingUp} color="accent.400" boxSize={4} />
+            <Text fontSize="sm" color="accent.400" fontWeight="medium">
               +12%
             </Text>
             <Text fontSize="sm" color={textMuted}>
@@ -339,23 +319,17 @@ export default function SuperAdminDashboardPage() {
         {/* Rental Activity */}
         <Box
           bg={cardBg}
-          p={6}
-          borderRadius="2xl"
-          border="1px solid"
-          borderColor={cardBorder}
-          boxShadow="sm"
+          p={5}
+          borderRadius="xl"
+          boxShadow="card"
         >
           <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold">Rental Activity</Text>
-            <Box
-              p={2}
-              bgGradient="linear(135deg, pink.400, red.400)"
-              borderRadius="lg"
-            >
+            <Text fontWeight="semibold" color="text.primary">Rental Activity</Text>
+            <Box p={2} bg="red.500" borderRadius="lg">
               <Icon as={FiCalendar} color="white" boxSize={4} />
             </Box>
           </Flex>
-          <Text fontSize="3xl" fontWeight="bold" mb={2}>
+          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={2}>
             {stats?.totalRentals || 0}
           </Text>
           <HStack spacing={4}>
@@ -373,28 +347,22 @@ export default function SuperAdminDashboardPage() {
         {/* Monthly Revenue */}
         <Box
           bg={cardBg}
-          p={6}
-          borderRadius="2xl"
-          border="1px solid"
-          borderColor={cardBorder}
-          boxShadow="sm"
+          p={5}
+          borderRadius="xl"
+          boxShadow="card"
         >
           <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold">Monthly Revenue</Text>
-            <Box
-              p={2}
-              bgGradient="linear(135deg, brand.500, mauve.500)"
-              borderRadius="lg"
-            >
+            <Text fontWeight="semibold" color="text.primary">Monthly Revenue</Text>
+            <Box p={2} bg="brand.400" borderRadius="lg">
               <Icon as={FiAward} color="white" boxSize={4} />
             </Box>
           </Flex>
-          <Text fontSize="3xl" fontWeight="bold" mb={1}>
+          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={1}>
             ${(stats?.monthlyRevenue || 0).toLocaleString()}
           </Text>
           <HStack mt={3} spacing={1}>
-            <Icon as={FiTrendingUp} color="green.500" boxSize={4} />
-            <Text fontSize="sm" color="green.500" fontWeight="medium">
+            <Icon as={FiTrendingUp} color="accent.400" boxSize={4} />
+            <Text fontSize="sm" color="accent.400" fontWeight="medium">
               +18%
             </Text>
             <Text fontSize="sm" color={textMuted}>
@@ -405,28 +373,27 @@ export default function SuperAdminDashboardPage() {
       </SimpleGrid>
 
       {/* Two Column Layout for Tables */}
-      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={6}>
+      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={5}>
         {/* Recent Agencies */}
         <Box
           bg={cardBg}
-          borderRadius="2xl"
-          border="1px solid"
-          borderColor={cardBorder}
+          borderRadius="xl"
+          boxShadow="card"
           overflow="hidden"
         >
           <Flex
-            px={6}
+            px={5}
             py={4}
             borderBottom="1px solid"
             borderColor={cardBorder}
             justify="space-between"
             align="center"
           >
-            <Heading size="md">Recent Agencies</Heading>
+            <Heading size="md" color="text.primary">Recent Agencies</Heading>
             <Text
               as={NextLink}
               href="/super-admin/agencies"
-              color="brand.500"
+              color="brand.400"
               fontSize="sm"
               fontWeight="medium"
               _hover={{ textDecoration: 'underline' }}
@@ -434,7 +401,7 @@ export default function SuperAdminDashboardPage() {
               View all
             </Text>
           </Flex>
-          <Box p={6}>
+          <Box p={5}>
             <DataTable
               columns={agencyColumns}
               data={agenciesData?.data || []}
@@ -448,24 +415,23 @@ export default function SuperAdminDashboardPage() {
         {/* Admin Users */}
         <Box
           bg={cardBg}
-          borderRadius="2xl"
-          border="1px solid"
-          borderColor={cardBorder}
+          borderRadius="xl"
+          boxShadow="card"
           overflow="hidden"
         >
           <Flex
-            px={6}
+            px={5}
             py={4}
             borderBottom="1px solid"
             borderColor={cardBorder}
             justify="space-between"
             align="center"
           >
-            <Heading size="md">Admin Users</Heading>
+            <Heading size="md" color="text.primary">Admin Users</Heading>
             <Text
               as={NextLink}
               href="/super-admin/admins"
-              color="brand.500"
+              color="brand.400"
               fontSize="sm"
               fontWeight="medium"
               _hover={{ textDecoration: 'underline' }}

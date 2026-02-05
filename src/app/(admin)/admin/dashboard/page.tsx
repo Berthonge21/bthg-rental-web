@@ -40,21 +40,14 @@ const statusColors: Record<RentalStatus, string> = {
   cancelled: 'red',
 };
 
-const statusIcons: Record<RentalStatus, typeof FiClock> = {
-  reserved: FiClock,
-  ongoing: FiActivity,
-  completed: FiCheckCircle,
-  cancelled: FiClock,
-};
-
 export default function AdminDashboardPage() {
   const { user } = useAuthStore();
   const { data: stats, isLoading: statsLoading } = useAdminDashboard();
   const { data: rentalsData, isLoading: rentalsLoading } = useAdminRentals({ limit: 5 });
 
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const cardBorder = useColorModeValue('gray.100', 'gray.700');
-  const textMuted = useColorModeValue('gray.500', 'gray.400');
+  const cardBg = useColorModeValue('white', 'navy.700');
+  const cardBorder = useColorModeValue('gray.100', 'navy.600');
+  const textMuted = useColorModeValue('text.muted', 'gray.400');
 
   if (statsLoading) {
     return <LoadingSpinner text="Loading dashboard..." />;
@@ -73,10 +66,11 @@ export default function AdminDashboardPage() {
           <Avatar
             size="sm"
             name={`${row.client?.firstname} ${row.client?.name}`}
-            bg="linear-gradient(135deg, #6366f1, #d946ef)"
+            bg="brand.400"
+            color="white"
           />
           <VStack align="start" spacing={0}>
-            <Text fontWeight="medium" fontSize="sm">
+            <Text fontWeight="medium" fontSize="sm" color="text.primary">
               {row.client?.firstname} {row.client?.name}
             </Text>
             <Text fontSize="xs" color={textMuted}>
@@ -90,7 +84,7 @@ export default function AdminDashboardPage() {
       header: 'Car',
       accessor: (row) => (
         <VStack align="start" spacing={0}>
-          <Text fontWeight="medium" fontSize="sm">
+          <Text fontWeight="medium" fontSize="sm" color="text.primary">
             {row.car?.brand} {row.car?.model}
           </Text>
           <Text fontSize="xs" color={textMuted}>
@@ -103,7 +97,7 @@ export default function AdminDashboardPage() {
       header: 'Period',
       accessor: (row) => (
         <VStack align="start" spacing={0}>
-          <Text fontSize="sm">
+          <Text fontSize="sm" color="text.primary">
             {format(new Date(row.startDate), 'MMM d')} - {format(new Date(row.endDate), 'MMM d')}
           </Text>
           <Text fontSize="xs" color={textMuted}>
@@ -118,14 +112,10 @@ export default function AdminDashboardPage() {
         <Badge
           colorScheme={statusColors[row.status]}
           textTransform="capitalize"
-          borderRadius="full"
-          px={3}
-          py={1}
-          display="flex"
-          alignItems="center"
-          gap={1}
+          borderRadius="md"
+          px={2}
+          py={0.5}
         >
-          <Icon as={statusIcons[row.status]} boxSize={3} />
           {row.status}
         </Badge>
       ),
@@ -133,7 +123,7 @@ export default function AdminDashboardPage() {
     {
       header: 'Amount',
       accessor: (row) => (
-        <Text fontWeight="bold" color="brand.500">
+        <Text fontWeight="bold" color="brand.400">
           ${row.total.toFixed(2)}
         </Text>
       ),
@@ -149,7 +139,6 @@ export default function AdminDashboardPage() {
             icon={<FiEye />}
             variant="ghost"
             size="sm"
-            borderRadius="full"
           />
         </Tooltip>
       ),
@@ -160,12 +149,7 @@ export default function AdminDashboardPage() {
     <Box>
       {/* Welcome Header */}
       <Box mb={8}>
-        <Heading
-          size="lg"
-          bgGradient="linear(to-r, brand.500, mauve.500)"
-          bgClip="text"
-          mb={2}
-        >
+        <Heading size="lg" color="text.primary" mb={1}>
           Welcome back, {user?.firstname}!
         </Heading>
         <Text color={textMuted}>
@@ -173,85 +157,71 @@ export default function AdminDashboardPage() {
         </Text>
       </Box>
 
-      {/* Primary Stats Grid - Mixed variants for visual interest */}
-      <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={6} mb={8}>
+      {/* Primary Stats Grid */}
+      <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={5} mb={8}>
         <StatCard
           label="Total Cars"
           value={stats?.totalCars || 0}
           icon={FiTruck}
-          variant="gradient"
-          gradientFrom="brand.500"
-          gradientTo="ocean.500"
+          iconBg="brand.400"
           change={12}
         />
         <StatCard
           label="Active Rentals"
           value={stats?.activeRentals || 0}
           icon={FiCalendar}
-          variant="glass"
-          gradientFrom="green.400"
-          gradientTo="teal.400"
+          iconBg="accent.400"
           change={8}
         />
         <StatCard
           label="Pending"
           value={stats?.pendingRentals || 0}
           icon={FiClock}
-          variant="glass"
-          gradientFrom="yellow.400"
-          gradientTo="orange.400"
+          iconBg="yellow.500"
           change={-5}
         />
         <StatCard
           label="Monthly Revenue"
           value={`$${(stats?.monthlyRevenue || 0).toLocaleString()}`}
           icon={FiDollarSign}
-          variant="gradient"
-          gradientFrom="mauve.500"
-          gradientTo="brand.500"
+          iconBg="green.500"
           change={24}
         />
       </SimpleGrid>
 
       {/* Secondary Stats Row */}
-      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={8}>
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5} mb={8}>
         {/* Fleet Utilization */}
         <Box
           bg={cardBg}
-          p={6}
-          borderRadius="2xl"
-          border="1px solid"
-          borderColor={cardBorder}
-          boxShadow="sm"
+          p={5}
+          borderRadius="xl"
+          boxShadow="card"
         >
           <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold">Fleet Utilization</Text>
-            <Box
-              p={2}
-              bgGradient="linear(135deg, brand.500, mauve.500)"
-              borderRadius="lg"
-            >
+            <Text fontWeight="semibold" color="text.primary">Fleet Utilization</Text>
+            <Box p={2} bg="accent.400" borderRadius="lg">
               <Icon as={FiActivity} color="white" boxSize={4} />
             </Box>
           </Flex>
-          <Text fontSize="3xl" fontWeight="bold" mb={2}>
+          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={2}>
             {utilizationRate}%
           </Text>
           <Progress
             value={utilizationRate}
             size="sm"
             borderRadius="full"
-            colorScheme="brand"
-            bg={useColorModeValue('gray.100', 'gray.700')}
+            colorScheme="teal"
+            bg={useColorModeValue('gray.100', 'navy.600')}
           />
           <HStack mt={3} spacing={4}>
             <VStack align="start" spacing={0}>
               <Text fontSize="xs" color={textMuted}>Available</Text>
-              <Text fontWeight="semibold">{stats?.availableCars || 0}</Text>
+              <Text fontWeight="semibold" color="text.primary">{stats?.availableCars || 0}</Text>
             </VStack>
             <VStack align="start" spacing={0}>
               <Text fontSize="xs" color={textMuted}>Rented</Text>
-              <Text fontWeight="semibold">{(stats?.totalCars || 0) - (stats?.availableCars || 0)}</Text>
+              <Text fontWeight="semibold" color="text.primary">{(stats?.totalCars || 0) - (stats?.availableCars || 0)}</Text>
             </VStack>
           </HStack>
         </Box>
@@ -259,31 +229,25 @@ export default function AdminDashboardPage() {
         {/* Total Revenue */}
         <Box
           bg={cardBg}
-          p={6}
-          borderRadius="2xl"
-          border="1px solid"
-          borderColor={cardBorder}
-          boxShadow="sm"
+          p={5}
+          borderRadius="xl"
+          boxShadow="card"
         >
           <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold">Total Revenue</Text>
-            <Box
-              p={2}
-              bgGradient="linear(135deg, green.400, teal.400)"
-              borderRadius="lg"
-            >
+            <Text fontWeight="semibold" color="text.primary">Total Revenue</Text>
+            <Box p={2} bg="green.500" borderRadius="lg">
               <Icon as={FiTrendingUp} color="white" boxSize={4} />
             </Box>
           </Flex>
-          <Text fontSize="3xl" fontWeight="bold" mb={1}>
+          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={1}>
             ${(stats?.totalRevenue || 0).toLocaleString()}
           </Text>
           <Text fontSize="sm" color={textMuted}>
             All time earnings
           </Text>
-          <HStack mt={4} spacing={1}>
-            <Icon as={FiTrendingUp} color="green.500" boxSize={4} />
-            <Text fontSize="sm" color="green.500" fontWeight="medium">
+          <HStack mt={3} spacing={1}>
+            <Icon as={FiTrendingUp} color="accent.400" boxSize={4} />
+            <Text fontSize="sm" color="accent.400" fontWeight="medium">
               +18%
             </Text>
             <Text fontSize="sm" color={textMuted}>
@@ -295,33 +259,27 @@ export default function AdminDashboardPage() {
         {/* Completed Rentals */}
         <Box
           bg={cardBg}
-          p={6}
-          borderRadius="2xl"
-          border="1px solid"
-          borderColor={cardBorder}
-          boxShadow="sm"
+          p={5}
+          borderRadius="xl"
+          boxShadow="card"
         >
           <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold">Completed Rentals</Text>
-            <Box
-              p={2}
-              bgGradient="linear(135deg, blue.400, purple.400)"
-              borderRadius="lg"
-            >
+            <Text fontWeight="semibold" color="text.primary">Completed Rentals</Text>
+            <Box p={2} bg="blue.500" borderRadius="lg">
               <Icon as={FiCheckCircle} color="white" boxSize={4} />
             </Box>
           </Flex>
-          <Text fontSize="3xl" fontWeight="bold" mb={1}>
+          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={1}>
             {stats?.completedRentals || 0}
           </Text>
           <Text fontSize="sm" color={textMuted}>
             Successfully finished
           </Text>
-          <Flex mt={4} gap={2} flexWrap="wrap">
-            <Badge colorScheme="green" borderRadius="full" px={2}>
+          <Flex mt={3} gap={2} flexWrap="wrap">
+            <Badge colorScheme="green" borderRadius="md">
               High satisfaction
             </Badge>
-            <Badge colorScheme="blue" borderRadius="full" px={2}>
+            <Badge colorScheme="blue" borderRadius="md">
               On-time returns
             </Badge>
           </Flex>
@@ -331,24 +289,23 @@ export default function AdminDashboardPage() {
       {/* Recent Rentals Table */}
       <Box
         bg={cardBg}
-        borderRadius="2xl"
-        border="1px solid"
-        borderColor={cardBorder}
+        borderRadius="xl"
+        boxShadow="card"
         overflow="hidden"
       >
         <Flex
-          px={6}
+          px={5}
           py={4}
           borderBottom="1px solid"
           borderColor={cardBorder}
           justify="space-between"
           align="center"
         >
-          <Heading size="md">Recent Rentals</Heading>
+          <Heading size="md" color="text.primary">Recent Rentals</Heading>
           <Text
             as={NextLink}
             href="/admin/rentals"
-            color="brand.500"
+            color="brand.400"
             fontSize="sm"
             fontWeight="medium"
             _hover={{ textDecoration: 'underline' }}
@@ -356,7 +313,7 @@ export default function AdminDashboardPage() {
             View all
           </Text>
         </Flex>
-        <Box p={6}>
+        <Box p={5}>
           <DataTable
             columns={rentalColumns}
             data={rentalsData?.data || []}

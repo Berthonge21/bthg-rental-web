@@ -12,6 +12,7 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  InputLeftElement,
   IconButton,
   Stack,
   Text,
@@ -40,9 +41,10 @@ export default function LoginPage() {
   const { loginAdmin, isLoading } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
 
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const inputBg = useColorModeValue('gray.50', 'gray.700');
-  const textMuted = useColorModeValue('gray.500', 'gray.400');
+  const cardBg = useColorModeValue('white', 'navy.700');
+  const inputBg = useColorModeValue('gray.50', 'navy.600');
+  const textMuted = useColorModeValue('text.muted', 'gray.400');
+  const borderColor = useColorModeValue('gray.200', 'navy.500');
 
   const {
     register,
@@ -79,38 +81,31 @@ export default function LoginPage() {
   return (
     <Box
       bg={cardBg}
-      p={{ base: 6, md: 10 }}
-      borderRadius="2xl"
-      boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-      maxW="440px"
+      p={{ base: 6, md: 8 }}
+      borderRadius="xl"
+      boxShadow="card"
+      maxW="420px"
       w="full"
-      border="1px solid"
-      borderColor={useColorModeValue('gray.100', 'gray.700')}
     >
-      <VStack spacing={8}>
+      <VStack spacing={6}>
         {/* Logo and Header */}
-        <VStack spacing={4}>
+        <VStack spacing={3}>
           <Box
-            w={16}
-            h={16}
-            bgGradient="linear(135deg, brand.500, mauve.500)"
-            borderRadius="2xl"
+            w={14}
+            h={14}
+            bg="brand.400"
+            borderRadius="xl"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            boxShadow="0 10px 40px rgba(99, 102, 241, 0.4)"
           >
-            <Icon as={FiTruck} color="white" boxSize={8} />
+            <Icon as={FiTruck} color="white" boxSize={7} />
           </Box>
           <VStack spacing={1}>
-            <Heading
-              size="lg"
-              bgGradient="linear(to-r, brand.500, mauve.500)"
-              bgClip="text"
-            >
-              BTHG Rental
+            <Heading size="lg" color="text.primary">
+              Welcome Back
             </Heading>
-            <Text color={textMuted} textAlign="center">
+            <Text color={textMuted} textAlign="center" fontSize="sm">
               Sign in to access the admin portal
             </Text>
           </VStack>
@@ -118,80 +113,68 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <Box as="form" onSubmit={handleSubmit(onSubmit)} w="full">
-          <Stack spacing={5}>
+          <Stack spacing={4}>
             <FormControl isInvalid={!!errors.email}>
-              <FormLabel fontWeight="medium" fontSize="sm">
+              <FormLabel fontWeight="medium" fontSize="sm" color="text.primary">
                 Email Address
               </FormLabel>
               <InputGroup>
+                <InputLeftElement pointerEvents="none" h="full">
+                  <Icon as={FiMail} color={textMuted} />
+                </InputLeftElement>
                 <Input
                   type="email"
                   placeholder="admin@example.com"
                   bg={inputBg}
                   border="1px solid"
-                  borderColor={useColorModeValue('gray.200', 'gray.600')}
-                  borderRadius="xl"
-                  py={6}
-                  pl={12}
+                  borderColor={borderColor}
+                  borderRadius="lg"
+                  h={12}
+                  pl={10}
                   _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                    borderColor: 'brand.400',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-400)',
                   }}
-                  _placeholder={{ color: 'gray.400' }}
+                  _placeholder={{ color: textMuted }}
                   {...register('email')}
                 />
-                <Box
-                  position="absolute"
-                  left={4}
-                  top="50%"
-                  transform="translateY(-50%)"
-                  zIndex={2}
-                >
-                  <Icon as={FiMail} color="gray.400" boxSize={5} />
-                </Box>
               </InputGroup>
               <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
             </FormControl>
 
             <FormControl isInvalid={!!errors.password}>
-              <FormLabel fontWeight="medium" fontSize="sm">
+              <FormLabel fontWeight="medium" fontSize="sm" color="text.primary">
                 Password
               </FormLabel>
               <InputGroup>
+                <InputLeftElement pointerEvents="none" h="full">
+                  <Icon as={FiLock} color={textMuted} />
+                </InputLeftElement>
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
                   bg={inputBg}
                   border="1px solid"
-                  borderColor={useColorModeValue('gray.200', 'gray.600')}
-                  borderRadius="xl"
-                  py={6}
-                  pl={12}
+                  borderColor={borderColor}
+                  borderRadius="lg"
+                  h={12}
+                  pl={10}
                   _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                    borderColor: 'brand.400',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-400)',
                   }}
-                  _placeholder={{ color: 'gray.400' }}
+                  _placeholder={{ color: textMuted }}
                   {...register('password')}
                 />
-                <Box
-                  position="absolute"
-                  left={4}
-                  top="50%"
-                  transform="translateY(-50%)"
-                  zIndex={2}
-                >
-                  <Icon as={FiLock} color="gray.400" boxSize={5} />
-                </Box>
-                <InputRightElement h="full" pr={2}>
+                <InputRightElement h="full" pr={1}>
                   <IconButton
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                     icon={showPassword ? <FiEyeOff /> : <FiEye />}
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowPassword(!showPassword)}
-                    color="gray.400"
-                    _hover={{ color: 'brand.500' }}
+                    color={textMuted}
+                    _hover={{ color: 'brand.400' }}
                   />
                 </InputRightElement>
               </InputGroup>
@@ -202,22 +185,19 @@ export default function LoginPage() {
               type="submit"
               size="lg"
               w="full"
-              bgGradient="linear(135deg, brand.500, mauve.500)"
+              bg="brand.400"
               color="white"
-              borderRadius="xl"
-              py={7}
+              borderRadius="lg"
+              h={12}
               fontWeight="semibold"
               isLoading={isLoading}
               loadingText="Signing in..."
               _hover={{
-                bgGradient: 'linear(135deg, brand.600, mauve.600)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 10px 40px rgba(99, 102, 241, 0.4)',
+                bg: 'brand.500',
               }}
               _active={{
-                transform: 'translateY(0)',
+                bg: 'brand.600',
               }}
-              transition="all 0.2s"
             >
               Sign In
             </Button>
@@ -225,13 +205,13 @@ export default function LoginPage() {
         </Box>
 
         {/* Footer */}
-        <VStack spacing={2}>
+        <VStack spacing={2} pt={2}>
           <Text textAlign="center" fontSize="sm" color={textMuted}>
             This portal is for agency administrators only.
           </Text>
           <HStack spacing={1} fontSize="xs" color={textMuted}>
             <Text>Powered by</Text>
-            <Text fontWeight="semibold" bgGradient="linear(to-r, brand.500, mauve.500)" bgClip="text">
+            <Text fontWeight="semibold" color="brand.400">
               BTHG Rental
             </Text>
           </HStack>
