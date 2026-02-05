@@ -11,7 +11,12 @@ import {
   VStack,
   Button,
   Avatar,
+  Flex,
+  Icon,
+  Progress,
   useColorModeValue,
+  IconButton,
+  Tooltip,
 } from '@chakra-ui/react';
 import {
   FiGrid,
@@ -21,9 +26,15 @@ import {
   FiDollarSign,
   FiUserCheck,
   FiPlus,
+  FiTrendingUp,
+  FiActivity,
+  FiEye,
+  FiAward,
 } from 'react-icons/fi';
+import NextLink from 'next/link';
 import { StatCard, DataTable, LoadingSpinner, type Column } from '@/components/ui';
 import { useSuperAdminDashboard, useSuperAdminAgencies, useSuperAdminUsers } from '@/hooks';
+import { useAuthStore } from '@/stores/auth.store';
 import type { Agency, AdminUser, Status, UserRole } from '@bthgrentalcar/sdk';
 
 const statusColors: Record<Status, string> = {
@@ -38,6 +49,7 @@ const roleColors: Record<UserRole, string> = {
 
 export default function SuperAdminDashboardPage() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const { data: stats, isLoading: statsLoading } = useSuperAdminDashboard();
   const { data: agenciesData, isLoading: agenciesLoading } = useSuperAdminAgencies({
     limit: 5,
@@ -47,21 +59,39 @@ export default function SuperAdminDashboardPage() {
   });
 
   const cardBg = useColorModeValue('white', 'gray.800');
+  const cardBorder = useColorModeValue('gray.100', 'gray.700');
+  const textMuted = useColorModeValue('gray.500', 'gray.400');
 
   if (statsLoading) {
     return <LoadingSpinner text="Loading dashboard..." />;
   }
 
+  // Calculate platform growth (mock data for visual effect)
+  const platformGrowth = 15;
+
   const agencyColumns: Column<Agency>[] = [
     {
       header: 'Agency',
       accessor: (row) => (
-        <VStack align="start" spacing={0}>
-          <Text fontWeight="medium">{row.name}</Text>
-          <Text fontSize="sm" color="gray.500">
-            {row.email}
-          </Text>
-        </VStack>
+        <HStack spacing={3}>
+          <Box
+            w={10}
+            h={10}
+            borderRadius="xl"
+            bgGradient="linear(135deg, brand.500, mauve.500)"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Icon as={FiGrid} color="white" boxSize={5} />
+          </Box>
+          <VStack align="start" spacing={0}>
+            <Text fontWeight="medium" fontSize="sm">{row.name}</Text>
+            <Text fontSize="xs" color={textMuted}>
+              {row.email}
+            </Text>
+          </VStack>
+        </HStack>
       ),
     },
     {
@@ -69,15 +99,33 @@ export default function SuperAdminDashboardPage() {
       accessor: (row) => <Text fontSize="sm">{row.address}</Text>,
     },
     {
-      header: 'Contact',
-      accessor: (row) => <Text fontSize="sm">{row.telephone}</Text>,
-    },
-    {
       header: 'Status',
       accessor: (row) => (
-        <Badge colorScheme={statusColors[row.status]} textTransform="capitalize">
-          {row.status}
+        <Badge
+          colorScheme={statusColors[row.status]}
+          textTransform="capitalize"
+          borderRadius="full"
+          px={3}
+          py={1}
+        >
+          {row.status === 'activate' ? 'Active' : 'Inactive'}
         </Badge>
+      ),
+    },
+    {
+      header: '',
+      accessor: (row) => (
+        <Tooltip label="View details" hasArrow>
+          <IconButton
+            as={NextLink}
+            href={`/super-admin/agencies/${row.id}`}
+            aria-label="View details"
+            icon={<FiEye />}
+            variant="ghost"
+            size="sm"
+            borderRadius="full"
+          />
+        </Tooltip>
       ),
     },
   ];
@@ -87,10 +135,15 @@ export default function SuperAdminDashboardPage() {
       header: 'Admin',
       accessor: (row) => (
         <HStack spacing={3}>
-          <Avatar size="sm" name={`${row.firstname} ${row.name}`} src={row.image} bg="brand.400" />
+          <Avatar
+            size="sm"
+            name={`${row.firstname} ${row.name}`}
+            src={row.image}
+            bg="linear-gradient(135deg, #6366f1, #d946ef)"
+          />
           <VStack align="start" spacing={0}>
-            <Text fontWeight="medium">{row.firstname} {row.name}</Text>
-            <Text fontSize="sm" color="gray.500">{row.email}</Text>
+            <Text fontWeight="medium" fontSize="sm">{row.firstname} {row.name}</Text>
+            <Text fontSize="xs" color={textMuted}>{row.email}</Text>
           </VStack>
         </HStack>
       ),
@@ -98,7 +151,13 @@ export default function SuperAdminDashboardPage() {
     {
       header: 'Role',
       accessor: (row) => (
-        <Badge colorScheme={roleColors[row.role]} textTransform="capitalize">
+        <Badge
+          colorScheme={roleColors[row.role]}
+          textTransform="capitalize"
+          borderRadius="full"
+          px={3}
+          py={1}
+        >
           {row.role === 'superAdmin' ? 'Super Admin' : 'Admin'}
         </Badge>
       ),
@@ -108,7 +167,7 @@ export default function SuperAdminDashboardPage() {
       accessor: (row) => (
         <Text fontSize="sm">
           {row.agency?.name || row.agencyName || (
-            <Badge colorScheme="orange" variant="subtle">Not assigned</Badge>
+            <Badge colorScheme="orange" variant="subtle" borderRadius="full">Not assigned</Badge>
           )}
         </Text>
       ),
@@ -117,137 +176,312 @@ export default function SuperAdminDashboardPage() {
 
   return (
     <Box>
-      <HStack justify="space-between" mb={6}>
-        <Heading size="lg">Super Admin Dashboard</Heading>
+      {/* Header with Welcome and Quick Actions */}
+      <Flex
+        justify="space-between"
+        align={{ base: 'flex-start', md: 'center' }}
+        direction={{ base: 'column', md: 'row' }}
+        gap={4}
+        mb={8}
+      >
+        <Box>
+          <Heading
+            size="lg"
+            bgGradient="linear(to-r, brand.500, mauve.500)"
+            bgClip="text"
+            mb={2}
+          >
+            Welcome back, {user?.firstname}!
+          </Heading>
+          <Text color={textMuted}>
+            Platform overview and management dashboard.
+          </Text>
+        </Box>
         <HStack spacing={3}>
           <Button
             leftIcon={<FiPlus />}
-            colorScheme="brand"
+            bgGradient="linear(135deg, brand.500, mauve.500)"
+            color="white"
+            _hover={{
+              bgGradient: 'linear(135deg, brand.600, mauve.600)',
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg',
+            }}
             onClick={() => router.push('/super-admin/admins/new')}
           >
             Add Admin
           </Button>
           <Button
             leftIcon={<FiPlus />}
-            colorScheme="green"
             variant="outline"
+            borderColor="brand.500"
+            color="brand.500"
+            _hover={{
+              bg: 'brand.50',
+              transform: 'translateY(-2px)',
+            }}
             onClick={() => router.push('/super-admin/agencies/new')}
           >
             Add Agency
           </Button>
         </HStack>
-      </HStack>
+      </Flex>
 
-      {/* Stats Grid */}
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 6 }} spacing={4} mb={8}>
+      {/* Primary Stats Row */}
+      <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={6} mb={8}>
         <StatCard
           label="Total Agencies"
           value={stats?.totalAgencies || 0}
           icon={FiGrid}
-          iconBg="purple.400"
-        />
-        <StatCard
-          label="Active Agencies"
-          value={stats?.activeAgencies || 0}
-          icon={FiGrid}
-          iconBg="green.400"
+          variant="gradient"
+          gradientFrom="brand.500"
+          gradientTo="mauve.500"
+          change={platformGrowth}
         />
         <StatCard
           label="Total Cars"
           value={stats?.totalCars || 0}
           icon={FiTruck}
-          iconBg="blue.400"
+          variant="glass"
+          gradientFrom="ocean.500"
+          gradientTo="blue.500"
+          change={8}
         />
         <StatCard
           label="Total Admins"
           value={stats?.totalAdmins || 0}
           icon={FiUserCheck}
-          iconBg="orange.400"
+          variant="glass"
+          gradientFrom="orange.400"
+          gradientTo="yellow.400"
+          change={5}
         />
         <StatCard
-          label="Total Clients"
-          value={stats?.totalClients || 0}
-          icon={FiUsers}
-          iconBg="teal.400"
-        />
-        <StatCard
-          label="Total Rentals"
-          value={stats?.totalRentals || 0}
-          icon={FiCalendar}
-          iconBg="pink.400"
+          label="Total Revenue"
+          value={`$${(stats?.totalRevenue || 0).toLocaleString()}`}
+          icon={FiDollarSign}
+          variant="gradient"
+          gradientFrom="green.500"
+          gradientTo="teal.500"
+          change={24}
         />
       </SimpleGrid>
 
-      {/* Revenue Stats */}
+      {/* Secondary Stats Row */}
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
-        <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-          <Text color="gray.500" fontSize="sm" mb={2}>
-            Pending Rentals
+        {/* Active Agencies */}
+        <Box
+          bg={cardBg}
+          p={6}
+          borderRadius="2xl"
+          border="1px solid"
+          borderColor={cardBorder}
+          boxShadow="sm"
+        >
+          <Flex justify="space-between" align="center" mb={4}>
+            <Text fontWeight="semibold">Active Agencies</Text>
+            <Box
+              p={2}
+              bgGradient="linear(135deg, green.400, teal.400)"
+              borderRadius="lg"
+            >
+              <Icon as={FiActivity} color="white" boxSize={4} />
+            </Box>
+          </Flex>
+          <Text fontSize="3xl" fontWeight="bold" mb={2}>
+            {stats?.activeAgencies || 0}
           </Text>
-          <Text fontSize="2xl" fontWeight="bold" color="yellow.500">
-            {stats?.pendingRentals || 0}
+          <Progress
+            value={stats?.totalAgencies ? ((stats.activeAgencies || 0) / stats.totalAgencies) * 100 : 0}
+            size="sm"
+            borderRadius="full"
+            colorScheme="green"
+            bg={useColorModeValue('gray.100', 'gray.700')}
+          />
+          <Text fontSize="xs" color={textMuted} mt={2}>
+            {stats?.totalAgencies ? Math.round(((stats.activeAgencies || 0) / stats.totalAgencies) * 100) : 0}% of total agencies
           </Text>
         </Box>
-        <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-          <Text color="gray.500" fontSize="sm" mb={2}>
-            Active Rentals
+
+        {/* Total Clients */}
+        <Box
+          bg={cardBg}
+          p={6}
+          borderRadius="2xl"
+          border="1px solid"
+          borderColor={cardBorder}
+          boxShadow="sm"
+        >
+          <Flex justify="space-between" align="center" mb={4}>
+            <Text fontWeight="semibold">Total Clients</Text>
+            <Box
+              p={2}
+              bgGradient="linear(135deg, blue.400, purple.400)"
+              borderRadius="lg"
+            >
+              <Icon as={FiUsers} color="white" boxSize={4} />
+            </Box>
+          </Flex>
+          <Text fontSize="3xl" fontWeight="bold" mb={1}>
+            {stats?.totalClients || 0}
           </Text>
-          <Text fontSize="2xl" fontWeight="bold" color="blue.500">
-            {stats?.activeRentals || 0}
-          </Text>
+          <HStack mt={3} spacing={1}>
+            <Icon as={FiTrendingUp} color="green.500" boxSize={4} />
+            <Text fontSize="sm" color="green.500" fontWeight="medium">
+              +12%
+            </Text>
+            <Text fontSize="sm" color={textMuted}>
+              this month
+            </Text>
+          </HStack>
         </Box>
-        <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-          <Text color="gray.500" fontSize="sm" mb={2}>
-            Monthly Revenue
+
+        {/* Rental Activity */}
+        <Box
+          bg={cardBg}
+          p={6}
+          borderRadius="2xl"
+          border="1px solid"
+          borderColor={cardBorder}
+          boxShadow="sm"
+        >
+          <Flex justify="space-between" align="center" mb={4}>
+            <Text fontWeight="semibold">Rental Activity</Text>
+            <Box
+              p={2}
+              bgGradient="linear(135deg, pink.400, red.400)"
+              borderRadius="lg"
+            >
+              <Icon as={FiCalendar} color="white" boxSize={4} />
+            </Box>
+          </Flex>
+          <Text fontSize="3xl" fontWeight="bold" mb={2}>
+            {stats?.totalRentals || 0}
           </Text>
-          <Text fontSize="2xl" fontWeight="bold" color="green.500">
-            ${stats?.monthlyRevenue?.toFixed(2) || '0.00'}
-          </Text>
+          <HStack spacing={4}>
+            <VStack align="start" spacing={0}>
+              <Text fontSize="xs" color={textMuted}>Active</Text>
+              <Text fontWeight="semibold" color="blue.500">{stats?.activeRentals || 0}</Text>
+            </VStack>
+            <VStack align="start" spacing={0}>
+              <Text fontSize="xs" color={textMuted}>Pending</Text>
+              <Text fontWeight="semibold" color="yellow.500">{stats?.pendingRentals || 0}</Text>
+            </VStack>
+          </HStack>
         </Box>
-        <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-          <Text color="gray.500" fontSize="sm" mb={2}>
-            Total Revenue
+
+        {/* Monthly Revenue */}
+        <Box
+          bg={cardBg}
+          p={6}
+          borderRadius="2xl"
+          border="1px solid"
+          borderColor={cardBorder}
+          boxShadow="sm"
+        >
+          <Flex justify="space-between" align="center" mb={4}>
+            <Text fontWeight="semibold">Monthly Revenue</Text>
+            <Box
+              p={2}
+              bgGradient="linear(135deg, brand.500, mauve.500)"
+              borderRadius="lg"
+            >
+              <Icon as={FiAward} color="white" boxSize={4} />
+            </Box>
+          </Flex>
+          <Text fontSize="3xl" fontWeight="bold" mb={1}>
+            ${(stats?.monthlyRevenue || 0).toLocaleString()}
           </Text>
-          <Text fontSize="2xl" fontWeight="bold" color="purple.500">
-            ${stats?.totalRevenue?.toFixed(2) || '0.00'}
-          </Text>
+          <HStack mt={3} spacing={1}>
+            <Icon as={FiTrendingUp} color="green.500" boxSize={4} />
+            <Text fontSize="sm" color="green.500" fontWeight="medium">
+              +18%
+            </Text>
+            <Text fontSize="sm" color={textMuted}>
+              vs last month
+            </Text>
+          </HStack>
         </Box>
       </SimpleGrid>
 
-      {/* Two Column Layout for Lists */}
+      {/* Two Column Layout for Tables */}
       <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={6}>
         {/* Recent Agencies */}
-        <Box>
-          <HStack justify="space-between" mb={4}>
+        <Box
+          bg={cardBg}
+          borderRadius="2xl"
+          border="1px solid"
+          borderColor={cardBorder}
+          overflow="hidden"
+        >
+          <Flex
+            px={6}
+            py={4}
+            borderBottom="1px solid"
+            borderColor={cardBorder}
+            justify="space-between"
+            align="center"
+          >
             <Heading size="md">Recent Agencies</Heading>
-            <Button size="sm" variant="link" colorScheme="brand" onClick={() => router.push('/super-admin/agencies')}>
-              View All
-            </Button>
-          </HStack>
-          <DataTable
-            columns={agencyColumns}
-            data={agenciesData?.data || []}
-            isLoading={agenciesLoading}
-            keyExtractor={(row) => row.id}
-            emptyMessage="No agencies found"
-          />
+            <Text
+              as={NextLink}
+              href="/super-admin/agencies"
+              color="brand.500"
+              fontSize="sm"
+              fontWeight="medium"
+              _hover={{ textDecoration: 'underline' }}
+            >
+              View all
+            </Text>
+          </Flex>
+          <Box p={6}>
+            <DataTable
+              columns={agencyColumns}
+              data={agenciesData?.data || []}
+              isLoading={agenciesLoading}
+              keyExtractor={(row) => row.id}
+              emptyMessage="No agencies found"
+            />
+          </Box>
         </Box>
 
         {/* Admin Users */}
-        <Box>
-          <HStack justify="space-between" mb={4}>
+        <Box
+          bg={cardBg}
+          borderRadius="2xl"
+          border="1px solid"
+          borderColor={cardBorder}
+          overflow="hidden"
+        >
+          <Flex
+            px={6}
+            py={4}
+            borderBottom="1px solid"
+            borderColor={cardBorder}
+            justify="space-between"
+            align="center"
+          >
             <Heading size="md">Admin Users</Heading>
-            <Button size="sm" variant="link" colorScheme="brand" onClick={() => router.push('/super-admin/admins')}>
-              View All
-            </Button>
-          </HStack>
-          <DataTable
-            columns={adminColumns}
-            data={adminsData?.data || []}
-            isLoading={adminsLoading}
-            keyExtractor={(row) => row.id}
-            emptyMessage="No admins found"
-          />
+            <Text
+              as={NextLink}
+              href="/super-admin/admins"
+              color="brand.500"
+              fontSize="sm"
+              fontWeight="medium"
+              _hover={{ textDecoration: 'underline' }}
+            >
+              View all
+            </Text>
+          </Flex>
+          <Box p={6}>
+            <DataTable
+              columns={adminColumns}
+              data={adminsData?.data || []}
+              isLoading={adminsLoading}
+              keyExtractor={(row) => row.id}
+              emptyMessage="No admins found"
+            />
+          </Box>
         </Box>
       </SimpleGrid>
     </Box>

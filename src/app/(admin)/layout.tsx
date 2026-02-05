@@ -2,34 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Box,
-  Flex,
-  Drawer,
-  DrawerContent,
-  DrawerOverlay,
-  DrawerCloseButton,
-  DrawerHeader,
-  DrawerBody,
-  useDisclosure,
-  useColorModeValue,
-  VStack,
-  Icon,
-  Text,
-} from '@chakra-ui/react';
-import { FiTruck } from 'react-icons/fi';
+import { Box, useColorModeValue } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/auth.store';
-import { Sidebar, adminNavItems, Navbar } from '@/components/ui';
+import { TopNavigation, adminNavItems } from '@/components/ui/TopNavigation';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import NextLink from 'next/link';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, isAuthenticated, isLoading } = useAuthStore();
   const [mounted, setMounted] = useState(false);
 
-  const bgColor = useColorModeValue('gray.50', 'gray.900');
+  const bgColor = useColorModeValue('surface.light', 'surface.dark');
 
   useEffect(() => {
     setMounted(true);
@@ -58,63 +41,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <Box minH="100vh" bg={bgColor}>
-      {/* Sidebar - Desktop */}
-      <Sidebar items={adminNavItems} />
+      {/* Top Navigation */}
+      <TopNavigation items={adminNavItems} />
 
-      {/* Mobile Drawer */}
-      <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px">
-            <Flex alignItems="center">
-              <Box
-                w={8}
-                h={8}
-                bg="brand.400"
-                borderRadius="lg"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                mr={2}
-              >
-                <Icon as={FiTruck} color="white" boxSize={4} />
-              </Box>
-              <Text fontWeight="bold" color="brand.400">
-                BTHG Rental
-              </Text>
-            </Flex>
-          </DrawerHeader>
-          <DrawerBody p={0}>
-            <VStack spacing={1} align="stretch" p={3} mt={4}>
-              {adminNavItems.map((item) => (
-                <Box
-                  key={item.href}
-                  as={NextLink}
-                  href={item.href}
-                  display="flex"
-                  alignItems="center"
-                  px={4}
-                  py={3}
-                  borderRadius="lg"
-                  _hover={{ bg: 'gray.100' }}
-                  onClick={onClose}
-                >
-                  <Icon as={item.icon} boxSize={5} mr={3} />
-                  <Text>{item.label}</Text>
-                </Box>
-              ))}
-            </VStack>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-
-      {/* Main content */}
-      <Box ml={{ base: 0, lg: '240px' }}>
-        <Navbar onMenuClick={onOpen} />
-        <Box as="main" p={6}>
-          {children}
-        </Box>
+      {/* Main content with top padding for fixed nav */}
+      <Box
+        as="main"
+        pt="80px"
+        px={{ base: 4, md: 6, lg: 8 }}
+        pb={8}
+        maxW="1600px"
+        mx="auto"
+      >
+        {children}
       </Box>
     </Box>
   );
