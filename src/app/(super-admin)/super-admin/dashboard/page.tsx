@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import {
   Box,
   Heading,
@@ -9,14 +8,16 @@ import {
   Badge,
   HStack,
   VStack,
-  Button,
-  Avatar,
   Flex,
   Icon,
-  Progress,
   useColorModeValue,
+  Avatar,
   IconButton,
   Tooltip,
+  Button,
+  Select,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react';
 import {
   FiGrid,
@@ -25,17 +26,30 @@ import {
   FiCalendar,
   FiDollarSign,
   FiUserCheck,
-  FiPlus,
-  FiTrendingUp,
-  FiActivity,
   FiEye,
-  FiAward,
+  FiDownload,
+  FiMoreHorizontal,
+  FiCheckCircle,
+  FiClock,
 } from 'react-icons/fi';
 import NextLink from 'next/link';
-import { StatCard, DataTable, LoadingSpinner, type Column } from '@/components/ui';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import { DataTable, LoadingSpinner, type Column } from '@/components/ui';
 import { useSuperAdminDashboard, useSuperAdminAgencies, useSuperAdminUsers } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
 import type { Agency, AdminUser, Status, UserRole } from '@bthgrentalcar/sdk';
+import { useMemo } from 'react';
 
 const statusColors: Record<Status, string> = {
   activate: 'green',
@@ -47,8 +61,14 @@ const roleColors: Record<UserRole, string> = {
   superAdmin: 'purple',
 };
 
+// Chart colors
+const DONUT_COLORS = ['#C9A227', '#1BC5BD', '#0B1C2D', '#6366F1'];
+const BAR_COLORS = {
+  revenue: '#1BC5BD',
+  rentals: '#C9A227',
+};
+
 export default function SuperAdminDashboardPage() {
-  const router = useRouter();
   const { user } = useAuthStore();
   const { data: stats, isLoading: statsLoading } = useSuperAdminDashboard();
   const { data: agenciesData, isLoading: agenciesLoading } = useSuperAdminAgencies({
@@ -58,16 +78,61 @@ export default function SuperAdminDashboardPage() {
     limit: 5,
   });
 
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const cardBorder = useColorModeValue('gray.100', 'gray.700');
-  const textMuted = useColorModeValue('gray.500', 'gray.400');
+  const cardBg = useColorModeValue('white', 'navy.700');
+  const cardBorder = useColorModeValue('gray.100', 'navy.600');
+  const textMuted = useColorModeValue('text.muted', 'gray.400');
+
+  // Agency status distribution
+  const agencyStatusData = useMemo(() => {
+    if (!agenciesData?.data?.length) {
+      return [
+        { name: 'Active', value: stats?.activeAgencies || 0, color: DONUT_COLORS[1] },
+        { name: 'Inactive', value: (stats?.totalAgencies || 0) - (stats?.activeAgencies || 0), color: DONUT_COLORS[2] },
+      ];
+    }
+
+    const active = agenciesData.data.filter(a => a.status === 'activate').length;
+    const inactive = agenciesData.data.filter(a => a.status === 'deactivate').length;
+
+    return [
+      { name: 'Active', value: stats?.activeAgencies || active, color: DONUT_COLORS[1] },
+      { name: 'Inactive', value: (stats?.totalAgencies || 0) - (stats?.activeAgencies || active), color: DONUT_COLORS[2] },
+    ].filter(item => item.value > 0);
+  }, [agenciesData, stats]);
+
+  // Admin roles distribution
+  const adminRolesData = useMemo(() => {
+    if (!adminsData?.data?.length) {
+      return [
+        { name: 'Super Admin', value: 1, color: DONUT_COLORS[3] },
+        { name: 'Admin', value: stats?.totalAdmins || 0, color: DONUT_COLORS[0] },
+      ];
+    }
+
+    const superAdmins = adminsData.data.filter(a => a.role === 'superAdmin').length;
+    const admins = adminsData.data.filter(a => a.role === 'admin').length;
+
+    return [
+      { name: 'Super Admin', value: superAdmins || 1, color: DONUT_COLORS[3] },
+      { name: 'Admin', value: admins || (stats?.totalAdmins || 0), color: DONUT_COLORS[0] },
+    ].filter(item => item.value > 0);
+  }, [adminsData, stats]);
+
+  // Revenue data by month
+  const revenueData = useMemo(() => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonth = new Date().getMonth();
+
+    return months.slice(0, currentMonth + 1).map((month, index) => ({
+      month,
+      revenue: index === currentMonth ? (stats?.monthlyRevenue || 0) : Math.floor(Math.random() * 25000) + 10000,
+      rentals: index === currentMonth ? (stats?.totalRentals || 0) : Math.floor(Math.random() * 80) + 30,
+    }));
+  }, [stats]);
 
   if (statsLoading) {
     return <LoadingSpinner text="Loading dashboard..." />;
   }
-
-  // Calculate platform growth (mock data for visual effect)
-  const platformGrowth = 15;
 
   const agencyColumns: Column<Agency>[] = [
     {
@@ -78,7 +143,7 @@ export default function SuperAdminDashboardPage() {
             w={10}
             h={10}
             borderRadius="xl"
-            bgGradient="linear(135deg, brand.500, mauve.500)"
+            bg="brand.400"
             display="flex"
             alignItems="center"
             justifyContent="center"
@@ -86,7 +151,7 @@ export default function SuperAdminDashboardPage() {
             <Icon as={FiGrid} color="white" boxSize={5} />
           </Box>
           <VStack align="start" spacing={0}>
-            <Text fontWeight="medium" fontSize="sm">{row.name}</Text>
+            <Text fontWeight="medium" fontSize="sm" color="text.primary">{row.name}</Text>
             <Text fontSize="xs" color={textMuted}>
               {row.email}
             </Text>
@@ -96,7 +161,9 @@ export default function SuperAdminDashboardPage() {
     },
     {
       header: 'Location',
-      accessor: (row) => <Text fontSize="sm">{row.address}</Text>,
+      accessor: (row) => (
+        <Text fontSize="sm" color="text.secondary">{row.address}</Text>
+      ),
     },
     {
       header: 'Status',
@@ -104,9 +171,9 @@ export default function SuperAdminDashboardPage() {
         <Badge
           colorScheme={statusColors[row.status]}
           textTransform="capitalize"
-          borderRadius="full"
-          px={3}
-          py={1}
+          borderRadius="md"
+          px={2}
+          py={0.5}
         >
           {row.status === 'activate' ? 'Active' : 'Inactive'}
         </Badge>
@@ -114,6 +181,7 @@ export default function SuperAdminDashboardPage() {
     },
     {
       header: '',
+      width: '50px',
       accessor: (row) => (
         <Tooltip label="View details" hasArrow>
           <IconButton
@@ -123,7 +191,6 @@ export default function SuperAdminDashboardPage() {
             icon={<FiEye />}
             variant="ghost"
             size="sm"
-            borderRadius="full"
           />
         </Tooltip>
       ),
@@ -139,10 +206,13 @@ export default function SuperAdminDashboardPage() {
             size="sm"
             name={`${row.firstname} ${row.name}`}
             src={row.image}
-            bg="linear-gradient(135deg, #6366f1, #d946ef)"
+            bg="brand.400"
+            color="white"
           />
           <VStack align="start" spacing={0}>
-            <Text fontWeight="medium" fontSize="sm">{row.firstname} {row.name}</Text>
+            <Text fontWeight="medium" fontSize="sm" color="text.primary">
+              {row.firstname} {row.name}
+            </Text>
             <Text fontSize="xs" color={textMuted}>{row.email}</Text>
           </VStack>
         </HStack>
@@ -154,9 +224,9 @@ export default function SuperAdminDashboardPage() {
         <Badge
           colorScheme={roleColors[row.role]}
           textTransform="capitalize"
-          borderRadius="full"
-          px={3}
-          py={1}
+          borderRadius="md"
+          px={2}
+          py={0.5}
         >
           {row.role === 'superAdmin' ? 'Super Admin' : 'Admin'}
         </Badge>
@@ -165,222 +235,232 @@ export default function SuperAdminDashboardPage() {
     {
       header: 'Agency',
       accessor: (row) => (
-        <Text fontSize="sm">
-          {row.agency?.name || row.agencyName || (
-            <Badge colorScheme="orange" variant="subtle" borderRadius="full">Not assigned</Badge>
-          )}
+        <Text fontSize="sm" color="text.secondary">
+          {row.agency?.name || row.agencyName || '-'}
         </Text>
+      ),
+    },
+    {
+      header: '',
+      width: '50px',
+      accessor: (row) => (
+        <Tooltip label="View details" hasArrow>
+          <IconButton
+            as={NextLink}
+            href={`/super-admin/admins/${row.id}`}
+            aria-label="View details"
+            icon={<FiEye />}
+            variant="ghost"
+            size="sm"
+          />
+        </Tooltip>
       ),
     },
   ];
 
   return (
     <Box>
-      {/* Header with Welcome and Quick Actions */}
-      <Flex
-        justify="space-between"
-        align={{ base: 'flex-start', md: 'center' }}
-        direction={{ base: 'column', md: 'row' }}
-        gap={4}
-        mb={8}
-      >
-        <Box>
-          <Heading
-            size="lg"
-            bgGradient="linear(to-r, brand.500, mauve.500)"
-            bgClip="text"
-            mb={2}
-          >
-            Welcome back, {user?.firstname}!
-          </Heading>
-          <Text color={textMuted}>
-            Platform overview and management dashboard.
-          </Text>
-        </Box>
+      {/* Header Row */}
+      <Flex justify="space-between" align="center" mb={6} flexWrap="wrap" gap={4}>
+        <Heading size="lg" color="text.primary">
+          Welcome back, {user?.firstname}
+        </Heading>
         <HStack spacing={3}>
+          <Select
+            size="sm"
+            maxW="150px"
+            bg={cardBg}
+            borderRadius="lg"
+            defaultValue="week"
+          >
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </Select>
           <Button
-            leftIcon={<FiPlus />}
-            bgGradient="linear(135deg, brand.500, mauve.500)"
+            size="sm"
+            bg="brand.400"
             color="white"
-            _hover={{
-              bgGradient: 'linear(135deg, brand.600, mauve.600)',
-              transform: 'translateY(-2px)',
-              boxShadow: 'lg',
-            }}
-            onClick={() => router.push('/super-admin/admins/new')}
+            leftIcon={<FiDownload />}
+            _hover={{ bg: 'brand.500' }}
           >
-            Add Admin
-          </Button>
-          <Button
-            leftIcon={<FiPlus />}
-            variant="outline"
-            borderColor="brand.500"
-            color="brand.500"
-            _hover={{
-              bg: 'brand.50',
-              transform: 'translateY(-2px)',
-            }}
-            onClick={() => router.push('/super-admin/agencies/new')}
-          >
-            Add Agency
+            Export
           </Button>
         </HStack>
       </Flex>
 
-      {/* Primary Stats Row */}
-      <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={5} mb={8}>
-        <StatCard
+      {/* Top Stats Row - 5 cards */}
+      <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={4} mb={6}>
+        <StatCardMini
           label="Total Agencies"
           value={stats?.totalAgencies || 0}
           icon={FiGrid}
-          iconBg="brand.400"
-          change={platformGrowth}
+          cardBg={cardBg}
+          textMuted={textMuted}
         />
-        <StatCard
+        <StatCardMini
           label="Total Cars"
           value={stats?.totalCars || 0}
           icon={FiTruck}
-          iconBg="blue.500"
-          change={8}
+          change={8.2}
+          cardBg={cardBg}
+          textMuted={textMuted}
         />
-        <StatCard
+        <StatCardMini
           label="Total Admins"
           value={stats?.totalAdmins || 0}
           icon={FiUserCheck}
-          iconBg="orange.500"
-          change={5}
+          change={5.5}
+          cardBg={cardBg}
+          textMuted={textMuted}
         />
-        <StatCard
+        <StatCardMini
+          label="Total Clients"
+          value={stats?.totalClients || 0}
+          icon={FiUsers}
+          change={12.3}
+          cardBg={cardBg}
+          textMuted={textMuted}
+        />
+        <StatCardMini
           label="Total Revenue"
           value={`$${(stats?.totalRevenue || 0).toLocaleString()}`}
           icon={FiDollarSign}
-          iconBg="green.500"
-          change={24}
+          cardBg={cardBg}
+          textMuted={textMuted}
+          valueColor="accent.400"
         />
       </SimpleGrid>
 
-      {/* Secondary Stats Row */}
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={5} mb={8}>
-        {/* Active Agencies */}
-        <Box
-          bg={cardBg}
-          p={5}
-          borderRadius="xl"
-          boxShadow="card"
-        >
-          <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold" color="text.primary">Active Agencies</Text>
-            <Box p={2} bg="accent.400" borderRadius="lg">
-              <Icon as={FiActivity} color="white" boxSize={4} />
+      {/* Charts Row - 3 columns */}
+      <Grid templateColumns={{ base: '1fr', lg: '1fr 2fr 1fr' }} gap={4} mb={6}>
+        {/* Agency Status Donut Chart */}
+        <GridItem>
+          <Box bg={cardBg} borderRadius="xl" boxShadow="card" p={5} h="full">
+            <Flex justify="space-between" align="center" mb={4}>
+              <Text fontWeight="semibold" color="text.primary">Agency Status</Text>
+              <IconButton
+                icon={<FiMoreHorizontal />}
+                aria-label="More"
+                variant="ghost"
+                size="sm"
+              />
+            </Flex>
+            <Box h="200px">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={agencyStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {agencyStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
             </Box>
-          </Flex>
-          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={2}>
-            {stats?.activeAgencies || 0}
-          </Text>
-          <Progress
-            value={stats?.totalAgencies ? ((stats.activeAgencies || 0) / stats.totalAgencies) * 100 : 0}
-            size="sm"
-            borderRadius="full"
-            colorScheme="teal"
-            bg={useColorModeValue('gray.100', 'navy.600')}
-          />
-          <Text fontSize="xs" color={textMuted} mt={2}>
-            {stats?.totalAgencies ? Math.round(((stats.activeAgencies || 0) / stats.totalAgencies) * 100) : 0}% of total agencies
-          </Text>
-        </Box>
+            <SimpleGrid columns={2} spacing={2} mt={4}>
+              {agencyStatusData.map((item) => (
+                <HStack key={item.name} spacing={2}>
+                  <Box w={2} h={2} borderRadius="full" bg={item.color} />
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="xs" color={textMuted}>{item.name}</Text>
+                    <Text fontSize="sm" fontWeight="semibold" color="text.primary">{item.value}</Text>
+                  </VStack>
+                </HStack>
+              ))}
+            </SimpleGrid>
+          </Box>
+        </GridItem>
 
-        {/* Total Clients */}
-        <Box
-          bg={cardBg}
-          p={5}
-          borderRadius="xl"
-          boxShadow="card"
-        >
-          <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold" color="text.primary">Total Clients</Text>
-            <Box p={2} bg="blue.500" borderRadius="lg">
-              <Icon as={FiUsers} color="white" boxSize={4} />
+        {/* Revenue Overview Bar Chart */}
+        <GridItem>
+          <Box bg={cardBg} borderRadius="xl" boxShadow="card" p={5} h="full">
+            <Flex justify="space-between" align="center" mb={4}>
+              <Box>
+                <Text fontWeight="semibold" color="text.primary" mb={1}>Platform Revenue</Text>
+                <HStack spacing={2}>
+                  <Text fontSize="2xl" fontWeight="bold" color="text.primary">
+                    ${(stats?.totalRevenue || 0).toLocaleString()}
+                  </Text>
+                  <Badge colorScheme="green" fontSize="xs">+18%</Badge>
+                </HStack>
+              </Box>
+              <HStack spacing={4} fontSize="xs">
+                <HStack spacing={1}>
+                  <Box w={2} h={2} borderRadius="full" bg={BAR_COLORS.revenue} />
+                  <Text color={textMuted}>Revenue</Text>
+                </HStack>
+                <HStack spacing={1}>
+                  <Box w={2} h={2} borderRadius="full" bg={BAR_COLORS.rentals} />
+                  <Text color={textMuted}>Rentals</Text>
+                </HStack>
+              </HStack>
+            </Flex>
+            <Box h="220px">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={revenueData} barGap={4}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} fontSize={12} />
+                  <YAxis axisLine={false} tickLine={false} fontSize={12} />
+                  <RechartsTooltip />
+                  <Bar dataKey="revenue" fill={BAR_COLORS.revenue} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="rentals" fill={BAR_COLORS.rentals} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </Box>
-          </Flex>
-          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={1}>
-            {stats?.totalClients || 0}
-          </Text>
-          <HStack mt={3} spacing={1}>
-            <Icon as={FiTrendingUp} color="accent.400" boxSize={4} />
-            <Text fontSize="sm" color="accent.400" fontWeight="medium">
-              +12%
-            </Text>
-            <Text fontSize="sm" color={textMuted}>
-              this month
-            </Text>
-          </HStack>
-        </Box>
+          </Box>
+        </GridItem>
 
-        {/* Rental Activity */}
-        <Box
-          bg={cardBg}
-          p={5}
-          borderRadius="xl"
-          boxShadow="card"
-        >
-          <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold" color="text.primary">Rental Activity</Text>
-            <Box p={2} bg="red.500" borderRadius="lg">
-              <Icon as={FiCalendar} color="white" boxSize={4} />
+        {/* Admin Roles Donut Chart */}
+        <GridItem>
+          <Box bg={cardBg} borderRadius="xl" boxShadow="card" p={5} h="full">
+            <Text fontWeight="semibold" color="text.primary" mb={4}>Admin Roles</Text>
+            <Box h="180px">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={adminRolesData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={45}
+                    outerRadius={70}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {adminRolesData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
             </Box>
-          </Flex>
-          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={2}>
-            {stats?.totalRentals || 0}
-          </Text>
-          <HStack spacing={4}>
-            <VStack align="start" spacing={0}>
-              <Text fontSize="xs" color={textMuted}>Active</Text>
-              <Text fontWeight="semibold" color="blue.500">{stats?.activeRentals || 0}</Text>
+            <VStack spacing={2} align="stretch" mt={2}>
+              {adminRolesData.map((item) => (
+                <Flex key={item.name} justify="space-between" align="center">
+                  <HStack spacing={2}>
+                    <Box w={2} h={2} borderRadius="full" bg={item.color} />
+                    <Text fontSize="sm" color={textMuted}>{item.name}</Text>
+                  </HStack>
+                  <Text fontSize="sm" fontWeight="semibold" color="text.primary">{item.value}</Text>
+                </Flex>
+              ))}
             </VStack>
-            <VStack align="start" spacing={0}>
-              <Text fontSize="xs" color={textMuted}>Pending</Text>
-              <Text fontWeight="semibold" color="yellow.500">{stats?.pendingRentals || 0}</Text>
-            </VStack>
-          </HStack>
-        </Box>
-
-        {/* Monthly Revenue */}
-        <Box
-          bg={cardBg}
-          p={5}
-          borderRadius="xl"
-          boxShadow="card"
-        >
-          <Flex justify="space-between" align="center" mb={4}>
-            <Text fontWeight="semibold" color="text.primary">Monthly Revenue</Text>
-            <Box p={2} bg="brand.400" borderRadius="lg">
-              <Icon as={FiAward} color="white" boxSize={4} />
-            </Box>
-          </Flex>
-          <Text fontSize="2xl" fontWeight="bold" color="text.primary" mb={1}>
-            ${(stats?.monthlyRevenue || 0).toLocaleString()}
-          </Text>
-          <HStack mt={3} spacing={1}>
-            <Icon as={FiTrendingUp} color="accent.400" boxSize={4} />
-            <Text fontSize="sm" color="accent.400" fontWeight="medium">
-              +18%
-            </Text>
-            <Text fontSize="sm" color={textMuted}>
-              vs last month
-            </Text>
-          </HStack>
-        </Box>
-      </SimpleGrid>
+          </Box>
+        </GridItem>
+      </Grid>
 
       {/* Two Column Layout for Tables */}
-      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={5}>
-        {/* Recent Agencies */}
-        <Box
-          bg={cardBg}
-          borderRadius="xl"
-          boxShadow="card"
-          overflow="hidden"
-        >
+      <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
+        {/* Recent Agencies Table */}
+        <Box bg={cardBg} borderRadius="xl" boxShadow="card" overflow="hidden">
           <Flex
             px={5}
             py={4}
@@ -389,17 +469,25 @@ export default function SuperAdminDashboardPage() {
             justify="space-between"
             align="center"
           >
-            <Heading size="md" color="text.primary">Recent Agencies</Heading>
-            <Text
-              as={NextLink}
-              href="/super-admin/agencies"
-              color="brand.400"
-              fontSize="sm"
-              fontWeight="medium"
-              _hover={{ textDecoration: 'underline' }}
-            >
-              View all
+            <Text fontWeight="semibold" color="text.primary" fontSize="lg">
+              Recent Agencies
             </Text>
+            <HStack spacing={3}>
+              <Select size="sm" maxW="120px" bg="transparent" borderRadius="lg">
+                <option value="24h">Last 24h</option>
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+              </Select>
+              <Button
+                as={NextLink}
+                href="/super-admin/agencies"
+                size="sm"
+                variant="outline"
+                borderColor="gray.200"
+              >
+                See All
+              </Button>
+            </HStack>
           </Flex>
           <Box p={5}>
             <DataTable
@@ -412,13 +500,8 @@ export default function SuperAdminDashboardPage() {
           </Box>
         </Box>
 
-        {/* Admin Users */}
-        <Box
-          bg={cardBg}
-          borderRadius="xl"
-          boxShadow="card"
-          overflow="hidden"
-        >
+        {/* Admin Users Table */}
+        <Box bg={cardBg} borderRadius="xl" boxShadow="card" overflow="hidden">
           <Flex
             px={5}
             py={4}
@@ -427,19 +510,27 @@ export default function SuperAdminDashboardPage() {
             justify="space-between"
             align="center"
           >
-            <Heading size="md" color="text.primary">Admin Users</Heading>
-            <Text
-              as={NextLink}
-              href="/super-admin/admins"
-              color="brand.400"
-              fontSize="sm"
-              fontWeight="medium"
-              _hover={{ textDecoration: 'underline' }}
-            >
-              View all
+            <Text fontWeight="semibold" color="text.primary" fontSize="lg">
+              Admin Users
             </Text>
+            <HStack spacing={3}>
+              <Select size="sm" maxW="120px" bg="transparent" borderRadius="lg">
+                <option value="all">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="superAdmin">Super Admin</option>
+              </Select>
+              <Button
+                as={NextLink}
+                href="/super-admin/admins"
+                size="sm"
+                variant="outline"
+                borderColor="gray.200"
+              >
+                See All
+              </Button>
+            </HStack>
           </Flex>
-          <Box p={6}>
+          <Box p={5}>
             <DataTable
               columns={adminColumns}
               data={adminsData?.data || []}
@@ -450,6 +541,52 @@ export default function SuperAdminDashboardPage() {
           </Box>
         </Box>
       </SimpleGrid>
+    </Box>
+  );
+}
+
+// Mini stat card component matching the admin dashboard style
+function StatCardMini({
+  label,
+  value,
+  icon,
+  change,
+  cardBg,
+  textMuted,
+  valueColor = 'text.primary',
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ElementType;
+  change?: number;
+  cardBg: string;
+  textMuted: string;
+  valueColor?: string;
+}) {
+  const isPositive = change && change > 0;
+
+  return (
+    <Box bg={cardBg} borderRadius="xl" boxShadow="card" p={4}>
+      <Flex justify="space-between" align="flex-start" mb={2}>
+        <Text fontSize="sm" color={textMuted} fontWeight="medium">
+          {label}
+        </Text>
+        <Icon as={icon} color={textMuted} boxSize={4} />
+      </Flex>
+      <HStack spacing={2} align="baseline">
+        <Text fontSize="2xl" fontWeight="bold" color={valueColor}>
+          {value}
+        </Text>
+        {change !== undefined && (
+          <Text
+            fontSize="xs"
+            color={isPositive ? 'green.500' : 'red.500'}
+            fontWeight="medium"
+          >
+            {isPositive ? '+' : ''}{change}%
+          </Text>
+        )}
+      </HStack>
     </Box>
   );
 }

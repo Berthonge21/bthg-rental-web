@@ -8,7 +8,7 @@ export const api = createBthgClient({
   debug: process.env.NODE_ENV === 'development',
   onUnauthorized: () => {
     if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+      window.location.href = '/admin/login';
     }
   },
 });

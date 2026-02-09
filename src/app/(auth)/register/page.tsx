@@ -202,7 +202,7 @@ export default function RegisterPage() {
 
         <Text textAlign="center" color="gray.500">
           Already have an account?{' '}
-          <Link as={NextLink} href="/login" color="brand.400" fontWeight="medium">
+          <Link as={NextLink} href="/admin/login" color="brand.400" fontWeight="medium">
             Sign in
           </Link>
         </Text>

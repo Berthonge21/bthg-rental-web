@@ -22,7 +22,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     if (!mounted || isLoading) return;
 
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/admin/login');
       return;
     }
 

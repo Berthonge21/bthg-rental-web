@@ -3,6 +3,7 @@
 import { Box, Container, Flex, Icon, Text, VStack, useColorModeValue } from '@chakra-ui/react';
 import { FiTruck, FiShield, FiClock, FiAward } from 'react-icons/fi';
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 
 const features = [
   { icon: FiShield, text: 'Secure & Reliable' },
@@ -15,7 +16,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
   return (
     <Flex minH="100vh" bg={bgColor}>
-      {/* Left side - Branding */}
+      {/* Left side - Branding with Image */}
       <Box
         display={{ base: 'none', lg: 'flex' }}
         w="50%"
@@ -25,6 +26,22 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         position="relative"
         overflow="hidden"
       >
+        {/* Background Image */}
+        <Image
+          src="/img/bthg-signin.png"
+          alt="BTHG Rental Car"
+          fill
+          style={{ objectFit: 'cover', opacity: 0.4 }}
+          priority
+        />
+
+        {/* Gradient overlay */}
+        <Box
+          position="absolute"
+          inset={0}
+          bgGradient="linear(135deg, rgba(11, 28, 45, 0.9) 0%, rgba(11, 28, 45, 0.7) 50%, rgba(11, 28, 45, 0.85) 100%)"
+        />
+
         {/* Decorative elements */}
         <Box
           position="absolute"

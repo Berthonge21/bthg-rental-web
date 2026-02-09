@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!mounted || isLoading) return;
 
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/admin/login');
       return;
     }
 

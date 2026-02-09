@@ -34,7 +34,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
 
   const handleLogout = async () => {
     await logout();
-    router.push('/login');
+    router.push('/admin/login');
   };
 
   return (
