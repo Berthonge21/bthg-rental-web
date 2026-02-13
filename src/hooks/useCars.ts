@@ -22,6 +22,7 @@ export function useCar(id: number) {
     queryKey: carKeys.detail(id),
     queryFn: () => api.cars.get(id),
     enabled: !!id,
+    staleTime: 2 * 60 * 1000, // 2 minutes — show cached car data instantly
   });
 }
 

@@ -9,18 +9,15 @@ import {
   Badge,
   Text,
   VStack,
-  Select,
   IconButton,
   useToast,
-  Tooltip,
-  Flex,
   Avatar,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { FiEye, FiCheck, FiX, FiPlay } from 'react-icons/fi';
-import { DataTable, type Column } from '@/components/ui';
+import { LoadingSpinner } from '@/components/ui';
 import { useAdminRentals, useUpdateRentalStatus } from '@/hooks';
-import type { Rental, RentalStatus } from '@bthgrentalcar/sdk';
+import type { RentalStatus } from '@bthgrentalcar/sdk';
 import { format } from 'date-fns';
 
 const statusColors: Record<RentalStatus, string> = {
@@ -30,19 +27,27 @@ const statusColors: Record<RentalStatus, string> = {
   cancelled: 'red',
 };
 
+const statusLabels: Record<RentalStatus, string> = {
+  reserved: 'Scheduled',
+  ongoing: 'Ongoing',
+  completed: 'Finished',
+  cancelled: 'Cancelled',
+};
+
 export default function AdminRentalsPage() {
   const router = useRouter();
   const toast = useToast();
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<RentalStatus | ''>('');
 
   const cardBg = useColorModeValue('white', 'navy.700');
-  const textMuted = useColorModeValue('text.muted', 'gray.400');
+  const headerBg = useColorModeValue('gray.50', 'navy.600');
+  const borderColor = useColorModeValue('gray.200', 'navy.600');
+  const textMuted = useColorModeValue('gray.600', 'gray.400');
+  const hoverBg = useColorModeValue('gray.50', 'navy.600');
 
   const { data, isLoading } = useAdminRentals({
     page,
-    limit: 10,
-    status: statusFilter || undefined,
+    limit: 20,
   });
   const updateStatusMutation = useUpdateRentalStatus();
 
@@ -64,179 +69,232 @@ export default function AdminRentalsPage() {
     }
   };
 
-  const columns: Column<Rental>[] = [
-    {
-      header: 'Client',
-      accessor: (row) => (
-        <HStack spacing={3}>
-          <Avatar
-            size="sm"
-            name={`${row.client?.firstname} ${row.client?.name}`}
-            bg="brand.400"
-            color="white"
-          />
-          <VStack align="start" spacing={0}>
-            <Text fontWeight="semibold" color="text.primary" fontSize="sm">
-              {row.client?.firstname} {row.client?.name}
-            </Text>
-            <Text fontSize="xs" color={textMuted}>
-              {row.client?.email}
-            </Text>
-          </VStack>
-        </HStack>
-      ),
-    },
-    {
-      header: 'Car',
-      accessor: (row) => (
-        <VStack align="start" spacing={0}>
-          <Text fontWeight="medium" color="text.primary" fontSize="sm">
-            {row.car?.brand} {row.car?.model}
-          </Text>
-          <Text fontSize="xs" color={textMuted}>
-            {row.car?.year}
-          </Text>
-        </VStack>
-      ),
-    },
-    {
-      header: 'Period',
-      accessor: (row) => (
-        <VStack align="start" spacing={0}>
-          <Text fontSize="sm" color="text.primary">
-            {format(new Date(row.startDate), 'MMM d')} - {format(new Date(row.endDate), 'MMM d, yyyy')}
-          </Text>
-          <Text fontSize="xs" color={textMuted}>
-            {Math.ceil((new Date(row.endDate).getTime() - new Date(row.startDate).getTime()) / (1000 * 60 * 60 * 24))} days
-          </Text>
-        </VStack>
-      ),
-    },
-    {
-      header: 'Status',
-      accessor: (row) => (
-        <Badge
-          colorScheme={statusColors[row.status]}
-          textTransform="capitalize"
-          borderRadius="md"
-          px={2}
-          py={0.5}
-        >
-          {row.status}
-        </Badge>
-      ),
-    },
-    {
-      header: 'Total',
-      accessor: (row) => (
-        <Text fontWeight="bold" color="brand.400">
-          ${row.total.toFixed(2)}
-        </Text>
-      ),
-    },
-    {
-      header: 'Actions',
-      width: '140px',
-      accessor: (row) => (
-        <HStack spacing={1}>
-          <Tooltip label="View Details" hasArrow>
-            <IconButton
-              icon={<FiEye />}
-              aria-label="View Details"
-              variant="ghost"
-              size="sm"
-              colorScheme="gray"
-              onClick={() => router.push(`/admin/rentals/${row.id}`)}
-            />
-          </Tooltip>
-          {row.status === 'reserved' && (
-            <>
-              <Tooltip label="Start Rental" hasArrow>
-                <IconButton
-                  icon={<FiPlay />}
-                  aria-label="Start Rental"
-                  variant="ghost"
-                  size="sm"
-                  colorScheme="blue"
-                  onClick={() => handleStatusUpdate(row.id, 'ongoing' as RentalStatus)}
-                  isLoading={updateStatusMutation.isPending}
-                />
-              </Tooltip>
-              <Tooltip label="Cancel Rental" hasArrow>
-                <IconButton
-                  icon={<FiX />}
-                  aria-label="Cancel"
-                  variant="ghost"
-                  size="sm"
-                  colorScheme="red"
-                  onClick={() => handleStatusUpdate(row.id, 'cancelled' as RentalStatus)}
-                  isLoading={updateStatusMutation.isPending}
-                />
-              </Tooltip>
-            </>
-          )}
-          {row.status === 'ongoing' && (
-            <Tooltip label="Complete Rental" hasArrow>
-              <IconButton
-                icon={<FiCheck />}
-                aria-label="Complete"
-                variant="ghost"
-                size="sm"
-                colorScheme="green"
-                onClick={() => handleStatusUpdate(row.id, 'completed' as RentalStatus)}
-                isLoading={updateStatusMutation.isPending}
-              />
-            </Tooltip>
-          )}
-        </HStack>
-      ),
-    },
-  ];
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <Box>
-      {/* Header */}
-      <Flex
-        justify="space-between"
-        align="center"
-        mb={6}
-        flexWrap="wrap"
-        gap={4}
-      >
-        <Box>
-          <Heading size="lg" color="text.primary">Rentals</Heading>
-          <Text color={textMuted} fontSize="sm" mt={1}>
-            Manage and track all rental bookings
-          </Text>
+      {/* Rentals Table */}
+      <Box bg={cardBg} borderRadius="2xl" boxShadow="sm" overflow="hidden">
+        <Box overflowX="auto">
+          <Box as="table" w="100%" style={{ borderSpacing: '0', borderCollapse: 'separate' }}>
+            <Box as="thead" bg={headerBg}>
+              <Box as="tr">
+                <Box
+                  as="th"
+                  textAlign="left"
+                  p={4}
+                  fontSize="sm"
+                  color={textMuted}
+                  fontWeight="600"
+                  borderBottom="1px"
+                  borderColor={borderColor}
+                >
+                  Renter name
+                </Box>
+                <Box
+                  as="th"
+                  textAlign="left"
+                  p={4}
+                  fontSize="sm"
+                  color={textMuted}
+                  fontWeight="600"
+                  borderBottom="1px"
+                  borderColor={borderColor}
+                >
+                  Email
+                </Box>
+                <Box
+                  as="th"
+                  textAlign="left"
+                  p={4}
+                  fontSize="sm"
+                  color={textMuted}
+                  fontWeight="600"
+                  borderBottom="1px"
+                  borderColor={borderColor}
+                >
+                  Phone number
+                </Box>
+                <Box
+                  as="th"
+                  textAlign="left"
+                  p={4}
+                  fontSize="sm"
+                  color={textMuted}
+                  fontWeight="600"
+                  borderBottom="1px"
+                  borderColor={borderColor}
+                >
+                  Pick-up date
+                </Box>
+                <Box
+                  as="th"
+                  textAlign="left"
+                  p={4}
+                  fontSize="sm"
+                  color={textMuted}
+                  fontWeight="600"
+                  borderBottom="1px"
+                  borderColor={borderColor}
+                >
+                  Return date
+                </Box>
+                <Box
+                  as="th"
+                  textAlign="left"
+                  p={4}
+                  fontSize="sm"
+                  color={textMuted}
+                  fontWeight="600"
+                  borderBottom="1px"
+                  borderColor={borderColor}
+                >
+                  Amount
+                </Box>
+                <Box
+                  as="th"
+                  textAlign="left"
+                  p={4}
+                  fontSize="sm"
+                  color={textMuted}
+                  fontWeight="600"
+                  borderBottom="1px"
+                  borderColor={borderColor}
+                >
+                  Status
+                </Box>
+                <Box
+                  as="th"
+                  textAlign="center"
+                  p={4}
+                  fontSize="sm"
+                  color={textMuted}
+                  fontWeight="600"
+                  borderBottom="1px"
+                  borderColor={borderColor}
+                >
+                  Actions
+                </Box>
+              </Box>
+            </Box>
+            <Box as="tbody">
+              {data?.data?.map((rental, index) => (
+                <Box
+                  as="tr"
+                  key={rental.id}
+                  borderBottom="1px"
+                  borderColor={borderColor}
+                  _hover={{ bg: hoverBg }}
+                  cursor="pointer"
+                  onClick={() => router.push(`/admin/rentals/${rental.id}`)}
+                >
+                  <Box as="td" p={4}>
+                    <HStack spacing={3}>
+                      <Avatar
+                        size="sm"
+                        name={`${rental.client?.firstname} ${rental.client?.name}`}
+                      />
+                      <Text fontSize="sm" fontWeight="medium" color="text.primary">
+                        {rental.client?.firstname} {rental.client?.name}
+                      </Text>
+                    </HStack>
+                  </Box>
+                  <Box as="td" p={4}>
+                    <Text fontSize="sm" color="text.primary">
+                      {rental.client?.email}
+                    </Text>
+                  </Box>
+                  <Box as="td" p={4}>
+                    <Text fontSize="sm" color="text.primary">
+                      {(rental.client as any)?.telephone || 'N/A'}
+                    </Text>
+                  </Box>
+                  <Box as="td" p={4}>
+                    <Text fontSize="sm" color="text.primary">
+                      {format(new Date(rental.startDate), 'MMMM dd, yyyy • hh:mm a')}
+                    </Text>
+                  </Box>
+                  <Box as="td" p={4}>
+                    <Text fontSize="sm" color="text.primary">
+                      {format(new Date(rental.endDate), 'MMMM dd, yyyy • hh:mm a')}
+                    </Text>
+                  </Box>
+                  <Box as="td" p={4}>
+                    <Text fontSize="sm" fontWeight="medium" color="text.primary">
+                      ${rental.total?.toFixed(2) || '0.00'}
+                    </Text>
+                  </Box>
+                  <Box as="td" p={4}>
+                    <Badge
+                      colorScheme={statusColors[rental.status]}
+                      textTransform="capitalize"
+                      borderRadius="md"
+                      px={3}
+                      py={1}
+                      fontSize="xs"
+                      fontWeight="600"
+                    >
+                      {statusLabels[rental.status]}
+                    </Badge>
+                  </Box>
+                  <Box as="td" p={4} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                    <HStack spacing={1} justify="center">
+                      <IconButton
+                        icon={<FiEye />}
+                        aria-label="View Details"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push(`/admin/rentals/${rental.id}`)}
+                      />
+                      {rental.status === 'reserved' && (
+                        <>
+                          <IconButton
+                            icon={<FiPlay />}
+                            aria-label="Start Rental"
+                            variant="ghost"
+                            size="sm"
+                            colorScheme="blue"
+                            onClick={() => handleStatusUpdate(rental.id, 'ongoing' as RentalStatus)}
+                            isLoading={updateStatusMutation.isPending}
+                          />
+                          <IconButton
+                            icon={<FiX />}
+                            aria-label="Cancel Rental"
+                            variant="ghost"
+                            size="sm"
+                            colorScheme="red"
+                            onClick={() => handleStatusUpdate(rental.id, 'cancelled' as RentalStatus)}
+                            isLoading={updateStatusMutation.isPending}
+                          />
+                        </>
+                      )}
+                      {rental.status === 'ongoing' && (
+                        <IconButton
+                          icon={<FiCheck />}
+                          aria-label="Complete Rental"
+                          variant="ghost"
+                          size="sm"
+                          colorScheme="green"
+                          onClick={() => handleStatusUpdate(rental.id, 'completed' as RentalStatus)}
+                          isLoading={updateStatusMutation.isPending}
+                        />
+                      )}
+                    </HStack>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Box>
         </Box>
-        <Select
-          placeholder="All Statuses"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as RentalStatus | '')}
-          maxW="180px"
-          bg={cardBg}
-          borderRadius="lg"
-          size="md"
-        >
-          <option value="reserved">Reserved</option>
-          <option value="ongoing">Ongoing</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </Select>
-      </Flex>
 
-      {/* Data Table */}
-      <Box bg={cardBg} borderRadius="xl" boxShadow="card" overflow="hidden">
-        <DataTable
-          columns={columns}
-          data={data?.data || []}
-          isLoading={isLoading}
-          page={page}
-          totalPages={data?.meta.totalPages || 1}
-          onPageChange={setPage}
-          keyExtractor={(row) => row.id}
-          emptyMessage="No rentals found"
-        />
+        {/* Empty State */}
+        {(!data?.data || data.data.length === 0) && (
+          <Box py={12} textAlign="center">
+            <Text color={textMuted}>No rentals found</Text>
+          </Box>
+        )}
       </Box>
     </Box>
   );

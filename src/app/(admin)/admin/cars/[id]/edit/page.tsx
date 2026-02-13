@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   Box,
@@ -20,6 +21,11 @@ export default function EditCarPage() {
   const toast = useToast();
   const carId = Number(params.id);
   const { user } = useAuthStore();
+
+  // Prefetch destination route for instant navigation after save
+  useEffect(() => {
+    router.prefetch('/admin/cars');
+  }, [router]);
 
   const { data: car, isLoading } = useCar(carId);
   const updateMutation = useUpdateCar();
