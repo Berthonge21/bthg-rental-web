@@ -12,6 +12,7 @@ import {
   IconButton,
   useToast,
   Avatar,
+  Select,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { FiEye, FiCheck, FiX, FiPlay } from 'react-icons/fi';
@@ -38,16 +39,19 @@ export default function AdminRentalsPage() {
   const router = useRouter();
   const toast = useToast();
   const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState<RentalStatus | ''>('');
 
   const cardBg = useColorModeValue('white', 'navy.700');
   const headerBg = useColorModeValue('gray.50', 'navy.600');
   const borderColor = useColorModeValue('gray.200', 'navy.600');
   const textMuted = useColorModeValue('gray.600', 'gray.400');
   const hoverBg = useColorModeValue('gray.50', 'navy.600');
+  const selectBg = useColorModeValue('white', 'navy.700');
 
   const { data, isLoading } = useAdminRentals({
     page,
     limit: 20,
+    status: statusFilter || undefined,
   });
   const updateStatusMutation = useUpdateRentalStatus();
 
@@ -75,6 +79,24 @@ export default function AdminRentalsPage() {
 
   return (
     <Box>
+      <HStack justify="space-between" mb={6}>
+        <Heading size="lg" color="text.primary">Rentals</Heading>
+        <Select
+          placeholder="All Statuses"
+          value={statusFilter}
+          onChange={(e) => { setStatusFilter(e.target.value as RentalStatus | ''); setPage(1); }}
+          maxW="200px"
+          bg={cardBg}
+          borderRadius="lg"
+          sx={{ option: { bg: selectBg } }}
+        >
+          <option value="reserved">Reserved</option>
+          <option value="ongoing">Ongoing</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </Select>
+      </HStack>
+
       {/* Rentals Table */}
       <Box bg={cardBg} borderRadius="2xl" boxShadow="sm" overflow="hidden">
         <Box overflowX="auto">
@@ -180,7 +202,7 @@ export default function AdminRentalsPage() {
               </Box>
             </Box>
             <Box as="tbody">
-              {data?.data?.map((rental, index) => (
+              {data?.data?.map((rental) => (
                 <Box
                   as="tr"
                   key={rental.id}
@@ -195,6 +217,7 @@ export default function AdminRentalsPage() {
                       <Avatar
                         size="sm"
                         name={`${rental.client?.firstname} ${rental.client?.name}`}
+                        src={(rental.client as any)?.image}
                       />
                       <Text fontSize="sm" fontWeight="medium" color="text.primary">
                         {rental.client?.firstname} {rental.client?.name}

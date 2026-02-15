@@ -6,7 +6,7 @@ import {
   Heading,
   Button,
   HStack,
-  VStack,
+  SimpleGrid,
   FormControl,
   FormLabel,
   FormErrorMessage,
@@ -94,46 +94,27 @@ export default function NewAgencyPage() {
         <Heading size="lg">Create New Agency</Heading>
       </HStack>
 
-      <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm" maxW="2xl">
+      <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <VStack spacing={6} align="stretch">
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
             <FormControl isInvalid={!!errors.name}>
               <FormLabel>Agency Name</FormLabel>
               <Input {...register('name')} placeholder="Enter agency name" />
               <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
             </FormControl>
-
             <FormControl isInvalid={!!errors.email}>
               <FormLabel>Email</FormLabel>
-              <Input
-                {...register('email')}
-                type="email"
-                placeholder="agency@example.com"
-              />
+              <Input {...register('email')} type="email" placeholder="agency@example.com" />
               <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
             </FormControl>
-
             <FormControl isInvalid={!!errors.telephone}>
               <FormLabel>Phone Number</FormLabel>
               <Input {...register('telephone')} placeholder="+1234567890" />
               <FormErrorMessage>{errors.telephone?.message}</FormErrorMessage>
             </FormControl>
-
-            <FormControl isInvalid={!!errors.address}>
-              <FormLabel>Address</FormLabel>
-              <Input
-                {...register('address')}
-                placeholder="Enter full address"
-              />
-              <FormErrorMessage>{errors.address?.message}</FormErrorMessage>
-            </FormControl>
-
             <FormControl isInvalid={!!errors.responsibleId}>
-              <FormLabel>Assign Admin (Responsible)</FormLabel>
-              <Select
-                {...register('responsibleId', { valueAsNumber: true })}
-                placeholder="Select an admin"
-              >
+              <FormLabel>Assign Admin</FormLabel>
+              <Select {...register('responsibleId', { valueAsNumber: true })} placeholder="Select an admin">
                 {availableAdmins.map((admin) => (
                   <option key={admin.id} value={admin.id}>
                     {admin.firstname} {admin.name} ({admin.email})
@@ -142,13 +123,15 @@ export default function NewAgencyPage() {
               </Select>
               <FormErrorMessage>{errors.responsibleId?.message}</FormErrorMessage>
               {availableAdmins.length === 0 && (
-                <Box fontSize="sm" color="orange.500" mt={1}>
-                  No unassigned admins available. Create an admin first.
-                </Box>
+                <Box fontSize="sm" color="orange.500" mt={1}>No unassigned admins available.</Box>
               )}
             </FormControl>
-
-            <FormControl isInvalid={!!errors.status}>
+            <FormControl isInvalid={!!errors.address} gridColumn={{ md: 'span 2' }}>
+              <FormLabel>Address</FormLabel>
+              <Input {...register('address')} placeholder="Enter full address" />
+              <FormErrorMessage>{errors.address?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.status} gridColumn={{ md: 'span 2' }}>
               <FormLabel>Status</FormLabel>
               <Select {...register('status')}>
                 <option value="activate">Active</option>
@@ -156,20 +139,11 @@ export default function NewAgencyPage() {
               </Select>
               <FormErrorMessage>{errors.status?.message}</FormErrorMessage>
             </FormControl>
-
-            <HStack justify="flex-end" pt={4}>
-              <Button variant="ghost" onClick={() => router.back()}>
-                Cancel
-              </Button>
-              <ProgressButton
-                type="submit"
-                colorScheme="brand"
-                isLoading={createMutation.isPending}
-              >
-                Create Agency
-              </ProgressButton>
-            </HStack>
-          </VStack>
+          </SimpleGrid>
+          <HStack justify="flex-end" pt={4}>
+            <Button variant="ghost" onClick={() => router.back()}>Cancel</Button>
+            <ProgressButton type="submit" colorScheme="brand" isLoading={createMutation.isPending}>Create Agency</ProgressButton>
+          </HStack>
         </form>
       </Box>
     </Box>

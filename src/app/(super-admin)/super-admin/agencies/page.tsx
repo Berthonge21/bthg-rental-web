@@ -11,15 +11,13 @@ import {
   Text,
   Badge,
   VStack,
+  Tooltip,
   useToast,
   useDisclosure,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
+  useColorModeValue,
 } from '@chakra-ui/react';
-import { FiPlus, FiEdit2, FiTrash2, FiMoreVertical, FiEye } from 'react-icons/fi';
-import { DataTable, LoadingSpinner, ConfirmDialog, type Column } from '@/components/ui';
+import { FiPlus, FiTrash2, FiEye } from 'react-icons/fi';
+import { DataTable, ConfirmDialog, type Column } from '@/components/ui';
 import { useSuperAdminAgencies, useDeleteAgency } from '@/hooks';
 import type { Agency, Status } from '@bthgrentalcar/sdk';
 
@@ -36,8 +34,22 @@ export default function SuperAdminAgenciesPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { data, isLoading } = useSuperAdminAgencies({ page, limit: 10 });
+  const { data, isLoading } = useSuperAdminAgencies({ page, limit: 10, search: search || undefined });
   const deleteMutation = useDeleteAgency();
+
+  const filteredData = (data?.data || []).filter((agency) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      agency.name.toLowerCase().includes(q) ||
+      agency.email.toLowerCase().includes(q) ||
+      agency.address?.toLowerCase().includes(q)
+    );
+  });
+
+  const cardBg = useColorModeValue('white', 'navy.700');
+  const cardBorder = useColorModeValue('gray.100', 'navy.600');
+  const textMuted = useColorModeValue('text.muted', 'gray.400');
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -64,8 +76,8 @@ export default function SuperAdminAgenciesPage() {
       header: 'Agency',
       accessor: (row) => (
         <VStack align="start" spacing={0}>
-          <Text fontWeight="medium">{row.name}</Text>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontWeight="medium" color="text.primary">{row.name}</Text>
+          <Text fontSize="sm" color={textMuted}>
             {row.email}
           </Text>
         </VStack>
@@ -73,11 +85,11 @@ export default function SuperAdminAgenciesPage() {
     },
     {
       header: 'Address',
-      accessor: (row) => <Text fontSize="sm">{row.address}</Text>,
+      accessor: (row) => <Text fontSize="sm" color={textMuted}>{row.address}</Text>,
     },
     {
       header: 'Phone',
-      accessor: (row) => <Text fontSize="sm">{row.telephone}</Text>,
+      accessor: (row) => <Text fontSize="sm" color={textMuted}>{row.telephone}</Text>,
     },
     {
       header: 'Status',
@@ -89,41 +101,32 @@ export default function SuperAdminAgenciesPage() {
     },
     {
       header: 'Actions',
-      width: '80px',
+      width: '100px',
       accessor: (row) => (
-        <Menu>
-          <MenuButton
-            as={IconButton}
-            icon={<FiMoreVertical />}
-            variant="ghost"
-            size="sm"
-            aria-label="Actions"
-          />
-          <MenuList>
-            <MenuItem
+        <HStack spacing={1}>
+          <Tooltip label="View" hasArrow>
+            <IconButton
+              aria-label="View"
               icon={<FiEye />}
+              variant="ghost"
+              size="sm"
               onClick={() => router.push(`/super-admin/agencies/${row.id}`)}
-            >
-              View
-            </MenuItem>
-            <MenuItem
-              icon={<FiEdit2 />}
-              onClick={() => router.push(`/super-admin/agencies/${row.id}`)}
-            >
-              Edit
-            </MenuItem>
-            <MenuItem
+            />
+          </Tooltip>
+          <Tooltip label="Delete" hasArrow>
+            <IconButton
+              aria-label="Delete"
               icon={<FiTrash2 />}
-              color="red.500"
+              variant="ghost"
+              size="sm"
+              colorScheme="red"
               onClick={() => {
                 setDeleteId(row.id);
                 onOpen();
               }}
-            >
-              Delete
-            </MenuItem>
-          </MenuList>
-        </Menu>
+            />
+          </Tooltip>
+        </HStack>
       ),
     },
   ];
@@ -131,7 +134,7 @@ export default function SuperAdminAgenciesPage() {
   return (
     <Box>
       <HStack justify="space-between" mb={6}>
-        <Heading size="lg">Agencies</Heading>
+        <Heading size="lg" color="text.primary">Agencies</Heading>
         <Button
           leftIcon={<FiPlus />}
           colorScheme="brand"
@@ -141,19 +144,29 @@ export default function SuperAdminAgenciesPage() {
         </Button>
       </HStack>
 
-      <DataTable
-        columns={columns}
-        data={data?.data || []}
-        isLoading={isLoading}
-        page={page}
-        totalPages={data?.meta.totalPages || 1}
-        onPageChange={setPage}
-        searchValue={search}
-        onSearchChange={setSearch}
-        searchPlaceholder="Search agencies..."
-        keyExtractor={(row) => row.id}
-        emptyMessage="No agencies found"
-      />
+      <Box
+        bg={cardBg}
+        borderRadius="2xl"
+        border="1px"
+        borderColor={cardBorder}
+        boxShadow="sm"
+        overflow="hidden"
+        p={5}
+      >
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          isLoading={isLoading}
+          page={page}
+          totalPages={data?.meta.totalPages || 1}
+          onPageChange={setPage}
+          searchValue={search}
+          onSearchChange={(value) => { setSearch(value); setPage(1); }}
+          searchPlaceholder="Search agencies..."
+          keyExtractor={(row) => row.id}
+          emptyMessage="No agencies found"
+        />
+      </Box>
 
       <ConfirmDialog
         isOpen={isOpen}

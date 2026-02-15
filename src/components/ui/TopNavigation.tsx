@@ -61,7 +61,6 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
   const borderColor = useColorModeValue('gray.100', 'navy.700');
   const textMuted = useColorModeValue('text.muted', 'gray.400');
   const navPillBg = useColorModeValue('gray.50', 'navy.700');
-  const hoverBgColor = useColorModeValue('gray.100', 'navy.700');
   const drawerBg = useColorModeValue('white', 'navy.800');
   const brandTextColor = useColorModeValue('navy.800', 'white');
 

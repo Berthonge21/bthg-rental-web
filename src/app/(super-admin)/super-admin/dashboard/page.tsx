@@ -15,7 +15,6 @@ import {
   IconButton,
   Tooltip,
   Button,
-  Select,
   Grid,
   GridItem,
 } from '@chakra-ui/react';
@@ -23,14 +22,11 @@ import {
   FiGrid,
   FiTruck,
   FiUsers,
-  FiCalendar,
   FiDollarSign,
   FiUserCheck,
   FiEye,
   FiDownload,
   FiMoreHorizontal,
-  FiCheckCircle,
-  FiClock,
 } from 'react-icons/fi';
 import NextLink from 'next/link';
 import {
@@ -81,6 +77,8 @@ export default function SuperAdminDashboardPage() {
   const cardBg = useColorModeValue('white', 'navy.700');
   const cardBorder = useColorModeValue('gray.100', 'navy.600');
   const textMuted = useColorModeValue('text.muted', 'gray.400');
+  const gridStroke = useColorModeValue('#E2E8F0', '#2D3748');
+  const axisTickColor = useColorModeValue('#718096', '#A0AEC0');
 
   // Agency status distribution
   const agencyStatusData = useMemo(() => {
@@ -265,29 +263,15 @@ export default function SuperAdminDashboardPage() {
         <Heading size="lg" color="text.primary">
           Welcome back, {user?.firstname}
         </Heading>
-        <HStack spacing={3}>
-          <Select
-            size="sm"
-            maxW="150px"
-            bg={cardBg}
-            borderRadius="lg"
-            defaultValue="week"
-          >
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="year">This Year</option>
-          </Select>
-          <Button
-            size="sm"
-            bg="brand.400"
-            color="white"
-            leftIcon={<FiDownload />}
-            _hover={{ bg: 'brand.500' }}
-          >
-            Export
-          </Button>
-        </HStack>
+        <Button
+          size="sm"
+          bg="brand.400"
+          color="white"
+          leftIcon={<FiDownload />}
+          _hover={{ bg: 'brand.500' }}
+        >
+          Export
+        </Button>
       </Flex>
 
       {/* Top Stats Row - 5 cards */}
@@ -407,9 +391,9 @@ export default function SuperAdminDashboardPage() {
             <Box h="220px">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueData} barGap={4}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} fontSize={12} />
-                  <YAxis axisLine={false} tickLine={false} fontSize={12} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} fontSize={12} tick={{ fill: axisTickColor }} />
+                  <YAxis axisLine={false} tickLine={false} fontSize={12} tick={{ fill: axisTickColor }} />
                   <RechartsTooltip />
                   <Bar dataKey="revenue" fill={BAR_COLORS.revenue} radius={[4, 4, 0, 0]} />
                   <Bar dataKey="rentals" fill={BAR_COLORS.rentals} radius={[4, 4, 0, 0]} />
@@ -472,22 +456,15 @@ export default function SuperAdminDashboardPage() {
             <Text fontWeight="semibold" color="text.primary" fontSize="lg">
               Recent Agencies
             </Text>
-            <HStack spacing={3}>
-              <Select size="sm" maxW="120px" bg="transparent" borderRadius="lg">
-                <option value="24h">Last 24h</option>
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-              </Select>
-              <Button
-                as={NextLink}
-                href="/super-admin/agencies"
-                size="sm"
-                variant="outline"
-                borderColor="gray.200"
-              >
-                See All
-              </Button>
-            </HStack>
+            <Button
+              as={NextLink}
+              href="/super-admin/agencies"
+              size="sm"
+              variant="outline"
+              borderColor={cardBorder}
+            >
+              See All
+            </Button>
           </Flex>
           <Box p={5}>
             <DataTable
@@ -513,22 +490,15 @@ export default function SuperAdminDashboardPage() {
             <Text fontWeight="semibold" color="text.primary" fontSize="lg">
               Admin Users
             </Text>
-            <HStack spacing={3}>
-              <Select size="sm" maxW="120px" bg="transparent" borderRadius="lg">
-                <option value="all">All Roles</option>
-                <option value="admin">Admin</option>
-                <option value="superAdmin">Super Admin</option>
-              </Select>
-              <Button
-                as={NextLink}
-                href="/super-admin/admins"
-                size="sm"
-                variant="outline"
-                borderColor="gray.200"
-              >
-                See All
-              </Button>
-            </HStack>
+            <Button
+              as={NextLink}
+              href="/super-admin/admins"
+              size="sm"
+              variant="outline"
+              borderColor={cardBorder}
+            >
+              See All
+            </Button>
           </Flex>
           <Box p={5}>
             <DataTable

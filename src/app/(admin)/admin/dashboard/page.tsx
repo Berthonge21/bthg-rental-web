@@ -15,7 +15,6 @@ import {
   IconButton,
   Tooltip,
   Button,
-  Select,
   Grid,
   GridItem,
 } from '@chakra-ui/react';
@@ -28,7 +27,6 @@ import {
   FiCheckCircle,
   FiDownload,
   FiMoreHorizontal,
-  FiUsers,
 } from 'react-icons/fi';
 import NextLink from 'next/link';
 import {
@@ -42,7 +40,6 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
-  Legend,
 } from 'recharts';
 import { DataTable, LoadingSpinner, type Column } from '@/components/ui';
 import { useAdminDashboard, useAdminRentals, useCars } from '@/hooks';
@@ -76,7 +73,6 @@ export default function AdminDashboardPage() {
   const textMuted = useColorModeValue('text.muted', 'gray.400');
   const gridStroke = useColorModeValue('#E2E8F0', '#2D3748');
   const axisTickColor = useColorModeValue('#718096', '#A0AEC0');
-  const selectBg = useColorModeValue('white', 'navy.700');
 
   // Calculate car type distribution from real data (by fuel type)
   const carTypeData = useMemo(() => {
@@ -202,30 +198,15 @@ export default function AdminDashboardPage() {
         <Heading size="lg" color="text.primary">
           Welcome back, {user?.firstname}
         </Heading>
-        <HStack spacing={3}>
-          <Select
-            size="sm"
-            maxW="150px"
-            bg={cardBg}
-            borderRadius="lg"
-            defaultValue="week"
-            sx={{ option: { bg: selectBg } }}
-          >
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="year">This Year</option>
-          </Select>
-          <Button
-            size="sm"
-            bg="brand.400"
-            color="white"
-            leftIcon={<FiDownload />}
-            _hover={{ bg: 'brand.500' }}
-          >
-            Export
-          </Button>
-        </HStack>
+        <Button
+          size="sm"
+          bg="brand.400"
+          color="white"
+          leftIcon={<FiDownload />}
+          _hover={{ bg: 'brand.500' }}
+        >
+          Export
+        </Button>
       </Flex>
 
       {/* Top Stats Row - 5 cards */}
@@ -408,22 +389,15 @@ export default function AdminDashboardPage() {
           <Text fontWeight="semibold" color="text.primary" fontSize="lg">
             Action Center
           </Text>
-          <HStack spacing={3}>
-            <Select size="sm" maxW="120px" bg="transparent" borderRadius="lg" sx={{ option: { bg: selectBg } }}>
-              <option value="24h">Last 24h</option>
-              <option value="7d">Last 7 days</option>
-              <option value="30d">Last 30 days</option>
-            </Select>
-            <Button
-              as={NextLink}
-              href="/admin/rentals"
-              size="sm"
-              variant="outline"
-              borderColor={cardBorder}
-            >
-              See All
-            </Button>
-          </HStack>
+          <Button
+            as={NextLink}
+            href="/admin/rentals"
+            size="sm"
+            variant="outline"
+            borderColor={cardBorder}
+          >
+            See All
+          </Button>
         </Flex>
         <Box p={5}>
           <DataTable

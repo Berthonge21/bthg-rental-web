@@ -8,7 +8,9 @@ import {
   Badge,
   Text,
   VStack,
+  Avatar,
   Select,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { DataTable, type Column } from '@/components/ui';
 import { useSuperAdminRentals } from '@/hooks';
@@ -32,28 +34,36 @@ export default function SuperAdminRentalsPage() {
     status: statusFilter || undefined,
   });
 
+  const cardBg = useColorModeValue('white', 'navy.700');
+  const cardBorder = useColorModeValue('gray.100', 'navy.600');
+  const textMuted = useColorModeValue('text.muted', 'gray.400');
+  const selectBg = useColorModeValue('white', 'navy.700');
+
   const columns: Column<Rental>[] = [
     {
       header: 'Client',
       accessor: (row) => (
-        <VStack align="start" spacing={0}>
-          <Text fontWeight="medium">
-            {row.client?.firstname} {row.client?.name}
-          </Text>
-          <Text fontSize="sm" color="gray.500">
-            {row.client?.email}
-          </Text>
-        </VStack>
+        <HStack spacing={3}>
+          <Avatar size="sm" name={`${row.client?.firstname} ${row.client?.name}`} src={(row.client as any)?.image} bg="brand.400" color="white" />
+          <VStack align="start" spacing={0}>
+            <Text fontWeight="medium" color="text.primary">
+              {row.client?.firstname} {row.client?.name}
+            </Text>
+            <Text fontSize="sm" color={textMuted}>
+              {row.client?.email}
+            </Text>
+          </VStack>
+        </HStack>
       ),
     },
     {
       header: 'Car',
       accessor: (row) => (
         <VStack align="start" spacing={0}>
-          <Text fontWeight="medium">
+          <Text fontWeight="medium" color="text.primary">
             {row.car?.brand} {row.car?.model}
           </Text>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color={textMuted}>
             {row.car?.year}
           </Text>
         </VStack>
@@ -63,10 +73,10 @@ export default function SuperAdminRentalsPage() {
       header: 'Period',
       accessor: (row) => (
         <VStack align="start" spacing={0}>
-          <Text fontSize="sm">
+          <Text fontSize="sm" color="text.primary">
             {format(new Date(row.startDate), 'MMM d, yyyy')}
           </Text>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color={textMuted}>
             to {format(new Date(row.endDate), 'MMM d, yyyy')}
           </Text>
         </VStack>
@@ -83,7 +93,7 @@ export default function SuperAdminRentalsPage() {
     {
       header: 'Total',
       accessor: (row) => (
-        <Text fontWeight="semibold">${row.total.toFixed(2)}</Text>
+        <Text fontWeight="semibold" color="text.primary">${row.total.toFixed(2)}</Text>
       ),
     },
   ];
@@ -91,12 +101,15 @@ export default function SuperAdminRentalsPage() {
   return (
     <Box>
       <HStack justify="space-between" mb={6}>
-        <Heading size="lg">All Rentals</Heading>
+        <Heading size="lg" color="text.primary">All Rentals</Heading>
         <Select
           placeholder="All Statuses"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as RentalStatus | '')}
           maxW="200px"
+          bg={cardBg}
+          borderRadius="lg"
+          sx={{ option: { bg: selectBg } }}
         >
           <option value="reserved">Reserved</option>
           <option value="ongoing">Ongoing</option>
@@ -105,16 +118,26 @@ export default function SuperAdminRentalsPage() {
         </Select>
       </HStack>
 
-      <DataTable
-        columns={columns}
-        data={data?.data || []}
-        isLoading={isLoading}
-        page={page}
-        totalPages={data?.meta.totalPages || 1}
-        onPageChange={setPage}
-        keyExtractor={(row) => row.id}
-        emptyMessage="No rentals found"
-      />
+      <Box
+        bg={cardBg}
+        borderRadius="2xl"
+        border="1px"
+        borderColor={cardBorder}
+        boxShadow="sm"
+        overflow="hidden"
+        p={5}
+      >
+        <DataTable
+          columns={columns}
+          data={data?.data || []}
+          isLoading={isLoading}
+          page={page}
+          totalPages={data?.meta.totalPages || 1}
+          onPageChange={setPage}
+          keyExtractor={(row) => row.id}
+          emptyMessage="No rentals found"
+        />
+      </Box>
     </Box>
   );
 }
