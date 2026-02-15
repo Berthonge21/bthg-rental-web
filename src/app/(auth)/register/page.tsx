@@ -73,7 +73,7 @@ export default function RegisterPage() {
         status: 'success',
         duration: 3000,
       });
-      router.push('/dashboard');
+      router.push('/');
     } catch (error) {
       toast({
         title: 'Registration failed',

@@ -130,7 +130,7 @@ export const superAdminNavItems: NavItem[] = [
 ];
 
 export const clientNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: FiHome },
+  { label: 'Dashboard', href: '/', icon: FiHome },
   { label: 'Browse Cars', href: '/cars', icon: FiTruck },
   { label: 'My Rentals', href: '/rentals', icon: FiCalendar },
   { label: 'Profile', href: '/profile', icon: FiUser },

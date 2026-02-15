@@ -6,6 +6,7 @@ import type {
   AdminUserQueryDto,
   CreateAdminUserDto,
   AssignAgencyDto,
+  Status,
 } from '@bthgrentalcar/sdk';
 
 export const superAdminKeys = {
@@ -63,6 +64,19 @@ export function useAssignAgency() {
       api.superAdmin.assignAgency(userId, { agencyId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['super-admin', 'users'] });
+    },
+  });
+}
+
+export function useUpdateUserStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ userId, status }: { userId: number; status: Status }) =>
+      api.superAdmin.updateUserStatus(userId, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['super-admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: superAdminKeys.dashboard });
     },
   });
 }
