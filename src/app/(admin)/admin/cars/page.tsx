@@ -31,7 +31,7 @@ import {
   FiInfo,
   FiClock,
 } from 'react-icons/fi';
-import { LoadingSpinner, ConfirmDialog } from '@/components/ui';
+import { LoadingSpinner, useMinLoading, ConfirmDialog } from '@/components/ui';
 import { useCars, useDeleteCar, useAdminRentals } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
 import type { Car, Rental } from '@bthgrentalcar/sdk';
@@ -47,9 +47,10 @@ interface CarCardProps {
   onEdit: () => void;
   onAvailability: () => void;
   onDelete: () => void;
+  onCardClick: () => void;
 }
 
-function CarCard({ car, onView, onEdit, onAvailability, onDelete }: CarCardProps) {
+function CarCard({ car, onView, onEdit, onAvailability, onDelete, onCardClick }: CarCardProps) {
   const cardBg = useColorModeValue('white', 'navy.700');
   const cardBorder = useColorModeValue('gray.100', 'navy.600');
   const specColor = useColorModeValue('text.muted', 'gray.400');
@@ -70,6 +71,8 @@ function CarCard({ car, onView, onEdit, onAvailability, onDelete }: CarCardProps
         boxShadow: 'cardHover',
       }}
       position="relative"
+      cursor="pointer"
+      onClick={onCardClick}
     >
       {/* Image area */}
       <Box position="relative" w="100%" h="240px" bg={imageBg}>
@@ -93,7 +96,10 @@ function CarCard({ car, onView, onEdit, onAvailability, onDelete }: CarCardProps
               color="white"
               _hover={{ bg: 'accent.400', color: 'white' }}
               variant="ghost"
-              onClick={onView}
+              onClick={(e) => {
+                e.stopPropagation();
+                onView();
+              }}
             />
           </Tooltip>
           <Tooltip label="Availability" hasArrow>
@@ -106,7 +112,10 @@ function CarCard({ car, onView, onEdit, onAvailability, onDelete }: CarCardProps
               color="white"
               _hover={{ bg: 'accent.400', color: 'white' }}
               variant="ghost"
-              onClick={onAvailability}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAvailability();
+              }}
             />
           </Tooltip>
           <Tooltip label="Edit Car" hasArrow>
@@ -119,7 +128,10 @@ function CarCard({ car, onView, onEdit, onAvailability, onDelete }: CarCardProps
               color="white"
               _hover={{ bg: 'brand.400', color: 'white' }}
               variant="ghost"
-              onClick={onEdit}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
             />
           </Tooltip>
           <Tooltip label="Delete Car" hasArrow>
@@ -132,7 +144,10 @@ function CarCard({ car, onView, onEdit, onAvailability, onDelete }: CarCardProps
               color="white"
               _hover={{ bg: 'red.500', color: 'white' }}
               variant="ghost"
-              onClick={onDelete}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
             />
           </Tooltip>
         </HStack>
@@ -518,6 +533,7 @@ export default function AdminCarsPage() {
   // Filter by agency for admin users
   const agencyId = user?.role === 'superAdmin' ? undefined : user?.agency?.id;
   const { data, isLoading, isFetching } = useCars({ agencyId });
+  const showLoading = useMinLoading(isLoading);
   const deleteMutation = useDeleteCar();
 
   const handleDelete = async () => {
@@ -541,11 +557,29 @@ export default function AdminCarsPage() {
   };
 
   // Only show full spinner on first load — show cached data during background refetch
-  if (isLoading && !data) {
+  if (showLoading && !data) {
     return <LoadingSpinner />;
   }
 
   const cars = data?.data ?? [];
+  const CARDS_BESIDE_SIDEBAR = 4; // 2 rows × 2 columns next to sidebar
+  const topCars = cars.slice(0, CARDS_BESIDE_SIDEBAR);
+  const bottomCars = cars.slice(CARDS_BESIDE_SIDEBAR);
+
+  const renderCard = (car: Car) => (
+    <CarCard
+      key={car.id}
+      car={car}
+      onCardClick={() => router.push(`/admin/cars/${car.id}/edit`)}
+      onView={() => router.push(`/admin/cars/${car.id}`)}
+      onEdit={() => router.push(`/admin/cars/${car.id}/edit`)}
+      onAvailability={() => router.push(`/admin/cars/${car.id}/availability`)}
+      onDelete={() => {
+        setDeleteId(car.id);
+        onOpen();
+      }}
+    />
+  );
 
   return (
     <Box>
@@ -559,28 +593,15 @@ export default function AdminCarsPage() {
         </Text>
       </Heading>
 
-      {/* Main Layout: Car Grid (left) + Sidebar (right) */}
-      <Flex gap={6} align="flex-start">
-        {/* LEFT: Car Cards Grid */}
+      {/* Top section: 2-col grid + sidebar */}
+      <Flex gap={5} align="flex-start" mb={bottomCars.length > 0 ? 5 : 0}>
         <Box flex="1" minW={0}>
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-            {cars.map((car) => (
-              <CarCard
-                key={car.id}
-                car={car}
-                onView={() => router.push(`/admin/cars/${car.id}`)}
-                onEdit={() => router.push(`/admin/cars/${car.id}/edit`)}
-                onAvailability={() => router.push(`/admin/cars/${car.id}/availability`)}
-                onDelete={() => {
-                  setDeleteId(car.id);
-                  onOpen();
-                }}
-              />
-            ))}
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={5}>
+            {topCars.map(renderCard)}
           </SimpleGrid>
         </Box>
 
-        {/* RIGHT: Recent Activity Sidebar */}
+        {/* Recent Activity Sidebar */}
         <Box
           w={{ base: '100%', lg: '340px' }}
           flexShrink={0}
@@ -589,6 +610,13 @@ export default function AdminCarsPage() {
           <RecentActivitySidebar />
         </Box>
       </Flex>
+
+      {/* Bottom section: 3-col full width after sidebar */}
+      {bottomCars.length > 0 && (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={5}>
+          {bottomCars.map(renderCard)}
+        </SimpleGrid>
+      )}
 
       {/* Add Car FAB */}
       <Box position="fixed" bottom={8} right={8} zIndex={10}>

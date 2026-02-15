@@ -9,13 +9,7 @@ import {
   Icon,
   Text,
   IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuDivider,
   Avatar,
-  Button,
   useColorMode,
   useColorModeValue,
   useDisclosure,
@@ -41,8 +35,6 @@ import {
   FiMoon,
   FiBell,
   FiLogOut,
-  FiSettings,
-  FiChevronDown,
 } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
 import { useAuthStore } from '@/stores/auth.store';
@@ -64,9 +56,14 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
   const { user, logout } = useAuthStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  // All useColorModeValue calls at top of component
   const bgColor = useColorModeValue('white', 'navy.800');
   const borderColor = useColorModeValue('gray.100', 'navy.700');
   const textMuted = useColorModeValue('text.muted', 'gray.400');
+  const navPillBg = useColorModeValue('gray.50', 'navy.700');
+  const hoverBgColor = useColorModeValue('gray.100', 'navy.700');
+  const drawerBg = useColorModeValue('white', 'navy.800');
+  const brandTextColor = useColorModeValue('navy.800', 'white');
 
   const handleLogout = () => {
     logout();
@@ -118,7 +115,7 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
               <Text
                 fontSize="lg"
                 fontWeight="bold"
-                color="navy.800"
+                color={brandTextColor}
                 display={{ base: 'none', md: 'block' }}
               >
                 {brandName}
@@ -133,7 +130,7 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
             position="absolute"
             left="50%"
             transform="translateX(-50%)"
-            bg={useColorModeValue('gray.50', 'navy.700')}
+            bg={navPillBg}
             borderRadius="full"
             p={1}
           >
@@ -145,7 +142,7 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
             })}
           </HStack>
 
-          {/* Right: Notifications, User */}
+          {/* Right: Notifications, Theme, User + Logout */}
           <HStack spacing={2}>
             {/* Notifications */}
             <Tooltip label="Notifications" hasArrow>
@@ -190,52 +187,43 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
               />
             </Tooltip>
 
-            {/* User Menu */}
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="ghost"
-                borderRadius="full"
-                px={2}
-                py={1}
-                h="auto"
-                _hover={{ bg: useColorModeValue('gray.100', 'navy.700') }}
+            {/* User info + logout icon */}
+            <HStack spacing={2} pl={2}>
+              <Avatar
+                size="sm"
+                name={`${user?.firstname} ${user?.name}`}
+                src={user?.image}
+                bg="brand.400"
+                color="white"
+              />
+              <VStack
+                spacing={0}
+                alignItems="flex-start"
+                display={{ base: 'none', md: 'flex' }}
               >
-                <HStack spacing={2}>
-                  <Avatar
-                    size="sm"
-                    name={`${user?.firstname} ${user?.name}`}
-                    bg="brand.400"
-                    color="white"
-                  />
-                  <VStack
-                    spacing={0}
-                    alignItems="flex-start"
-                    display={{ base: 'none', md: 'flex' }}
-                  >
-                    <Text fontSize="sm" fontWeight="medium" lineHeight="short" color="text.primary">
-                      {user?.firstname} {user?.name}
-                    </Text>
-                    <Text fontSize="xs" color={textMuted} lineHeight="short">
-                      {user?.role === 'superAdmin' ? 'Super Admin' : 'Admin'}
-                    </Text>
-                  </VStack>
-                  <Icon as={FiChevronDown} color={textMuted} display={{ base: 'none', md: 'block' }} />
-                </HStack>
-              </MenuButton>
-              <MenuList>
-                <MenuItem icon={<FiUser />} as={NextLink} href="/admin/profile">
-                  My Profile
-                </MenuItem>
-                <MenuItem icon={<FiSettings />}>
-                  Settings
-                </MenuItem>
-                <MenuDivider />
-                <MenuItem icon={<FiLogOut />} onClick={handleLogout} color="red.500">
-                  Logout
-                </MenuItem>
-              </MenuList>
-            </Menu>
+                <Text fontSize="sm" fontWeight="medium" lineHeight="short" color="text.primary">
+                  {user?.firstname} {user?.name}
+                </Text>
+                <Text fontSize="xs" color={textMuted} lineHeight="short">
+                  {user?.role === 'superAdmin' ? 'Super Admin' : 'Admin'}
+                </Text>
+              </VStack>
+
+              {/* Logout icon -- filled style for prominence */}
+              <Tooltip label="Logout" hasArrow>
+                <IconButton
+                  aria-label="Logout"
+                  icon={<FiLogOut />}
+                  variant="ghost"
+                  borderRadius="full"
+                  size="md"
+                  bg="red.50"
+                  color="red.500"
+                  onClick={handleLogout}
+                  _hover={{ bg: 'red.100' }}
+                />
+              </Tooltip>
+            </HStack>
           </HStack>
         </Flex>
       </Box>
@@ -243,7 +231,7 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
       {/* Mobile Drawer */}
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent bg={useColorModeValue('white', 'navy.800')}>
+        <DrawerContent bg={drawerBg}>
           <DrawerCloseButton />
           <DrawerHeader borderBottomWidth="1px">
             <HStack spacing={3}>
@@ -258,7 +246,7 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
               >
                 <Icon as={FiTruck} color="brand.400" boxSize={4} />
               </Box>
-              <Text fontWeight="bold" color="navy.800">
+              <Text fontWeight="bold" color={brandTextColor}>
                 {brandName}
               </Text>
             </HStack>

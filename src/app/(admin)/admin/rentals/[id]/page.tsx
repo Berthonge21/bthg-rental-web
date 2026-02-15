@@ -17,6 +17,8 @@ import {
   Icon,
   Grid,
   GridItem,
+  Alert,
+  AlertIcon,
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react';
@@ -32,9 +34,8 @@ import {
   FiClock,
   FiDollarSign,
   FiTruck,
-  FiHash,
 } from 'react-icons/fi';
-import { LoadingSpinner } from '@/components/ui';
+import { LoadingSpinner, useMinLoading, ProgressButton } from '@/components/ui';
 import { useAdminRental, useUpdateRentalStatus } from '@/hooks';
 import type { RentalStatus } from '@bthgrentalcar/sdk';
 import { format, differenceInDays } from 'date-fns';
@@ -167,18 +168,22 @@ export default function RentalDetailsPage() {
   const rentalId = Number(params.id);
 
   const { data: rental, isLoading } = useAdminRental(rentalId);
+  const showLoading = useMinLoading(isLoading);
   const updateStatusMutation = useUpdateRentalStatus();
 
-  // Theme-aware colors
+  // Theme-aware colors -- all at top of component
   const cardBg = useColorModeValue('white', 'navy.700');
   const cardBorder = useColorModeValue('gray.100', 'navy.600');
   const subtleBg = useColorModeValue('gray.50', 'navy.600');
   const dividerColor = useColorModeValue('gray.100', 'navy.600');
-  const timelineBg = useColorModeValue('gray.100', 'navy.600');
-  const circleBg = useColorModeValue('gray.100', 'navy.600');
-  const circleInactiveColor = useColorModeValue('gray.400', 'gray.500');
+  const stepperTrackBg = useColorModeValue('gray.200', 'navy.600');
+  const stepperInactiveText = useColorModeValue('gray.400', 'gray.500');
+  const stepperInactiveCircleBg = useColorModeValue('gray.100', 'navy.600');
+  const stepperInactiveCircleColor = useColorModeValue('gray.400', 'gray.500');
   const pickupBorder = useColorModeValue('green.100', 'navy.500');
   const returnBorder = useColorModeValue('red.100', 'navy.500');
+  const headerBg = useColorModeValue('white', 'navy.700');
+  const headerBorder = useColorModeValue('gray.100', 'navy.600');
 
   const handleStatusUpdate = async (status: RentalStatus) => {
     try {
@@ -208,7 +213,7 @@ export default function RentalDetailsPage() {
     return diff > 0 ? diff : 1;
   }, [rental]);
 
-  if (isLoading) {
+  if (showLoading) {
     return <LoadingSpinner text="Loading rental details..." />;
   }
 
@@ -236,10 +241,11 @@ export default function RentalDetailsPage() {
   const statusConfig = STATUS_CONFIG[rental.status];
   const timelineProgress = getTimelineProgress(rental.status);
   const isCancelled = rental.status === 'cancelled';
+  const carName = `${rental.car?.brand ?? ''} ${rental.car?.model ?? ''}`.trim() || 'Vehicle';
 
   return (
     <Box>
-      {/* ---- Top bar: back button + actions ---- */}
+      {/* ---- Top bar: back button + car name title + status badge + actions ---- */}
       <Flex
         justify="space-between"
         align="center"
@@ -258,15 +264,25 @@ export default function RentalDetailsPage() {
             Back
           </Button>
           <Divider orientation="vertical" h="20px" borderColor={dividerColor} />
-          <Text fontSize="sm" color="gray.500" fontWeight="medium">
-            Rental #{rental.id}
-          </Text>
+          <Heading size="md" color="text.primary">
+            {carName}
+          </Heading>
+          <Badge
+            colorScheme={BADGE_COLOR_SCHEME[rental.status]}
+            fontSize="xs"
+            px={3}
+            py={1}
+            borderRadius="full"
+            textTransform="capitalize"
+          >
+            {statusConfig.label}
+          </Badge>
         </HStack>
 
         <HStack spacing={3}>
           {rental.status === 'reserved' && (
             <>
-              <Button
+              <ProgressButton
                 leftIcon={<FiPlay />}
                 colorScheme="blue"
                 size="sm"
@@ -274,8 +290,8 @@ export default function RentalDetailsPage() {
                 isLoading={updateStatusMutation.isPending}
               >
                 Start Rental
-              </Button>
-              <Button
+              </ProgressButton>
+              <ProgressButton
                 leftIcon={<FiX />}
                 colorScheme="red"
                 variant="outline"
@@ -284,11 +300,11 @@ export default function RentalDetailsPage() {
                 isLoading={updateStatusMutation.isPending}
               >
                 Cancel
-              </Button>
+              </ProgressButton>
             </>
           )}
           {rental.status === 'ongoing' && (
-            <Button
+            <ProgressButton
               leftIcon={<FiCheck />}
               colorScheme="green"
               size="sm"
@@ -296,7 +312,7 @@ export default function RentalDetailsPage() {
               isLoading={updateStatusMutation.isPending}
             >
               Complete Rental
-            </Button>
+            </ProgressButton>
           )}
         </HStack>
       </Flex>
@@ -321,7 +337,7 @@ export default function RentalDetailsPage() {
           >
             <Image
               src={rental.car?.image || '/placeholder-car.jpg'}
-              alt={`${rental.car?.brand} ${rental.car?.model}`}
+              alt={carName}
               maxW="100%"
               maxH="220px"
               objectFit="contain"
@@ -334,22 +350,9 @@ export default function RentalDetailsPage() {
           <GridItem p={{ base: 5, md: 8 }}>
             <Flex direction="column" justify="space-between" h="full">
               <Box>
-                {/* Status badge */}
-                <Badge
-                  colorScheme={BADGE_COLOR_SCHEME[rental.status]}
-                  fontSize="xs"
-                  px={3}
-                  py={1}
-                  borderRadius="full"
-                  textTransform="capitalize"
-                  mb={3}
-                >
-                  {statusConfig.label}
-                </Badge>
-
                 {/* Car title */}
                 <Heading size="lg" mb={1} color="text.primary">
-                  {rental.car?.brand} {rental.car?.model}
+                  {carName}
                 </Heading>
                 <Text color="gray.500" fontSize="sm" mb={4}>
                   {rental.car?.year}
@@ -388,7 +391,7 @@ export default function RentalDetailsPage() {
         </Grid>
       </Box>
 
-      {/* ---- Status timeline ---- */}
+      {/* ---- Rental Progress Stepper ---- */}
       <Box
         bg={cardBg}
         borderRadius="2xl"
@@ -402,97 +405,105 @@ export default function RentalDetailsPage() {
         </Text>
 
         {isCancelled ? (
-          <Flex align="center" gap={3}>
-            <Box
-              w={8}
-              h={8}
-              borderRadius="full"
-              bg="red.50"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              flexShrink={0}
-            >
-              <Icon as={FiX} color="red.500" boxSize={4} />
+          <Alert status="error" borderRadius="xl" variant="subtle">
+            <AlertIcon />
+            <Box>
+              <Text fontWeight="semibold" color="red.600">
+                Rental Cancelled
+              </Text>
+              <Text fontSize="sm" color="red.500">
+                This rental has been cancelled and is no longer active.
+              </Text>
             </Box>
-            <Text fontWeight="semibold" color="red.500">
-              This rental has been cancelled.
-            </Text>
-          </Flex>
+          </Alert>
         ) : (
-          <Flex
-            align="center"
-            justify="space-between"
-            position="relative"
-          >
-            {/* Connector line (behind circles) */}
-            <Box
-              position="absolute"
-              top="50%"
-              left="16px"
-              right="16px"
-              h="3px"
-              bg={timelineBg}
-              transform="translateY(-50%)"
-              zIndex={0}
-              borderRadius="full"
-            />
-            {/* Active portion of connector */}
-            <Box
-              position="absolute"
-              top="50%"
-              left="16px"
-              h="3px"
-              bg="accent.400"
-              transform="translateY(-50%)"
-              zIndex={1}
-              borderRadius="full"
-              w={
-                timelineProgress === 0
-                  ? '0%'
-                  : timelineProgress === 1
-                  ? 'calc(50% - 16px)'
-                  : 'calc(100% - 32px)'
-              }
-              transition="width 0.4s ease"
-            />
+          <Box px={{ base: 2, md: 8 }} py={4}>
+            <Flex align="flex-start" position="relative">
+              {TIMELINE_STEPS.map((step, index) => {
+                const isCompleted = index < timelineProgress;
+                const isCurrent = index === timelineProgress;
+                const isActive = index <= timelineProgress;
 
-            {TIMELINE_STEPS.map((step, index) => {
-              const isActive = index <= timelineProgress;
-              const isCurrent = index === timelineProgress;
-              return (
-                <VStack key={step.key} spacing={2} zIndex={2} flex="1" align="center">
-                  <Box
-                    w={isCurrent ? 10 : 8}
-                    h={isCurrent ? 10 : 8}
-                    borderRadius="full"
-                    bg={isActive ? 'accent.400' : circleBg}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    transition="all 0.3s"
-                    boxShadow={isCurrent ? '0 0 0 4px rgba(27, 197, 189, 0.2)' : 'none'}
+                // Determine which date/time to show under each step
+                let stepDateInfo = '';
+                if (index === 0 && rental.startDate) {
+                  stepDateInfo = format(new Date(rental.startDate), 'MMM d, yyyy');
+                } else if (index === 2 && rental.status === 'completed' && rental.endDate) {
+                  stepDateInfo = format(new Date(rental.endDate), 'MMM d, yyyy');
+                }
+
+                return (
+                  <Flex
+                    key={step.key}
+                    flex="1"
+                    direction="column"
+                    align="center"
+                    position="relative"
                   >
-                    <Icon
-                      as={
-                        index === 0 ? FiCalendar : index === 1 ? FiPlay : FiCheck
-                      }
-                      color={isActive ? 'white' : circleInactiveColor}
-                      boxSize={isCurrent ? 5 : 4}
-                    />
-                  </Box>
-                  <Text
-                    fontSize="xs"
-                    fontWeight={isCurrent ? 'bold' : 'medium'}
-                    color={isActive ? 'accent.500' : 'gray.400'}
-                    textAlign="center"
-                  >
-                    {step.label}
-                  </Text>
-                </VStack>
-              );
-            })}
-          </Flex>
+                    {/* Connector bar to the right of this step (not on last step) */}
+                    {index < TIMELINE_STEPS.length - 1 && (
+                      <Box
+                        position="absolute"
+                        top="18px"
+                        left="50%"
+                        right="-50%"
+                        h="4px"
+                        borderRadius="full"
+                        bg={isCompleted ? 'accent.400' : stepperTrackBg}
+                        transition="background 0.4s ease"
+                        zIndex={0}
+                      />
+                    )}
+
+                    {/* Step number circle */}
+                    <Flex
+                      w={isCurrent ? '44px' : '36px'}
+                      h={isCurrent ? '44px' : '36px'}
+                      borderRadius="full"
+                      bg={isActive ? 'accent.400' : stepperInactiveCircleBg}
+                      color={isActive ? 'white' : stepperInactiveCircleColor}
+                      align="center"
+                      justify="center"
+                      fontWeight="bold"
+                      fontSize={isCurrent ? 'md' : 'sm'}
+                      zIndex={1}
+                      transition="all 0.3s"
+                      boxShadow={isCurrent ? '0 0 0 4px rgba(27, 197, 189, 0.2)' : 'none'}
+                    >
+                      {isCompleted ? (
+                        <Icon as={FiCheck} boxSize={isCurrent ? 5 : 4} />
+                      ) : (
+                        index + 1
+                      )}
+                    </Flex>
+
+                    {/* Step label */}
+                    <Text
+                      fontSize="sm"
+                      fontWeight={isCurrent ? 'bold' : 'medium'}
+                      color={isActive ? 'accent.500' : stepperInactiveText}
+                      mt={2}
+                      textAlign="center"
+                    >
+                      {step.label}
+                    </Text>
+
+                    {/* Date/time info below label */}
+                    {stepDateInfo && (
+                      <Text
+                        fontSize="xs"
+                        color={stepperInactiveText}
+                        mt={0.5}
+                        textAlign="center"
+                      >
+                        {stepDateInfo}
+                      </Text>
+                    )}
+                  </Flex>
+                );
+              })}
+            </Flex>
+          </Box>
         )}
       </Box>
 
@@ -563,10 +574,10 @@ export default function RentalDetailsPage() {
             <DetailRow
               icon={FiTruck}
               label="Vehicle"
-              value={`${rental.car?.brand ?? ''} ${rental.car?.model ?? ''}`.trim() || 'N/A'}
+              value={carName}
             />
             <DetailRow
-              icon={FiHash}
+              icon={FiCalendar}
               label="Year"
               value={String(rental.car?.year ?? 'N/A')}
             />

@@ -16,7 +16,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { FiArrowLeft, FiEdit2, FiCalendar } from 'react-icons/fi';
-import { LoadingSpinner } from '@/components/ui';
+import { LoadingSpinner, useMinLoading } from '@/components/ui';
 import { useCar } from '@/hooks';
 import { parseCarImages } from '@/lib/imageUtils';
 
@@ -28,6 +28,7 @@ export default function CarDetailsPage() {
   const carId = Number(params.id);
 
   const { data: car, isLoading } = useCar(carId);
+  const showLoading = useMinLoading(isLoading);
 
   // Prefetch likely navigation targets
   useEffect(() => {
@@ -41,10 +42,11 @@ export default function CarDetailsPage() {
   const thumbBorder = useColorModeValue('gray.200', 'navy.600');
   const thumbActiveBorder = useColorModeValue('brand.400', 'brand.400');
   const thumbBg = useColorModeValue('gray.50', 'navy.800');
+  const descriptionColor = useColorModeValue('gray.600', 'gray.300');
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  if (isLoading) {
+  if (showLoading) {
     return <LoadingSpinner text="Loading car details..." />;
   }
 
@@ -228,7 +230,7 @@ export default function CarDetailsPage() {
           <Heading size="md" mb={4}>
             Description
           </Heading>
-          <Text color="gray.600">
+          <Text color={descriptionColor}>
             {car.description || 'No description available for this vehicle.'}
           </Text>
         </Box>

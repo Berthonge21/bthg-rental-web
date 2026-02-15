@@ -27,6 +27,7 @@ import { z } from 'zod';
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { FiUploadCloud, FiX, FiPlus } from 'react-icons/fi';
 import type { Car, Agency } from '@bthgrentalcar/sdk';
+import { ProgressButton } from '@/components/ui/ProgressButton';
 import {
   parseCarImages,
   serializeCarImages,
@@ -609,9 +610,9 @@ export function CarForm({
                 <FormErrorMessage>{errors.description?.message}</FormErrorMessage>
               </FormControl>
 
-              <Button type="submit" colorScheme="brand" size="lg" isLoading={isLoading}>
+              <ProgressButton type="submit" colorScheme="brand" size="lg" isLoading={isLoading}>
                 {submitLabel}
-              </Button>
+              </ProgressButton>
             </Stack>
           </Box>
         </Flex>

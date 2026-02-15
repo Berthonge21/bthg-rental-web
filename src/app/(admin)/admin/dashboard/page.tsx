@@ -74,6 +74,9 @@ export default function AdminDashboardPage() {
   const cardBg = useColorModeValue('white', 'navy.700');
   const cardBorder = useColorModeValue('gray.100', 'navy.600');
   const textMuted = useColorModeValue('text.muted', 'gray.400');
+  const gridStroke = useColorModeValue('#E2E8F0', '#2D3748');
+  const axisTickColor = useColorModeValue('#718096', '#A0AEC0');
+  const selectBg = useColorModeValue('white', 'navy.700');
 
   // Calculate car type distribution from real data (by fuel type)
   const carTypeData = useMemo(() => {
@@ -206,6 +209,7 @@ export default function AdminDashboardPage() {
             bg={cardBg}
             borderRadius="lg"
             defaultValue="week"
+            sx={{ option: { bg: selectBg } }}
           >
             <option value="today">Today</option>
             <option value="week">This Week</option>
@@ -341,9 +345,9 @@ export default function AdminDashboardPage() {
             <Box h="220px">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueData} barGap={4}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} fontSize={12} />
-                  <YAxis axisLine={false} tickLine={false} fontSize={12} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} fontSize={12} tick={{ fill: axisTickColor }} />
+                  <YAxis axisLine={false} tickLine={false} fontSize={12} tick={{ fill: axisTickColor }} />
                   <RechartsTooltip />
                   <Bar dataKey="revenue" fill={BAR_COLORS.revenue} radius={[4, 4, 0, 0]} />
                   <Bar dataKey="rentals" fill={BAR_COLORS.rentals} radius={[4, 4, 0, 0]} />
@@ -405,7 +409,7 @@ export default function AdminDashboardPage() {
             Action Center
           </Text>
           <HStack spacing={3}>
-            <Select size="sm" maxW="120px" bg="transparent" borderRadius="lg">
+            <Select size="sm" maxW="120px" bg="transparent" borderRadius="lg" sx={{ option: { bg: selectBg } }}>
               <option value="24h">Last 24h</option>
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
@@ -415,7 +419,7 @@ export default function AdminDashboardPage() {
               href="/admin/rentals"
               size="sm"
               variant="outline"
-              borderColor="gray.200"
+              borderColor={cardBorder}
             >
               See All
             </Button>

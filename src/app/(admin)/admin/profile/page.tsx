@@ -16,14 +16,14 @@ import {
   useToast,
   Divider,
   IconButton,
-  InputGroup,
-  InputRightElement,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@/stores/auth.store';
 import { api } from '@/lib/api';
 import { useState, useRef, useEffect } from 'react';
 import { FiCamera, FiX } from 'react-icons/fi';
+import { readFileAsDataURL, validateImageFile } from '@/lib/imageUtils';
+import { ProgressButton } from '@/components/ui/ProgressButton';
 
 interface ProfileFormData {
   firstname: string;
@@ -38,13 +38,14 @@ export default function ProfilePage() {
   const [imagePreview, setImagePreview] = useState<string | undefined>(user?.image);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const cardBg = useColorModeValue('white', 'gray.800');
+  const cardBg = useColorModeValue('white', 'navy.700');
+  const readOnlyBg = useColorModeValue('gray.50', 'navy.600');
+  const subtleTextColor = useColorModeValue('gray.500', 'gray.400');
 
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors, isDirty },
   } = useForm<ProfileFormData>({
@@ -67,21 +68,25 @@ export default function ProfilePage() {
     }
   }, [user, reset]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Show warning - file uploads not supported, use URL instead
-      toast({
-        title: 'File upload not supported',
-        description: 'Please use an image URL instead (e.g., from Imgur, Cloudinary)',
-        status: 'warning',
-        duration: 5000,
-      });
-      // Clear the file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    if (!file) return;
+
+    const error = validateImageFile(file);
+    if (error) {
+      toast({ title: 'Invalid file', description: error, status: 'error', duration: 4000 });
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
     }
+
+    try {
+      const dataUrl = await readFileAsDataURL(file);
+      setValue('image', dataUrl, { shouldDirty: true });
+      setImagePreview(dataUrl);
+    } catch {
+      toast({ title: 'Failed to read file', status: 'error', duration: 3000 });
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleRemoveImage = () => {
@@ -116,7 +121,7 @@ export default function ProfilePage() {
 
   return (
     <Box>
-      <Heading size="lg" mb={6}>
+      <Heading size="lg" mb={6} color="text.primary">
         Profile
       </Heading>
 
@@ -161,11 +166,14 @@ export default function ProfilePage() {
                 Remove Photo
               </Button>
             )}
+            <Text fontSize="xs" color={subtleTextColor} mt={1}>
+              Click the camera icon to upload a profile photo
+            </Text>
             <VStack spacing={1}>
               <Text fontWeight="bold" fontSize="xl">
                 {user?.firstname} {user?.name}
               </Text>
-              <Text color="gray.500">{user?.email}</Text>
+              <Text color={subtleTextColor}>{user?.email}</Text>
               <Text
                 fontSize="sm"
                 color="brand.500"
@@ -175,7 +183,7 @@ export default function ProfilePage() {
                 {user?.role === 'superAdmin' ? 'Super Admin' : user?.role}
               </Text>
               {user?.agency && (
-                <Text fontSize="sm" color="gray.500">
+                <Text fontSize="sm" color={subtleTextColor}>
                   {user.agency.name}
                 </Text>
               )}
@@ -191,7 +199,7 @@ export default function ProfilePage() {
           boxShadow="sm"
           gridColumn={{ lg: 'span 2' }}
         >
-          <Heading size="md" mb={6}>
+          <Heading size="md" mb={6} color="text.primary">
             Edit Profile
           </Heading>
 
@@ -211,49 +219,20 @@ export default function ProfilePage() {
 
               <FormControl>
                 <FormLabel>Email</FormLabel>
-                <Input value={user?.email || ''} isReadOnly bg="gray.50" />
-              </FormControl>
-
-              <FormControl>
-                <FormLabel>Profile Image URL</FormLabel>
-                <InputGroup>
-                  <Input
-                    {...register('image')}
-                    placeholder="https://example.com/avatar.jpg"
-                    value={watch('image') || ''}
-                    onChange={(e) => {
-                      setValue('image', e.target.value, { shouldDirty: true });
-                      setImagePreview(e.target.value);
-                    }}
-                  />
-                  {watch('image') && (
-                    <InputRightElement>
-                      <IconButton
-                        aria-label="Clear"
-                        icon={<FiX />}
-                        size="sm"
-                        variant="ghost"
-                        onClick={handleRemoveImage}
-                      />
-                    </InputRightElement>
-                  )}
-                </InputGroup>
-                <Text fontSize="xs" color="gray.500" mt={1}>
-                  Or click the camera icon on your avatar to upload a photo
-                </Text>
+                <Input value={user?.email || ''} isReadOnly bg={readOnlyBg} />
               </FormControl>
 
               <Divider />
 
               <HStack justify="flex-end">
-                <Button
+                <ProgressButton
                   type="submit"
                   colorScheme="brand"
                   isLoading={isLoading}
                   isDisabled={!isDirty}
                 >
                   Save Changes
-                </Button>
+                </ProgressButton>
               </HStack>
             </VStack>
           </form>

@@ -10,6 +10,7 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { useRef } from 'react';
+import { ProgressButton } from './ProgressButton';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -55,14 +56,14 @@ export function ConfirmDialog({
             <Button ref={cancelRef} onClick={onClose} isDisabled={isLoading}>
               {cancelText}
             </Button>
-            <Button
+            <ProgressButton
               colorScheme={colorScheme}
               onClick={onConfirm}
               ml={3}
               isLoading={isLoading}
             >
               {confirmText}
-            </Button>
+            </ProgressButton>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialogOverlay>

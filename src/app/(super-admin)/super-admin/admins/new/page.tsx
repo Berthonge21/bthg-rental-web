@@ -25,6 +25,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import { useCreateAdminUser } from '@/hooks';
+import { ProgressButton } from '@/components/ui/ProgressButton';
 import { UserRole } from '@bthgrentalcar/sdk';
 
 const adminSchema = z.object({
@@ -145,14 +146,14 @@ export default function NewAdminPage() {
               <FormErrorMessage>{errors.role?.message}</FormErrorMessage>
             </FormControl>
 
-            <Button
+            <ProgressButton
               type="submit"
               colorScheme="brand"
               size="lg"
               isLoading={createMutation.isPending}
             >
               Create Admin
-            </Button>
+            </ProgressButton>
           </Stack>
         </form>
       </Box>

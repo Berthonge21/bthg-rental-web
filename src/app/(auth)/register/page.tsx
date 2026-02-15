@@ -26,6 +26,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuthStore } from '@/stores/auth.store';
+import { ProgressButton } from '@/components/ui/ProgressButton';
 
 const registerSchema = z
   .object({
@@ -188,7 +189,7 @@ export default function RegisterPage() {
               <FormErrorMessage>{errors.city?.message}</FormErrorMessage>
             </FormControl>
 
-            <Button
+            <ProgressButton
               type="submit"
               colorScheme="brand"
               size="lg"
@@ -196,7 +197,7 @@ export default function RegisterPage() {
               isLoading={isLoading}
             >
               Create Account
-            </Button>
+            </ProgressButton>
           </Stack>
         </form>
 

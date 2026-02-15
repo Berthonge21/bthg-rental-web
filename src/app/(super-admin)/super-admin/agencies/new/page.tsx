@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateAgency, useSuperAdminUsers } from '@/hooks';
+import { ProgressButton } from '@/components/ui/ProgressButton';
 import { Status } from '@bthgrentalcar/sdk';
 
 const agencySchema = z.object({
@@ -160,13 +161,13 @@ export default function NewAgencyPage() {
               <Button variant="ghost" onClick={() => router.back()}>
                 Cancel
               </Button>
-              <Button
+              <ProgressButton
                 type="submit"
                 colorScheme="brand"
                 isLoading={createMutation.isPending}
               >
                 Create Agency
-              </Button>
+              </ProgressButton>
             </HStack>
           </VStack>
         </form>

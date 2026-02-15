@@ -7,6 +7,22 @@ const config: ThemeConfig = {
 
 export const theme = extendTheme({
   config,
+  semanticTokens: {
+    colors: {
+      'text.primary': {
+        default: '#1a202c',
+        _dark: '#E2E8F0',
+      },
+      'text.secondary': {
+        default: '#4a5568',
+        _dark: '#A0AEC0',
+      },
+      'text.muted': {
+        default: '#718096',
+        _dark: '#718096',
+      },
+    },
+  },
   colors: {
     // Primary Gold - for buttons and accents
     brand: {
@@ -52,12 +68,6 @@ export const theme = extendTheme({
       light: '#F9FAFB', // Main background
       dark: '#0f172a',
       card: '#FFFFFF',
-    },
-    // Text colors
-    text: {
-      primary: '#1a202c', // Dark charcoal
-      secondary: '#4a5568',
-      muted: '#718096',
     },
   },
   fonts: {
@@ -208,7 +218,6 @@ export const theme = extendTheme({
             border: 'none',
             py: 4,
             px: 4,
-            bg: 'white',
             _first: {
               borderLeftRadius: 'lg',
             },
