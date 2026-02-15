@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   Box,
@@ -15,8 +16,11 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { FiArrowLeft, FiEdit2, FiCalendar } from 'react-icons/fi';
-import { LoadingSpinner } from '@/components/ui';
+import { LoadingSpinner, useMinLoading } from '@/components/ui';
 import { useCar } from '@/hooks';
+import { parseCarImages } from '@/lib/imageUtils';
+
+const FALLBACK_IMAGE = 'https://via.placeholder.com/400x300?text=No+Image';
 
 export default function CarDetailsPage() {
   const router = useRouter();
@@ -24,10 +28,25 @@ export default function CarDetailsPage() {
   const carId = Number(params.id);
 
   const { data: car, isLoading } = useCar(carId);
+  const showLoading = useMinLoading(isLoading);
 
+  // Prefetch likely navigation targets
+  useEffect(() => {
+    router.prefetch(`/admin/cars/${carId}/edit`);
+    router.prefetch(`/admin/cars/${carId}/availability`);
+    router.prefetch('/admin/cars');
+  }, [router, carId]);
+
+  // All useColorModeValue calls at the top, before any early returns
   const cardBg = useColorModeValue('white', 'gray.800');
+  const thumbBorder = useColorModeValue('gray.200', 'navy.600');
+  const thumbActiveBorder = useColorModeValue('brand.400', 'brand.400');
+  const thumbBg = useColorModeValue('gray.50', 'navy.800');
+  const descriptionColor = useColorModeValue('gray.600', 'gray.300');
 
-  if (isLoading) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  if (showLoading) {
     return <LoadingSpinner text="Loading car details..." />;
   }
 
@@ -41,6 +60,10 @@ export default function CarDetailsPage() {
       </Box>
     );
   }
+
+  const images = parseCarImages(car.image);
+  const hasImages = images.length > 0;
+  const mainImage = hasImages ? images[selectedIndex] ?? images[0] : FALLBACK_IMAGE;
 
   return (
     <Box>
@@ -78,17 +101,56 @@ export default function CarDetailsPage() {
       </HStack>
 
       <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-        {/* Car Image */}
+        {/* Car Image Gallery */}
         <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
+          {/* Main Image */}
           <Image
-            src={car.image || '/placeholder-car.jpg'}
+            src={mainImage}
             alt={`${car.brand} ${car.model}`}
             w="full"
             h="300px"
             objectFit="cover"
             borderRadius="lg"
-            fallbackSrc="https://via.placeholder.com/400x300?text=No+Image"
+            fallbackSrc={FALLBACK_IMAGE}
           />
+
+          {/* Thumbnail Strip -- only rendered when there are multiple images */}
+          {images.length > 1 && (
+            <HStack spacing={3} mt={4} overflowX="auto" pb={1}>
+              {images.map((src, index) => {
+                const isActive = index === selectedIndex;
+                return (
+                  <Box
+                    key={index}
+                    as="button"
+                    type="button"
+                    onClick={() => setSelectedIndex(index)}
+                    flexShrink={0}
+                    w="72px"
+                    h="54px"
+                    borderRadius="md"
+                    overflow="hidden"
+                    border="2px solid"
+                    borderColor={isActive ? thumbActiveBorder : thumbBorder}
+                    bg={thumbBg}
+                    opacity={isActive ? 1 : 0.7}
+                    transition="all 0.2s"
+                    _hover={{ opacity: 1, borderColor: thumbActiveBorder }}
+                    cursor="pointer"
+                    aria-label={`View image ${index + 1}`}
+                  >
+                    <Image
+                      src={src}
+                      alt={`${car.brand} ${car.model} thumbnail ${index + 1}`}
+                      w="100%"
+                      h="100%"
+                      objectFit="cover"
+                    />
+                  </Box>
+                );
+              })}
+            </HStack>
+          )}
         </Box>
 
         {/* Car Info */}
@@ -168,7 +230,7 @@ export default function CarDetailsPage() {
           <Heading size="md" mb={4}>
             Description
           </Heading>
-          <Text color="gray.600">
+          <Text color={descriptionColor}>
             {car.description || 'No description available for this vehicle.'}
           </Text>
         </Box>

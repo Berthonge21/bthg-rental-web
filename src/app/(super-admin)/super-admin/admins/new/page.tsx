@@ -14,7 +14,6 @@ import {
   InputRightElement,
   IconButton,
   Select,
-  Stack,
   SimpleGrid,
   useToast,
   useColorModeValue,
@@ -25,6 +24,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import { useCreateAdminUser } from '@/hooks';
+import { ProgressButton } from '@/components/ui/ProgressButton';
 import { UserRole } from '@bthgrentalcar/sdk';
 
 const adminSchema = z.object({
@@ -92,51 +92,35 @@ export default function NewAdminPage() {
         <Heading size="lg">Create Admin User</Heading>
       </HStack>
 
-      <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm" maxW="600px">
+      <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Stack spacing={6}>
-            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-              <FormControl isInvalid={!!errors.firstname}>
-                <FormLabel>First Name</FormLabel>
-                <Input placeholder="John" {...register('firstname')} />
-                <FormErrorMessage>{errors.firstname?.message}</FormErrorMessage>
-              </FormControl>
-
-              <FormControl isInvalid={!!errors.name}>
-                <FormLabel>Last Name</FormLabel>
-                <Input placeholder="Doe" {...register('name')} />
-                <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
-              </FormControl>
-            </SimpleGrid>
-
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+            <FormControl isInvalid={!!errors.firstname}>
+              <FormLabel>First Name</FormLabel>
+              <Input placeholder="John" {...register('firstname')} />
+              <FormErrorMessage>{errors.firstname?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.name}>
+              <FormLabel>Last Name</FormLabel>
+              <Input placeholder="Doe" {...register('name')} />
+              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+            </FormControl>
             <FormControl isInvalid={!!errors.email}>
               <FormLabel>Email</FormLabel>
               <Input type="email" placeholder="admin@example.com" {...register('email')} />
               <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
             </FormControl>
-
             <FormControl isInvalid={!!errors.password}>
               <FormLabel>Password</FormLabel>
               <InputGroup>
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Min 6 characters"
-                  {...register('password')}
-                />
+                <Input type={showPassword ? 'text' : 'password'} placeholder="Min 6 characters" {...register('password')} />
                 <InputRightElement>
-                  <IconButton
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    icon={showPassword ? <FiEyeOff /> : <FiEye />}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowPassword(!showPassword)}
-                  />
+                  <IconButton aria-label={showPassword ? 'Hide password' : 'Show password'} icon={showPassword ? <FiEyeOff /> : <FiEye />} variant="ghost" size="sm" onClick={() => setShowPassword(!showPassword)} />
                 </InputRightElement>
               </InputGroup>
               <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
             </FormControl>
-
-            <FormControl isInvalid={!!errors.role}>
+            <FormControl isInvalid={!!errors.role} gridColumn={{ md: 'span 2' }}>
               <FormLabel>Role</FormLabel>
               <Select {...register('role')}>
                 <option value="admin">Admin</option>
@@ -144,16 +128,10 @@ export default function NewAdminPage() {
               </Select>
               <FormErrorMessage>{errors.role?.message}</FormErrorMessage>
             </FormControl>
-
-            <Button
-              type="submit"
-              colorScheme="brand"
-              size="lg"
-              isLoading={createMutation.isPending}
-            >
-              Create Admin
-            </Button>
-          </Stack>
+          </SimpleGrid>
+          <ProgressButton type="submit" colorScheme="brand" size="lg" isLoading={createMutation.isPending} w="full" mt={4}>
+            Create Admin
+          </ProgressButton>
         </form>
       </Box>
     </Box>

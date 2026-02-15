@@ -33,6 +33,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { LoadingSpinner, StatCard, DataTable, type Column } from '@/components/ui';
 import { useAgency, useAgencyStats, useAgencyCars, useUpdateAgency, useSuperAdminUsers } from '@/hooks';
+import { ProgressButton } from '@/components/ui/ProgressButton';
 import { Status } from '@bthgrentalcar/sdk';
 import type { Car, AdminUser, UserRole } from '@bthgrentalcar/sdk';
 
@@ -213,14 +214,14 @@ export default function AgencyDetailsPage() {
             <Button leftIcon={<FiX />} variant="ghost" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button
+            <ProgressButton
               leftIcon={<FiSave />}
               colorScheme="brand"
               onClick={handleSubmit(onSubmit)}
               isLoading={updateMutation.isPending}
             >
               Save Changes
-            </Button>
+            </ProgressButton>
           </HStack>
         )}
       </HStack>

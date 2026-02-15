@@ -16,11 +16,18 @@ import {
   IconButton,
   Flex,
   Tooltip,
-  Alert,
-  AlertIcon,
+  Divider,
+  Icon,
 } from '@chakra-ui/react';
-import { FiArrowLeft, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { LoadingSpinner } from '@/components/ui';
+import {
+  FiArrowLeft,
+  FiChevronLeft,
+  FiChevronRight,
+  FiLock,
+  FiUnlock,
+  FiX,
+} from 'react-icons/fi';
+import { LoadingSpinner, useMinLoading, ProgressButton } from '@/components/ui';
 import { useCar, useCarAvailabilityCalendar, useBlockDates, useUnblockDates } from '@/hooks';
 import {
   format,
@@ -47,7 +54,6 @@ export default function CarAvailabilityPage() {
   const carId = Number(params.id);
 
   const [currentDate, setCurrentDate] = useState(new Date());
-  // Range selection: startDate and endDate
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
   const [rangeEnd, setRangeEnd] = useState<Date | null>(null);
   const [hoverDate, setHoverDate] = useState<Date | null>(null);
@@ -62,16 +68,29 @@ export default function CarAvailabilityPage() {
     month
   );
 
+  const showLoading = useMinLoading(carLoading || calendarLoading);
+
   const blockMutation = useBlockDates();
   const unblockMutation = useUnblockDates();
 
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const todayBg = useColorModeValue('blue.50', 'blue.900');
-  const selectedBg = useColorModeValue('brand.100', 'brand.800');
+  // All useColorModeValue calls at top of component
+  const pageBg = useColorModeValue('gray.50', 'navy.900');
+  const cardBg = useColorModeValue('white', 'navy.700');
+  const cardBorder = useColorModeValue('gray.100', 'navy.600');
+  const headerTextColor = useColorModeValue('text.primary', 'white');
+  const mutedTextColor = useColorModeValue('text.muted', 'gray.400');
+  const weekdayColor = useColorModeValue('gray.500', 'gray.400');
+  const dayTextColor = useColorModeValue('text.primary', 'white');
+  const dayHoverBg = useColorModeValue('gray.50', 'navy.600');
+  const pastDayColor = useColorModeValue('gray.300', 'gray.600');
+  const todayRingColor = useColorModeValue('accent.400', 'accent.300');
   const rangeBg = useColorModeValue('brand.50', 'brand.900');
-  const blockedBg = useColorModeValue('red.100', 'red.900');
-  const rentalBg = useColorModeValue('yellow.100', 'yellow.900');
-  const pastBg = useColorModeValue('gray.100', 'gray.700');
+  const rangeEndpointBg = useColorModeValue('brand.400', 'brand.500');
+  const sidebarDivider = useColorModeValue('gray.100', 'navy.600');
+  const statLabelColor = useColorModeValue('gray.500', 'gray.400');
+  const statValueColor = useColorModeValue('text.primary', 'white');
+  const selectionCardBg = useColorModeValue('brand.50', 'navy.600');
+  const selectionCardBorder = useColorModeValue('brand.200', 'brand.700');
 
   // Generate calendar days
   const calendarDays = useMemo(() => {
@@ -79,7 +98,6 @@ export default function CarAvailabilityPage() {
     const monthEnd = endOfMonth(currentDate);
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-    // Add padding for first week
     const startPadding = getDay(monthStart);
     const paddedDays: (Date | null)[] = Array(startPadding).fill(null);
 
@@ -91,13 +109,11 @@ export default function CarAvailabilityPage() {
     const map = new Map<string, 'blocked' | 'rental'>();
 
     if (calendar) {
-      // Mark manually blocked dates
       calendar.blockedDates.forEach((bd) => {
         const dateStr = format(new Date(bd.date), 'yyyy-MM-dd');
         map.set(dateStr, 'blocked');
       });
 
-      // Mark rental dates
       calendar.rentals.forEach((rental) => {
         const start = new Date(rental.startDate);
         const end = new Date(rental.endDate);
@@ -114,7 +130,7 @@ export default function CarAvailabilityPage() {
     return map;
   }, [calendar]);
 
-  // Get selected dates as array (all dates in the range)
+  // Get selected dates as array
   const selectedDates = useMemo(() => {
     if (!rangeStart) return [];
 
@@ -125,7 +141,7 @@ export default function CarAvailabilityPage() {
     return eachDayOfInterval({ start, end: endDate }).map(d => format(d, 'yyyy-MM-dd'));
   }, [rangeStart, rangeEnd]);
 
-  // Check if a date is in the selection range (including hover preview)
+  // Check if a date is in the selection range
   const isInRange = (date: Date) => {
     if (!rangeStart) return false;
 
@@ -146,7 +162,6 @@ export default function CarAvailabilityPage() {
     const dateStr = format(date, 'yyyy-MM-dd');
     const status = dateStatusMap.get(dateStr);
 
-    // Can't select rental dates
     if (status === 'rental') {
       toast({
         title: 'Cannot modify',
@@ -157,20 +172,15 @@ export default function CarAvailabilityPage() {
       return;
     }
 
-    // Can't select past dates
     if (isBefore(date, startOfDay(new Date()))) {
       return;
     }
 
-    // Range selection logic
     if (!rangeStart || rangeEnd) {
-      // Start new selection
       setRangeStart(date);
       setRangeEnd(null);
     } else {
-      // Complete the range
       if (isBefore(date, rangeStart)) {
-        // If clicked date is before start, swap them
         setRangeEnd(rangeStart);
         setRangeStart(date);
       } else {
@@ -261,7 +271,7 @@ export default function CarAvailabilityPage() {
     }
   };
 
-  if (carLoading || calendarLoading) {
+  if (showLoading) {
     return <LoadingSpinner text="Loading availability..." />;
   }
 
@@ -278,66 +288,85 @@ export default function CarAvailabilityPage() {
 
   return (
     <Box>
-      <HStack justify="space-between" mb={6}>
-        <HStack>
-          <Button
-            variant="ghost"
-            leftIcon={<FiArrowLeft />}
-            onClick={() => router.push(`/admin/cars/${carId}`)}
-          >
-            Back to Car
-          </Button>
-          <Heading size="lg">
-            Availability: {car.brand} {car.model}
-          </Heading>
-        </HStack>
-      </HStack>
+      {/* Header card with car info and navigation */}
+      <Box
+        bg={cardBg}
+        borderRadius="2xl"
+        border="1px"
+        borderColor={cardBorder}
+        p={4}
+        mb={4}
+      >
+        <Flex align="center" justify="space-between" flexWrap="wrap" gap={3}>
+          <HStack spacing={4}>
+            <IconButton
+              aria-label="Back to car"
+              icon={<FiArrowLeft />}
+              variant="ghost"
+              onClick={() => router.push(`/admin/cars/${carId}`)}
+              borderRadius="full"
+            />
+            <Box>
+              <Text fontSize="lg" fontWeight="bold" color={headerTextColor}>
+                {car.brand} {car.model}
+              </Text>
+              <Text fontSize="sm" color={mutedTextColor}>
+                Availability Calendar
+              </Text>
+            </Box>
+          </HStack>
 
-      <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6}>
-        {/* Calendar */}
-        <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm" gridColumn={{ lg: 'span 2' }}>
-          {/* Instructions */}
-          <Alert status="info" mb={4} borderRadius="md">
-            <AlertIcon />
-            <Text fontSize="sm">
-              <strong>Range Selection:</strong> Click a start date, then click an end date to select the entire range.
-              All dates in between will be automatically included.
-            </Text>
-          </Alert>
-
-          {/* Month Navigation */}
-          <Flex justify="space-between" align="center" mb={4}>
+          {/* Month navigation */}
+          <HStack spacing={3}>
             <IconButton
               aria-label="Previous month"
               icon={<FiChevronLeft />}
               onClick={handlePrevMonth}
               variant="ghost"
+              borderRadius="full"
+              size="sm"
             />
-            <Heading size="md">
+            <Text fontWeight="semibold" fontSize="md" color={headerTextColor} minW="140px" textAlign="center">
               {format(currentDate, 'MMMM yyyy')}
-            </Heading>
+            </Text>
             <IconButton
               aria-label="Next month"
               icon={<FiChevronRight />}
               onClick={handleNextMonth}
               variant="ghost"
+              borderRadius="full"
+              size="sm"
             />
-          </Flex>
+          </HStack>
+        </Flex>
+      </Box>
 
-          {/* Weekday Headers */}
-          <SimpleGrid columns={7} spacing={1} mb={2}>
+      <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={4}>
+        {/* Calendar grid */}
+        <Box
+          bg={cardBg}
+          p={3}
+          borderRadius="2xl"
+          border="1px"
+          borderColor={cardBorder}
+          gridColumn={{ lg: 'span 2' }}
+        >
+          {/* Weekday headers */}
+          <SimpleGrid columns={7} spacing={0} mb={1}>
             {WEEKDAYS.map((day) => (
-              <Box key={day} textAlign="center" fontWeight="bold" fontSize="sm" py={2}>
-                {day}
+              <Box key={day} textAlign="center" py={1}>
+                <Text fontSize="xs" fontWeight="semibold" color={weekdayColor} textTransform="uppercase" letterSpacing="wider">
+                  {day}
+                </Text>
               </Box>
             ))}
           </SimpleGrid>
 
-          {/* Calendar Grid */}
-          <SimpleGrid columns={7} spacing={1}>
+          {/* Calendar days */}
+          <SimpleGrid columns={7} spacing={0}>
             {calendarDays.map((day, index) => {
               if (!day) {
-                return <Box key={`empty-${index}`} h="60px" />;
+                return <Box key={`empty-${index}`} h="36px" />;
               }
 
               const dateStr = format(day, 'yyyy-MM-dd');
@@ -347,28 +376,45 @@ export default function CarAvailabilityPage() {
               const inRange = isInRange(day);
               const isStart = isRangeStart(day);
               const isEnd = isRangeEnd(day);
+              const isDayToday = isToday(day);
+              const isInteractive = !isPast && status !== 'rental';
 
-              let bgColor = 'transparent';
-              let cursor = 'pointer';
-              let borderRadius = 'md';
+              // Determine range visual styling
+              let cellBorderRadius = 'xl';
+              let cellBg = 'transparent';
 
-              if (isPast) {
-                bgColor = pastBg;
-                cursor = 'not-allowed';
-              } else if (status === 'rental') {
-                bgColor = rentalBg;
-                cursor = 'not-allowed';
-              } else if (status === 'blocked') {
-                bgColor = blockedBg;
-              } else if (isStart || isEnd) {
-                bgColor = selectedBg;
-                borderRadius = isStart ? 'md 0 0 md' : '0 md md 0';
-                if (isStart && isEnd) borderRadius = 'md';
+              if (isStart && isEnd) {
+                cellBg = rangeEndpointBg;
+                cellBorderRadius = 'xl';
+              } else if (isStart) {
+                cellBg = rangeEndpointBg;
+                cellBorderRadius = 'xl 0 0 xl';
+              } else if (isEnd) {
+                cellBg = rangeEndpointBg;
+                cellBorderRadius = '0 xl xl 0';
               } else if (inRange) {
-                bgColor = rangeBg;
-                borderRadius = '0';
-              } else if (isToday(day)) {
-                bgColor = todayBg;
+                cellBg = rangeBg;
+                cellBorderRadius = '0';
+              }
+
+              // Text color for range endpoints
+              const isEndpoint = isStart || isEnd;
+              const textColor = isEndpoint
+                ? 'white'
+                : isPast
+                ? pastDayColor
+                : dayTextColor;
+
+              // Determine which status dot to show
+              let dotColor: string | null = null;
+              if (isPast) {
+                dotColor = 'gray.300';
+              } else if (status === 'blocked') {
+                dotColor = 'red.400';
+              } else if (status === 'rental') {
+                dotColor = 'orange.400';
+              } else if (!isPast && isCurrentMonth) {
+                dotColor = 'green.400';
               }
 
               return (
@@ -376,202 +422,267 @@ export default function CarAvailabilityPage() {
                   key={dateStr}
                   label={
                     status === 'rental'
-                      ? 'Rental booked'
+                      ? 'Booked'
                       : status === 'blocked'
-                      ? 'Manually blocked'
+                      ? 'Blocked'
                       : isPast
                       ? 'Past date'
                       : rangeStart && !rangeEnd
                       ? 'Click to complete range'
-                      : 'Click to start selection'
+                      : 'Available'
                   }
                   hasArrow
+                  placement="top"
                 >
-                  <Box
-                    h="60px"
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    justifyContent="center"
-                    borderRadius={borderRadius}
-                    bg={bgColor}
-                    opacity={isCurrentMonth ? 1 : 0.5}
-                    cursor={cursor}
-                    border={(isStart || isEnd) ? '2px solid' : '1px solid'}
-                    borderColor={(isStart || isEnd) ? 'brand.500' : 'gray.200'}
-                    onClick={() => !isPast && handleDateClick(day)}
-                    onMouseEnter={() => handleDateHover(day)}
+                  <Flex
+                    h="36px"
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    borderRadius={cellBorderRadius}
+                    bg={cellBg}
+                    opacity={isCurrentMonth ? 1 : 0.4}
+                    cursor={isInteractive ? 'pointer' : 'default'}
+                    onClick={() => isInteractive && handleDateClick(day)}
+                    onMouseEnter={() => isInteractive && handleDateHover(day)}
                     onMouseLeave={() => handleDateHover(null)}
                     _hover={
-                      !isPast && status !== 'rental'
-                        ? { borderColor: 'brand.400' }
+                      isInteractive && !isEndpoint
+                        ? { bg: inRange ? rangeBg : dayHoverBg }
                         : undefined
                     }
-                    transition="all 0.2s"
+                    transition="all 0.15s ease"
+                    position="relative"
                   >
+                    {/* Today ring indicator */}
+                    {isDayToday && !isEndpoint && (
+                      <Box
+                        position="absolute"
+                        top="50%"
+                        left="50%"
+                        transform="translate(-50%, -50%)"
+                        w="28px"
+                        h="28px"
+                        borderRadius="full"
+                        border="2px solid"
+                        borderColor={todayRingColor}
+                        pointerEvents="none"
+                      />
+                    )}
+
                     <Text
-                      fontWeight={isToday(day) || isStart || isEnd ? 'bold' : 'normal'}
-                      color={isToday(day) ? 'blue.600' : undefined}
+                      fontSize="sm"
+                      fontWeight={isDayToday || isEndpoint ? 'bold' : 'medium'}
+                      color={textColor}
+                      zIndex={1}
                     >
                       {format(day, 'd')}
                     </Text>
-                    {status && (
-                      <Badge
-                        size="xs"
-                        colorScheme={status === 'rental' ? 'yellow' : 'red'}
-                        fontSize="8px"
-                      >
-                        {status === 'rental' ? 'Booked' : 'Blocked'}
-                      </Badge>
+
+                    {/* Status dot */}
+                    {dotColor && !isEndpoint && (
+                      <Box
+                        w="5px"
+                        h="5px"
+                        borderRadius="full"
+                        bg={dotColor}
+                        mt="1px"
+                      />
                     )}
-                  </Box>
+                  </Flex>
                 </Tooltip>
               );
             })}
           </SimpleGrid>
         </Box>
 
-        {/* Stats & Actions */}
-        <VStack spacing={6} align="stretch">
-          {/* Selection Info */}
+        {/* Right sidebar: combined stats, legend, selection, and actions */}
+        <Box
+          bg={cardBg}
+          borderRadius="2xl"
+          border="1px"
+          borderColor={cardBorder}
+          overflow="hidden"
+        >
+          {/* Selection info at top if active */}
           {rangeStart && (
-            <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-              <Heading size="md" mb={4}>
-                Selection
-              </Heading>
+            <Box
+              bg={selectionCardBg}
+              p={4}
+              borderBottom="1px"
+              borderColor={selectionCardBorder}
+            >
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontSize="sm" fontWeight="bold" color={headerTextColor}>
+                  Selection
+                </Text>
+                <IconButton
+                  aria-label="Clear selection"
+                  icon={<FiX />}
+                  size="xs"
+                  variant="ghost"
+                  borderRadius="full"
+                  onClick={clearSelection}
+                />
+              </Flex>
               <VStack align="stretch" spacing={2}>
-                <HStack justify="space-between">
-                  <Text color="gray.500">Start Date</Text>
-                  <Text fontWeight="bold">{format(rangeStart, 'MMM d, yyyy')}</Text>
-                </HStack>
+                <Flex justify="space-between">
+                  <Text fontSize="sm" color={statLabelColor}>Start</Text>
+                  <Text fontSize="sm" fontWeight="semibold" color={statValueColor}>
+                    {format(rangeStart, 'MMM d, yyyy')}
+                  </Text>
+                </Flex>
                 {rangeEnd && (
                   <>
-                    <HStack justify="space-between">
-                      <Text color="gray.500">End Date</Text>
-                      <Text fontWeight="bold">{format(rangeEnd, 'MMM d, yyyy')}</Text>
-                    </HStack>
-                    <HStack justify="space-between">
-                      <Text color="gray.500">Total Days</Text>
-                      <Badge colorScheme="brand" fontSize="md" px={2}>
+                    <Flex justify="space-between">
+                      <Text fontSize="sm" color={statLabelColor}>End</Text>
+                      <Text fontSize="sm" fontWeight="semibold" color={statValueColor}>
+                        {format(rangeEnd, 'MMM d, yyyy')}
+                      </Text>
+                    </Flex>
+                    <Flex justify="space-between">
+                      <Text fontSize="sm" color={statLabelColor}>Days</Text>
+                      <Badge colorScheme="brand" borderRadius="full" px={2}>
                         {selectedDates.length}
                       </Badge>
-                    </HStack>
+                    </Flex>
                   </>
                 )}
                 {!rangeEnd && (
-                  <Text fontSize="sm" color="orange.500">
-                    Click another date to complete the range
+                  <Text fontSize="xs" color="orange.500" fontWeight="medium">
+                    Click another date to complete range
                   </Text>
                 )}
               </VStack>
             </Box>
           )}
 
-          {/* Stats */}
-          <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-            <Heading size="md" mb={4}>
-              Statistics
-            </Heading>
+          {/* Stats section */}
+          <Box p={4}>
+            <Text fontSize="sm" fontWeight="bold" color={headerTextColor} mb={4}>
+              Monthly Overview
+            </Text>
             {calendar && (
-              <VStack align="stretch" spacing={3}>
-                <HStack justify="space-between">
-                  <Text color="gray.500">Total Days</Text>
-                  <Text fontWeight="bold">{calendar.stats.totalDays}</Text>
-                </HStack>
-                <HStack justify="space-between">
-                  <Text color="green.500">Available</Text>
-                  <Text fontWeight="bold" color="green.500">
+              <VStack align="stretch" spacing={2}>
+                <Flex justify="space-between" align="center">
+                  <Text fontSize="sm" color={statLabelColor}>Total Days</Text>
+                  <Text fontSize="sm" fontWeight="bold" color={statValueColor}>
+                    {calendar.stats.totalDays}
+                  </Text>
+                </Flex>
+                <Flex justify="space-between" align="center">
+                  <HStack spacing={2}>
+                    <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
+                    <Text fontSize="sm" color={statLabelColor}>Available</Text>
+                  </HStack>
+                  <Text fontSize="sm" fontWeight="bold" color="green.500">
                     {calendar.stats.availableDays}
                   </Text>
-                </HStack>
-                <HStack justify="space-between">
-                  <Text color="yellow.500">Rental Blocked</Text>
-                  <Text fontWeight="bold" color="yellow.500">
+                </Flex>
+                <Flex justify="space-between" align="center">
+                  <HStack spacing={2}>
+                    <Box w="8px" h="8px" borderRadius="full" bg="orange.400" />
+                    <Text fontSize="sm" color={statLabelColor}>Booked</Text>
+                  </HStack>
+                  <Text fontSize="sm" fontWeight="bold" color="orange.500">
                     {calendar.stats.rentalBlockedDays}
                   </Text>
-                </HStack>
-                <HStack justify="space-between">
-                  <Text color="red.500">Manually Blocked</Text>
-                  <Text fontWeight="bold" color="red.500">
+                </Flex>
+                <Flex justify="space-between" align="center">
+                  <HStack spacing={2}>
+                    <Box w="8px" h="8px" borderRadius="full" bg="red.400" />
+                    <Text fontSize="sm" color={statLabelColor}>Blocked</Text>
+                  </HStack>
+                  <Text fontSize="sm" fontWeight="bold" color="red.500">
                     {calendar.stats.manuallyBlockedDays}
                   </Text>
-                </HStack>
+                </Flex>
               </VStack>
             )}
           </Box>
 
-          {/* Legend */}
-          <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-            <Heading size="md" mb={4}>
+          <Divider borderColor={sidebarDivider} />
+
+          {/* Legend section */}
+          <Box p={4}>
+            <Text fontSize="sm" fontWeight="bold" color={headerTextColor} mb={3}>
               Legend
-            </Heading>
-            <VStack align="stretch" spacing={2}>
-              <HStack>
-                <Box w={4} h={4} bg={todayBg} borderRadius="sm" />
-                <Text fontSize="sm">Today</Text>
+            </Text>
+            <Flex flexWrap="wrap" gap={3}>
+              <HStack spacing={2}>
+                <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
+                <Text fontSize="xs" color={statLabelColor}>Available</Text>
               </HStack>
-              <HStack>
-                <Box w={4} h={4} bg={selectedBg} borderRadius="sm" border="2px solid" borderColor="brand.500" />
-                <Text fontSize="sm">Range Start/End</Text>
+              <HStack spacing={2}>
+                <Box w="8px" h="8px" borderRadius="full" bg="orange.400" />
+                <Text fontSize="xs" color={statLabelColor}>Booked (Rental)</Text>
               </HStack>
-              <HStack>
-                <Box w={4} h={4} bg={rangeBg} borderRadius="sm" />
-                <Text fontSize="sm">In Range</Text>
+              <HStack spacing={2}>
+                <Box w="8px" h="8px" borderRadius="full" bg="red.400" />
+                <Text fontSize="xs" color={statLabelColor}>Manually Blocked</Text>
               </HStack>
-              <HStack>
-                <Box w={4} h={4} bg={rentalBg} borderRadius="sm" />
-                <Text fontSize="sm">Booked (Rental)</Text>
+              <HStack spacing={2}>
+                <Box w="8px" h="8px" borderRadius="full" bg="gray.300" />
+                <Text fontSize="xs" color={statLabelColor}>Past Date</Text>
               </HStack>
-              <HStack>
-                <Box w={4} h={4} bg={blockedBg} borderRadius="sm" />
-                <Text fontSize="sm">Manually Blocked</Text>
+              <HStack spacing={2}>
+                <Box
+                  w="8px"
+                  h="8px"
+                  borderRadius="full"
+                  border="2px solid"
+                  borderColor="accent.400"
+                />
+                <Text fontSize="xs" color={statLabelColor}>Today</Text>
               </HStack>
-              <HStack>
-                <Box w={4} h={4} bg={pastBg} borderRadius="sm" />
-                <Text fontSize="sm">Past Date</Text>
-              </HStack>
-            </VStack>
+            </Flex>
           </Box>
 
-          {/* Actions */}
-          <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-            <Heading size="md" mb={4}>
+          <Divider borderColor={sidebarDivider} />
+
+          {/* Actions section */}
+          <Box p={4}>
+            <Text fontSize="sm" fontWeight="bold" color={headerTextColor} mb={3}>
               Actions
-            </Heading>
-            <Text fontSize="sm" color="gray.500" mb={4}>
-              Select a date range on the calendar, then use the buttons below to block or unblock them.
             </Text>
-            <VStack spacing={3}>
-              <Button
-                w="full"
+            <HStack spacing={2}>
+              <ProgressButton
+                flex={1}
+                leftIcon={<FiLock />}
                 colorScheme="red"
+                size="sm"
                 onClick={handleBlockSelected}
                 isLoading={blockMutation.isPending}
                 isDisabled={selectedDates.length === 0 || !rangeEnd}
+                borderRadius="lg"
               >
-                Block Range ({selectedDates.length} days)
-              </Button>
-              <Button
-                w="full"
+                Block ({selectedDates.length})
+              </ProgressButton>
+              <ProgressButton
+                flex={1}
+                leftIcon={<FiUnlock />}
                 colorScheme="green"
                 variant="outline"
+                size="sm"
                 onClick={handleUnblockSelected}
                 isLoading={unblockMutation.isPending}
                 isDisabled={selectedDates.length === 0 || !rangeEnd}
+                borderRadius="lg"
               >
-                Unblock Range
-              </Button>
-              <Button
-                w="full"
+                Unblock
+              </ProgressButton>
+              <IconButton
+                aria-label="Clear selection"
+                icon={<FiX />}
                 variant="ghost"
+                size="sm"
                 onClick={clearSelection}
                 isDisabled={!rangeStart}
-              >
-                Clear Selection
-              </Button>
-            </VStack>
+                borderRadius="lg"
+              />
+            </HStack>
           </Box>
-        </VStack>
+        </Box>
       </SimpleGrid>
     </Box>
   );

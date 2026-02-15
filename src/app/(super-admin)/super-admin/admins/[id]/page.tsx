@@ -29,6 +29,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { LoadingSpinner } from '@/components/ui';
 import { useSuperAdminUsers, useSuperAdminAgencies, useAssignAgency } from '@/hooks';
+import { ProgressButton } from '@/components/ui/ProgressButton';
 import type { UserRole } from '@bthgrentalcar/sdk';
 
 const assignAgencySchema = z.object({
@@ -209,7 +210,7 @@ export default function AdminDetailsPage() {
                   <Button variant="ghost" onClick={() => setIsAssigning(false)}>
                     Cancel
                   </Button>
-                  <Button
+                  <ProgressButton
                     type="submit"
                     colorScheme="brand"
                     leftIcon={<FiSave />}
@@ -217,7 +218,7 @@ export default function AdminDetailsPage() {
                     isDisabled={availableAgencies.length === 0}
                   >
                     Assign Agency
-                  </Button>
+                  </ProgressButton>
                 </HStack>
               </VStack>
             </form>

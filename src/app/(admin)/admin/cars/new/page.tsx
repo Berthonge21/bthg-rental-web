@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Box,
@@ -18,6 +19,11 @@ export default function NewCarPage() {
   const toast = useToast();
   const { user } = useAuthStore();
   const createMutation = useCreateCar();
+
+  // Prefetch destination route for instant navigation after save
+  useEffect(() => {
+    router.prefetch('/admin/cars');
+  }, [router]);
 
   const isSuperAdmin = user?.role === 'superAdmin';
 

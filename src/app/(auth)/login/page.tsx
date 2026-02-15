@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ProgressButton } from '@/components/ui/ProgressButton';
 import {
   Box,
-  Button,
   FormControl,
   FormLabel,
   FormErrorMessage,
@@ -181,7 +181,7 @@ export default function LoginPage() {
               <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
             </FormControl>
 
-            <Button
+            <ProgressButton
               type="submit"
               size="lg"
               w="full"
@@ -191,7 +191,6 @@ export default function LoginPage() {
               h={12}
               fontWeight="semibold"
               isLoading={isLoading}
-              loadingText="Signing in..."
               _hover={{
                 bg: 'brand.500',
               }}
@@ -200,7 +199,7 @@ export default function LoginPage() {
               }}
             >
               Sign In
-            </Button>
+            </ProgressButton>
           </Stack>
         </Box>
 
