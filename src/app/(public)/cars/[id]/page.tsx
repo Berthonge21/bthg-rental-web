@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   Box, Button, Flex, Grid, GridItem, Heading, HStack, Icon, Image,
   Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter,
@@ -16,6 +16,7 @@ import { useCar, useCarAvailabilityCalendar, useCreateRental } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
 import { parseCarImages } from '@/lib/imageUtils';
 import { format, addDays, differenceInCalendarDays, parseISO, isValid } from 'date-fns';
+import { Suspense } from 'react';
 
 /* ── Availability calendar (read-only) ── */
 function MiniCalendar({ carId }: { carId: number }) {
@@ -46,11 +47,11 @@ function MiniCalendar({ carId }: { carId: number }) {
   return (
     <Box bg={calBg} border="1px" borderColor={calBorder} borderRadius="xl" p={4}>
       <HStack justify="space-between" mb={3}>
-        <Button size="xs" variant="ghost" onClick={prevMonth}>‹</Button>
+        <Button size="xs" variant="ghost" onClick={prevMonth}>&lsaquo;</Button>
         <Text fontWeight="semibold" fontSize="sm">
           {new Date(viewYear, viewMonth - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
         </Text>
-        <Button size="xs" variant="ghost" onClick={nextMonth}>›</Button>
+        <Button size="xs" variant="ghost" onClick={nextMonth}>&rsaquo;</Button>
       </HStack>
       <Grid templateColumns="repeat(7, 1fr)" gap={1}>
         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
@@ -190,7 +191,7 @@ function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; price
           {days > 0 && (
             <Box bg={infoBg} borderRadius="xl" p={4}>
               <Flex justify="space-between">
-                <Text fontSize="sm" color={textMuted}>${pricePerDay}/day × {days} days</Text>
+                <Text fontSize="sm" color={textMuted}>${pricePerDay}/day x {days} days</Text>
                 <Text fontWeight="bold" color="accent.400" fontSize="lg">${total}</Text>
               </Flex>
             </Box>
@@ -273,13 +274,14 @@ function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; price
   );
 }
 
-/* ── Page ── */
-export default function CarDetailPage() {
+/* ── Inner page content ── */
+function CarDetailContent() {
   const params = useParams();
   const router = useRouter();
   const carId = Number(params.id);
   const { data: car, isLoading } = useCar(carId);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isAuthenticated } = useAuthStore();
 
   const cardBg = useColorModeValue('white', 'navy.700');
   const cardBorder = useColorModeValue('gray.100', 'navy.600');
@@ -288,6 +290,14 @@ export default function CarDetailPage() {
 
   const [currentImage, setCurrentImage] = useState(0);
   const images = car ? parseCarImages(car.image) : [];
+
+  const handleBookClick = () => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=/cars/${carId}`);
+      return;
+    }
+    onOpen();
+  };
 
   if (isLoading) return (
     <Center h="60vh"><Spinner size="xl" color="brand.400" thickness="4px" /></Center>
@@ -407,7 +417,7 @@ export default function CarDetailPage() {
                 _hover={{ bg: 'brand.500' }}
                 borderRadius="xl"
                 leftIcon={<FiCalendar />}
-                onClick={onOpen}
+                onClick={handleBookClick}
               >
                 Book This Car
               </Button>
@@ -439,5 +449,14 @@ export default function CarDetailPage() {
         </ModalContent>
       </Modal>
     </Box>
+  );
+}
+
+/* ── Page with Suspense boundary ── */
+export default function CarDetailPage() {
+  return (
+    <Suspense fallback={<Center h="60vh"><Spinner size="xl" color="brand.400" thickness="4px" /></Center>}>
+      <CarDetailContent />
+    </Suspense>
   );
 }
