@@ -23,7 +23,8 @@ export default function HomePage() {
     } else if (user?.role === 'admin') {
       router.replace('/admin/dashboard');
     } else {
-      router.replace('/dashboard');
+      // Client portal not yet available — redirect to login
+      router.replace('/login');
     }
   }, [isAuthenticated, user, isLoading, router]);
 

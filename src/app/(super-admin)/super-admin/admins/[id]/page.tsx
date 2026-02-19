@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import {
   Box,
@@ -18,18 +18,20 @@ import {
   Select,
   useToast,
   useColorModeValue,
+  useDisclosure,
   Avatar,
   Divider,
   Alert,
   AlertIcon,
 } from '@chakra-ui/react';
-import { FiArrowLeft, FiSave, FiLink } from 'react-icons/fi';
+import { FiArrowLeft, FiSave, FiLink, FiUserCheck, FiUserX } from 'react-icons/fi';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { LoadingSpinner } from '@/components/ui';
-import { useSuperAdminUsers, useSuperAdminAgencies, useAssignAgency } from '@/hooks';
+import { LoadingSpinner, ConfirmDialog } from '@/components/ui';
+import { useSuperAdminUsers, useSuperAdminAgencies, useAssignAgency, useUpdateUserStatus } from '@/hooks';
 import { ProgressButton } from '@/components/ui/ProgressButton';
+import { Status } from '@bthgrentalcar/sdk';
 import type { UserRole } from '@bthgrentalcar/sdk';
 
 const assignAgencySchema = z.object({
@@ -52,12 +54,17 @@ export default function AdminDetailsPage() {
   const showAssignModal = searchParams.get('assign') === 'true';
 
   const [isAssigning, setIsAssigning] = useState(showAssignModal);
+  const statusToggleDialog = useDisclosure();
 
   const { data: usersData, isLoading: usersLoading } = useSuperAdminUsers({ limit: 100 });
   const { data: agenciesData, isLoading: agenciesLoading } = useSuperAdminAgencies({ limit: 100 });
   const assignMutation = useAssignAgency();
+  const updateStatusMutation = useUpdateUserStatus();
 
   const cardBg = useColorModeValue('white', 'gray.800');
+  const textMuted = useColorModeValue('gray.500', 'gray.400');
+  const dangerBg = useColorModeValue('red.50', 'rgba(254, 178, 178, 0.06)');
+  const dangerBorder = useColorModeValue('red.200', 'red.800');
 
   // Find the admin user
   const admin = usersData?.data?.find((u) => u.id === adminId);
@@ -96,6 +103,35 @@ export default function AdminDetailsPage() {
     }
   };
 
+  const handleStatusToggle = async () => {
+    if (!admin) return;
+
+    const newStatus =
+      admin.status === Status.ACTIVATE ? Status.DEACTIVATE : Status.ACTIVATE;
+
+    try {
+      await updateStatusMutation.mutateAsync({
+        userId: admin.id,
+        status: newStatus,
+      });
+      toast({
+        title: newStatus === Status.ACTIVATE ? 'Admin activated' : 'Admin deactivated',
+        description: `${admin.firstname} ${admin.name} has been ${newStatus === Status.ACTIVATE ? 'activated' : 'deactivated'}.`,
+        status: 'success',
+        duration: 3000,
+      });
+    } catch (error) {
+      toast({
+        title: 'Failed to update status',
+        description: error instanceof Error ? error.message : 'An error occurred',
+        status: 'error',
+        duration: 5000,
+      });
+    } finally {
+      statusToggleDialog.onClose();
+    }
+  };
+
   if (usersLoading) {
     return <LoadingSpinner text="Loading admin..." />;
   }
@@ -111,6 +147,9 @@ export default function AdminDetailsPage() {
     );
   }
 
+  const isActive = admin.status === Status.ACTIVATE;
+  const isAdminRole = admin.role === 'admin';
+
   return (
     <Box>
       <HStack justify="space-between" mb={6}>
@@ -124,11 +163,24 @@ export default function AdminDetailsPage() {
           </Button>
           <Heading size="lg">Admin Details</Heading>
         </HStack>
-        {admin.role === 'admin' && !admin.agencyId && !isAssigning && (
-          <Button leftIcon={<FiLink />} colorScheme="brand" onClick={() => setIsAssigning(true)}>
-            Assign Agency
-          </Button>
-        )}
+        <HStack spacing={2}>
+          {isAdminRole && !admin.agencyId && !isAssigning && (
+            <Button leftIcon={<FiLink />} colorScheme="brand" onClick={() => setIsAssigning(true)}>
+              Assign Agency
+            </Button>
+          )}
+          {/* Status toggle button -- only for non-superAdmin */}
+          {isAdminRole && (
+            <Button
+              leftIcon={isActive ? <FiUserX /> : <FiUserCheck />}
+              colorScheme={isActive ? 'red' : 'green'}
+              variant="outline"
+              onClick={statusToggleDialog.onOpen}
+            >
+              {isActive ? 'Deactivate' : 'Activate'}
+            </Button>
+          )}
+        </HStack>
       </HStack>
 
       <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
@@ -144,9 +196,17 @@ export default function AdminDetailsPage() {
             <VStack spacing={1}>
               <Heading size="md">{admin.firstname} {admin.name}</Heading>
               <Text color="gray.500">{admin.email}</Text>
-              <Badge colorScheme={roleColors[admin.role]} textTransform="capitalize" mt={2}>
-                {admin.role === 'superAdmin' ? 'Super Admin' : 'Admin'}
-              </Badge>
+              <HStack spacing={2} mt={2}>
+                <Badge colorScheme={roleColors[admin.role]} textTransform="capitalize">
+                  {admin.role === 'superAdmin' ? 'Super Admin' : 'Admin'}
+                </Badge>
+                <Badge
+                  colorScheme={isActive ? 'green' : 'red'}
+                  variant="subtle"
+                >
+                  {isActive ? 'Active' : 'Deactivated'}
+                </Badge>
+              </HStack>
             </VStack>
           </VStack>
 
@@ -154,7 +214,7 @@ export default function AdminDetailsPage() {
 
           <VStack spacing={4} align="stretch">
             <HStack justify="space-between">
-              <Text color="gray.500">Agency</Text>
+              <Text color={textMuted}>Agency</Text>
               <Text fontWeight="medium">
                 {admin.agency?.name || admin.agencyName || (
                   <Badge colorScheme="orange" variant="subtle">Not assigned</Badge>
@@ -162,7 +222,21 @@ export default function AdminDetailsPage() {
               </Text>
             </HStack>
             <HStack justify="space-between">
-              <Text color="gray.500">Created</Text>
+              <Text color={textMuted}>Status</Text>
+              <Text fontWeight="medium">
+                {isActive ? 'Active' : 'Deactivated'}
+              </Text>
+            </HStack>
+            {admin.deactivatedAt && (
+              <HStack justify="space-between">
+                <Text color={textMuted}>Deactivated At</Text>
+                <Text fontWeight="medium" color="red.400">
+                  {new Date(admin.deactivatedAt).toLocaleString()}
+                </Text>
+              </HStack>
+            )}
+            <HStack justify="space-between">
+              <Text color={textMuted}>Created</Text>
               <Text fontWeight="medium">
                 {admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : 'N/A'}
               </Text>
@@ -240,7 +314,7 @@ export default function AdminDetailsPage() {
             <Heading size="md" mb={4}>Agency Information</Heading>
             <VStack spacing={3} align="stretch">
               <HStack justify="space-between">
-                <Text color="gray.500">Agency Name</Text>
+                <Text color={textMuted}>Agency Name</Text>
                 <Text fontWeight="medium">{admin.agency?.name || admin.agencyName}</Text>
               </HStack>
               <Button
@@ -255,6 +329,22 @@ export default function AdminDetailsPage() {
           </Box>
         )}
       </SimpleGrid>
+
+      {/* Status Toggle Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={statusToggleDialog.isOpen}
+        onClose={statusToggleDialog.onClose}
+        onConfirm={handleStatusToggle}
+        title={isActive ? 'Deactivate Admin' : 'Activate Admin'}
+        message={
+          isActive
+            ? `Are you sure you want to deactivate ${admin.firstname} ${admin.name}? They will be logged out and their agency's cars will be hidden from clients.`
+            : `Are you sure you want to reactivate ${admin.firstname} ${admin.name}? They will be able to log in and manage their agency again.`
+        }
+        confirmText={isActive ? 'Deactivate' : 'Activate'}
+        isLoading={updateStatusMutation.isPending}
+        colorScheme={isActive ? 'red' : 'green'}
+      />
     </Box>
   );
 }

@@ -24,6 +24,8 @@ interface AuthState {
     city: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
+  deactivateAccount: () => Promise<void>;
+  reactivateAccount: (email: string, password: string) => Promise<void>;
   fetchUser: () => Promise<void>;
   clearError: () => void;
 }
@@ -93,6 +95,40 @@ export const useAuthStore = create<AuthState>()(
         } finally {
           await api.clearTokens();
           set({ user: null, isAuthenticated: false });
+        }
+      },
+
+      deactivateAccount: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          await api.users.deactivateAccount();
+          // Clear auth state after successful deactivation
+          try {
+            await api.auth.logout();
+          } catch {
+            // Ignore logout errors during deactivation
+          }
+          await api.clearTokens();
+          set({ user: null, isAuthenticated: false, isLoading: false });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Failed to deactivate account';
+          set({ error: message, isLoading: false });
+          throw error;
+        }
+      },
+
+      reactivateAccount: async (email, password) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await api.auth.reactivateAccount({ email, password });
+          await api.setTokens(response.accessToken, response.refreshToken);
+
+          const user = await api.auth.me();
+          set({ user, isAuthenticated: true, isLoading: false });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Failed to reactivate account';
+          set({ error: message, isLoading: false });
+          throw error;
         }
       },
 

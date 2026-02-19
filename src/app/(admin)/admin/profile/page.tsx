@@ -14,16 +14,23 @@ import {
   SimpleGrid,
   useColorModeValue,
   useToast,
+  useDisclosure,
   Divider,
   IconButton,
+  Alert,
+  AlertIcon,
+  AlertDescription,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@/stores/auth.store';
 import { api } from '@/lib/api';
 import { useState, useRef, useEffect } from 'react';
-import { FiCamera, FiX } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
+import { FiCamera, FiX, FiAlertTriangle } from 'react-icons/fi';
 import { readFileAsDataURL, validateImageFile } from '@/lib/imageUtils';
 import { ProgressButton } from '@/components/ui/ProgressButton';
+import { ConfirmDialog } from '@/components/ui';
+import { useAdminRentals } from '@/hooks';
 
 interface ProfileFormData {
   firstname: string;
@@ -33,14 +40,25 @@ interface ProfileFormData {
 
 export default function ProfilePage() {
   const toast = useToast();
-  const { user, fetchUser } = useAuthStore();
+  const router = useRouter();
+  const { user, fetchUser, deactivateAccount } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeactivating, setIsDeactivating] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | undefined>(user?.image);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const deactivateDialog = useDisclosure();
+
+  // Check for active rentals to disable deactivation if needed
+  const { data: rentalsData } = useAdminRentals({ page: 1, limit: 1 });
+  const hasActiveRentals = (rentalsData?.data || []).some(
+    (r) => r.status === 'ongoing' || r.status === 'reserved'
+  );
 
   const cardBg = useColorModeValue('white', 'navy.700');
   const readOnlyBg = useColorModeValue('gray.50', 'navy.600');
   const subtleTextColor = useColorModeValue('gray.500', 'gray.400');
+  const dangerBg = useColorModeValue('red.50', 'rgba(254, 178, 178, 0.06)');
+  const dangerBorder = useColorModeValue('red.200', 'red.800');
 
   const {
     register,
@@ -116,6 +134,30 @@ export default function ProfilePage() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeactivateAccount = async () => {
+    setIsDeactivating(true);
+    try {
+      await deactivateAccount();
+      toast({
+        title: 'Account deactivated',
+        description: 'Your account has been deactivated. You have been logged out.',
+        status: 'info',
+        duration: 5000,
+      });
+      router.push('/admin/login');
+    } catch (error) {
+      toast({
+        title: 'Failed to deactivate account',
+        description: error instanceof Error ? error.message : 'An error occurred',
+        status: 'error',
+        duration: 5000,
+      });
+    } finally {
+      setIsDeactivating(false);
+      deactivateDialog.onClose();
     }
   };
 
@@ -238,6 +280,66 @@ export default function ProfilePage() {
           </form>
         </Box>
       </SimpleGrid>
+
+      {/* Danger Zone - only show for non-superAdmin users */}
+      {user?.role !== 'superAdmin' && (
+        <Box
+          mt={8}
+          p={6}
+          bg={dangerBg}
+          borderRadius="xl"
+          border="1px solid"
+          borderColor={dangerBorder}
+        >
+          <HStack spacing={3} mb={4}>
+            <Box color="red.500">
+              <FiAlertTriangle size={20} />
+            </Box>
+            <Heading size="md" color="red.500">
+              Danger Zone
+            </Heading>
+          </HStack>
+
+          <Text color={subtleTextColor} mb={4} fontSize="sm">
+            Once you deactivate your account, your agency&apos;s cars will be hidden from clients
+            and you will be logged out. You will need to contact a Super Admin to reactivate
+            your account.
+          </Text>
+
+          {hasActiveRentals && (
+            <Alert status="warning" borderRadius="md" mb={4}>
+              <AlertIcon />
+              <AlertDescription fontSize="sm">
+                You cannot deactivate your account while you have active or reserved rentals.
+                Please complete or cancel all active rentals first.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <Button
+            colorScheme="red"
+            variant="outline"
+            leftIcon={<FiAlertTriangle />}
+            onClick={deactivateDialog.onOpen}
+            isDisabled={hasActiveRentals}
+          >
+            Deactivate My Account
+          </Button>
+        </Box>
+      )}
+
+      {/* Deactivation Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deactivateDialog.isOpen}
+        onClose={deactivateDialog.onClose}
+        onConfirm={handleDeactivateAccount}
+        title="Deactivate Account"
+        message="This will deactivate your account and log you out. Your agency's cars will be hidden from clients. You will need to contact a Super Admin to reactivate your account. Are you sure you want to proceed?"
+        confirmText="Deactivate Account"
+        cancelText="Cancel"
+        isLoading={isDeactivating}
+        colorScheme="red"
+      />
     </Box>
   );
 }

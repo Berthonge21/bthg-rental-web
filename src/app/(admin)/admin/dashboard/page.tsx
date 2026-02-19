@@ -387,7 +387,7 @@ export default function AdminDashboardPage() {
           align="center"
         >
           <Text fontWeight="semibold" color="text.primary" fontSize="lg">
-            Action Center
+            All Rentals
           </Text>
           <Button
             as={NextLink}

@@ -22,12 +22,17 @@ import {
   Icon,
   VStack,
   HStack,
+  Alert,
+  AlertIcon,
+  AlertDescription,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FiEye, FiEyeOff, FiTruck, FiLock, FiMail } from 'react-icons/fi';
 import { useAuthStore } from '@/stores/auth.store';
+import type { DeactivationErrorResponse } from '@bthgrentalcar/sdk';
+import { ApiError } from '@bthgrentalcar/sdk';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -36,11 +41,23 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+/** Extract deactivation error data from an ApiError if present */
+function getDeactivationError(error: unknown): DeactivationErrorResponse | null {
+  if (error instanceof ApiError && error.originalError) {
+    const data = error.originalError.response?.data as Record<string, unknown> | undefined;
+    if (data && data.code === 'ACCOUNT_DEACTIVATED') {
+      return data as unknown as DeactivationErrorResponse;
+    }
+  }
+  return null;
+}
+
+export default function AdminLoginPage() {
   const router = useRouter();
   const toast = useToast();
   const { loginAdmin, isLoading } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
+  const [deactivatedMessage, setDeactivatedMessage] = useState<string | null>(null);
 
   const cardBg = useColorModeValue('white', 'navy.700');
   const inputBg = useColorModeValue('gray.50', 'navy.600');
@@ -56,6 +73,9 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    // Clear any previous deactivation message
+    setDeactivatedMessage(null);
+
     try {
       await loginAdmin(data.email, data.password);
       const user = useAuthStore.getState().user;
@@ -70,6 +90,16 @@ export default function LoginPage() {
         router.push('/admin/dashboard');
       }
     } catch (error) {
+      const deactivationError = getDeactivationError(error);
+
+      if (deactivationError) {
+        // Admins cannot self-reactivate -- show informational message
+        setDeactivatedMessage(
+          'Your account has been deactivated. Please contact your Administrator to reactivate.'
+        );
+        return;
+      }
+
       toast({
         title: 'Login failed',
         description: error instanceof Error ? error.message : 'An error occurred',
@@ -111,6 +141,14 @@ export default function LoginPage() {
             </Text>
           </VStack>
         </VStack>
+
+        {/* Deactivation Alert */}
+        {deactivatedMessage && (
+          <Alert status="warning" borderRadius="lg" variant="left-accent">
+            <AlertIcon />
+            <AlertDescription fontSize="sm">{deactivatedMessage}</AlertDescription>
+          </Alert>
+        )}
 
         {/* Login Form */}
         <Box as="form" onSubmit={handleSubmit(onSubmit)} w="full">
