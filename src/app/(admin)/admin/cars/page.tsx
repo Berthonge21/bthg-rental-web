@@ -34,7 +34,7 @@ import {
 import { LoadingSpinner, useMinLoading, ConfirmDialog } from '@/components/ui';
 import { useCars, useDeleteCar, useAdminRentals } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
-import type { Car, Rental } from '@bthgrentalcar/sdk';
+import type { Car, Rental } from '@berthonge21/sdk';
 import { format } from 'date-fns';
 import { parseCarImages } from '@/lib/imageUtils';
 

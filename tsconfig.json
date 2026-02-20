@@ -19,7 +19,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@bthgrentalcar/sdk": ["./node_modules/@bthgrentalcar/sdk/src/index.ts"]
+      "@berthonge21/sdk": ["./node_modules/@berthonge21/sdk/src/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

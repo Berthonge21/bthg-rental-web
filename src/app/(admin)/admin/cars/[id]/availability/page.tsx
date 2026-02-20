@@ -29,7 +29,7 @@ import {
 } from 'react-icons/fi';
 import { LoadingSpinner, useMinLoading, ProgressButton } from '@/components/ui';
 import { useCar, useCarAvailabilityCalendar, useBlockDates, useUnblockDates } from '@/hooks';
-import type { BlockedDate, RentalBlock } from '@bthgrentalcar/sdk';
+import type { BlockedDate, RentalBlock } from '@berthonge21/sdk';
 import {
   format,
   startOfMonth,

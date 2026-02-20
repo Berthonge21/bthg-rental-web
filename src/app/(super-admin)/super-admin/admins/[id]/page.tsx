@@ -31,8 +31,8 @@ import { z } from 'zod';
 import { LoadingSpinner, ConfirmDialog } from '@/components/ui';
 import { useSuperAdminUsers, useSuperAdminAgencies, useAssignAgency, useUpdateUserStatus } from '@/hooks';
 import { ProgressButton } from '@/components/ui/ProgressButton';
-import { Status } from '@bthgrentalcar/sdk';
-import type { UserRole } from '@bthgrentalcar/sdk';
+import { Status } from '@berthonge21/sdk';
+import type { UserRole } from '@berthonge21/sdk';
 
 const assignAgencySchema = z.object({
   agencyId: z.coerce.number().min(1, 'Please select an agency'),

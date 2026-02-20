@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { AgencyQueryDto, CreateAgencyDto, UpdateAgencyDto, CarQueryDto } from '@bthgrentalcar/sdk';
+import type { AgencyQueryDto, CreateAgencyDto, UpdateAgencyDto, CarQueryDto } from '@berthonge21/sdk';
 
 export const agencyKeys = {
   all: ['agencies'] as const,

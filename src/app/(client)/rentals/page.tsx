@@ -10,9 +10,9 @@ import {
 import { FiCalendar, FiArrowRight, FiSearch, FiX } from 'react-icons/fi';
 import { useRentals, useCancelRental } from '@/hooks';
 import { ConfirmDialog } from '@/components/ui';
-import { RentalStatus } from '@bthgrentalcar/sdk';
+import { RentalStatus } from '@berthonge21/sdk';
 import { format, parseISO } from 'date-fns';
-import type { Rental } from '@bthgrentalcar/sdk';
+import type { Rental } from '@berthonge21/sdk';
 
 const STATUS_COLOR: Record<string, string> = {
   reserved: 'yellow',

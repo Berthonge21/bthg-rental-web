@@ -26,7 +26,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { FiUploadCloud, FiX, FiPlus } from 'react-icons/fi';
-import type { Car, Agency } from '@bthgrentalcar/sdk';
+import type { Car, Agency } from '@berthonge21/sdk';
 import { ProgressButton } from '@/components/ui/ProgressButton';
 import {
   parseCarImages,

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { RentalQueryDto, UpdateRentalStatusDto, RentalStatus } from '@bthgrentalcar/sdk';
+import type { RentalQueryDto, UpdateRentalStatusDto, RentalStatus } from '@berthonge21/sdk';
 import { rentalKeys } from './useRentals';
 
 export const adminKeys = {

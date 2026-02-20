@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@chakra-ui/next-js": "^2.2.0",
-    "@bthgrentalcar/sdk": "file:../BTHG-Rental-Car-2/packages/sdk",
+    "@berthonge21/sdk": "file:../BTHG-Rental-Car-2/packages/sdk",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",

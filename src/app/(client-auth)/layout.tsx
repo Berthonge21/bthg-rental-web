@@ -10,7 +10,7 @@ export default function ClientAuthLayout({ children }: { children: ReactNode }) 
     <Box position="relative" minH="100vh" overflow="hidden">
       {/* Full-page background image */}
       <Image
-        src="/img/car2.png"
+        src="/img/test.jpg"
         alt="Background car"
         fill
         style={{ objectFit: 'cover' }}

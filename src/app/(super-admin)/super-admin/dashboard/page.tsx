@@ -44,7 +44,7 @@ import {
 import { DataTable, LoadingSpinner, type Column } from '@/components/ui';
 import { useSuperAdminDashboard, useSuperAdminAgencies, useSuperAdminUsers } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
-import type { Agency, AdminUser, Status, UserRole } from '@bthgrentalcar/sdk';
+import type { Agency, AdminUser, Status, UserRole } from '@berthonge21/sdk';
 import { useMemo } from 'react';
 
 const statusColors: Record<Status, string> = {

@@ -21,7 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateAgency, useSuperAdminUsers } from '@/hooks';
 import { ProgressButton } from '@/components/ui/ProgressButton';
-import { Status } from '@bthgrentalcar/sdk';
+import { Status } from '@berthonge21/sdk';
 
 const agencySchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),

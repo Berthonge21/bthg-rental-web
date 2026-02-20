@@ -25,7 +25,7 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { useCreateAdminUser } from '@/hooks';
 import { ProgressButton } from '@/components/ui/ProgressButton';
-import { UserRole } from '@bthgrentalcar/sdk';
+import { UserRole } from '@berthonge21/sdk';
 
 const adminSchema = z.object({
   firstname: z.string().min(2, 'First name is required'),

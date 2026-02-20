@@ -37,7 +37,7 @@ import {
 } from 'react-icons/fi';
 import { LoadingSpinner, useMinLoading, ProgressButton } from '@/components/ui';
 import { useAdminRental, useUpdateRentalStatus } from '@/hooks';
-import type { RentalStatus } from '@bthgrentalcar/sdk';
+import type { RentalStatus } from '@berthonge21/sdk';
 import { format, differenceInDays } from 'date-fns';
 
 // --- Status configuration ---

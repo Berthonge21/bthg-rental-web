@@ -20,8 +20,8 @@ import {
 import { FiPlus, FiEdit2, FiLink, FiUserCheck, FiUserX } from 'react-icons/fi';
 import { DataTable, type Column, ConfirmDialog } from '@/components/ui';
 import { useSuperAdminUsers, useUpdateUserStatus } from '@/hooks';
-import { Status } from '@bthgrentalcar/sdk';
-import type { AdminUser, UserRole } from '@bthgrentalcar/sdk';
+import { Status } from '@berthonge21/sdk';
+import type { AdminUser, UserRole } from '@berthonge21/sdk';
 
 const roleColors: Record<UserRole, string> = {
   admin: 'blue',

@@ -34,8 +34,8 @@ import { z } from 'zod';
 import { LoadingSpinner, StatCard, DataTable, type Column } from '@/components/ui';
 import { useAgency, useAgencyStats, useAgencyCars, useUpdateAgency, useSuperAdminUsers } from '@/hooks';
 import { ProgressButton } from '@/components/ui/ProgressButton';
-import { Status } from '@bthgrentalcar/sdk';
-import type { Car, AdminUser, UserRole } from '@bthgrentalcar/sdk';
+import { Status } from '@berthonge21/sdk';
+import type { Car, AdminUser, UserRole } from '@berthonge21/sdk';
 
 const agencySchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),

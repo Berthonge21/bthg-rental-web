@@ -41,7 +41,7 @@ import {
 import { useAuthStore } from '@/stores/auth.store';
 import { useCars, useAgencies } from '@/hooks';
 import { parseCarImages } from '@/lib/imageUtils';
-import type { Car } from '@bthgrentalcar/sdk';
+import type { Car } from '@berthonge21/sdk';
 
 /* ── Featured car card ── */
 function FeaturedCarCard({ car }: { car: Car }) {

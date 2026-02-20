@@ -7,7 +7,7 @@ import type {
   CreateAdminUserDto,
   AssignAgencyDto,
   Status,
-} from '@bthgrentalcar/sdk';
+} from '@berthonge21/sdk';
 
 export const superAdminKeys = {
   dashboard: ['super-admin', 'dashboard'] as const,

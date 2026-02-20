@@ -31,8 +31,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FiEye, FiEyeOff, FiTruck, FiLock, FiMail } from 'react-icons/fi';
 import { useAuthStore } from '@/stores/auth.store';
-import type { DeactivationErrorResponse } from '@bthgrentalcar/sdk';
-import { ApiError } from '@bthgrentalcar/sdk';
+import type { DeactivationErrorResponse } from '@berthonge21/sdk';
+import { ApiError } from '@berthonge21/sdk';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),

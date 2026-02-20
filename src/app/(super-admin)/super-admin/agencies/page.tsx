@@ -19,7 +19,7 @@ import {
 import { FiPlus, FiTrash2, FiEye } from 'react-icons/fi';
 import { DataTable, ConfirmDialog, type Column } from '@/components/ui';
 import { useSuperAdminAgencies, useDeleteAgency } from '@/hooks';
-import type { Agency, Status } from '@bthgrentalcar/sdk';
+import type { Agency, Status } from '@berthonge21/sdk';
 
 const statusColors: Record<Status, string> = {
   activate: 'green',

@@ -29,7 +29,7 @@ import {
 import { FiSearch, FiFilter, FiArrowRight } from 'react-icons/fi';
 import { useCars, useAgencies } from '@/hooks';
 import { parseCarImages } from '@/lib/imageUtils';
-import type { Car } from '@bthgrentalcar/sdk';
+import type { Car } from '@berthonge21/sdk';
 
 const FUEL_OPTIONS = ['All', 'Petrol', 'Diesel', 'Electric', 'Hybrid'];
 const GEARBOX_OPTIONS = ['All', 'Automatic', 'Manual'];

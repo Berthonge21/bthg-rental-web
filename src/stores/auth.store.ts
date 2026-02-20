@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { CurrentUser, AuthResponse } from '@bthgrentalcar/sdk';
+import type { CurrentUser, AuthResponse } from '@berthonge21/sdk';
 import { api } from '@/lib/api';
 
 interface AuthState {

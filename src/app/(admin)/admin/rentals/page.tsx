@@ -18,7 +18,7 @@ import {
 import { FiEye, FiCheck, FiX, FiPlay } from 'react-icons/fi';
 import { LoadingSpinner } from '@/components/ui';
 import { useAdminRentals, useUpdateRentalStatus } from '@/hooks';
-import type { Rental, RentalStatus } from '@bthgrentalcar/sdk';
+import type { Rental, RentalStatus } from '@berthonge21/sdk';
 import { format } from 'date-fns';
 
 const statusColors: Record<RentalStatus, string> = {

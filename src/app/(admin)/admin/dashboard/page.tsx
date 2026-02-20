@@ -44,7 +44,7 @@ import {
 import { DataTable, LoadingSpinner, type Column } from '@/components/ui';
 import { useAdminDashboard, useAdminRentals, useCars } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
-import type { Rental, RentalStatus } from '@bthgrentalcar/sdk';
+import type { Rental, RentalStatus } from '@berthonge21/sdk';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
 
