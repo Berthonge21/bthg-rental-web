@@ -87,8 +87,10 @@
     "@babel/helper-string-parser" "^7.27.1"
     "@babel/helper-validator-identifier" "^7.28.5"
 
-"@bthgrentalcar/sdk@file:../BTHG-Rental-Car-2/packages/sdk":
-  version "0.1.0"
+"@berthonge21/sdk@^1.0.0":
+  version "1.0.0"
+  resolved "https://npm.pkg.github.com/download/@berthonge21/sdk/1.0.0/64925776846c69ed6fa2f2d636e847ad667f4749#64925776846c69ed6fa2f2d636e847ad667f4749"
+  integrity sha512-XsYdDGXTFEQ+D1xGdGnPo6pGz6ZWe7GjZbslkQOJf8yoEhwdxDyhh7QnO4sn02S9v6ktrQDTYX66WoSWw+NzYQ==
   dependencies:
     axios "^1.6.0"
 
