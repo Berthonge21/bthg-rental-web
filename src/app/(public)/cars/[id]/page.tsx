@@ -25,7 +25,7 @@ function MiniCalendar({ carId }: { carId: number }) {
   const [viewMonth, setViewMonth] = useState(today.getMonth() + 1);
   const { data } = useCarAvailabilityCalendar(carId, viewYear, viewMonth);
 
-  const blockedSet = new Set<string>((data?.blockedDates ?? []).map((b) => b.date));
+  const blockedSet = new Set<string>((data?.blockedDates ?? []).map((b: { date: string }) => b.date));
   const textMuted = useColorModeValue('text.muted', 'gray.400');
   const calBg = useColorModeValue('white', 'navy.700');
   const calBorder = useColorModeValue('gray.100', 'navy.600');

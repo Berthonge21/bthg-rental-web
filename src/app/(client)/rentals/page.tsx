@@ -184,7 +184,7 @@ export default function RentalsPage() {
               </Center>
             ) : (
               <VStack spacing={4} align="stretch">
-                {historyRentals.map(r => <RentalCard key={r.id} rental={r} />)}
+                {historyRentals.map((r: Rental) => <RentalCard key={r.id} rental={r} />)}
               </VStack>
             )}
           </TabPanel>

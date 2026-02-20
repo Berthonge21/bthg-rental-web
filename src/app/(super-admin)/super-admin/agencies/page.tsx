@@ -37,7 +37,7 @@ export default function SuperAdminAgenciesPage() {
   const { data, isLoading } = useSuperAdminAgencies({ page, limit: 10, search: search || undefined });
   const deleteMutation = useDeleteAgency();
 
-  const filteredData = (data?.data || []).filter((agency) => {
+  const filteredData = (data?.data || []).filter((agency: Agency) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return (

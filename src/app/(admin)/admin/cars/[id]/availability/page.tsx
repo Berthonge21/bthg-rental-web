@@ -29,6 +29,7 @@ import {
 } from 'react-icons/fi';
 import { LoadingSpinner, useMinLoading, ProgressButton } from '@/components/ui';
 import { useCar, useCarAvailabilityCalendar, useBlockDates, useUnblockDates } from '@/hooks';
+import type { BlockedDate, RentalBlock } from '@bthgrentalcar/sdk';
 import {
   format,
   startOfMonth,
@@ -74,7 +75,6 @@ export default function CarAvailabilityPage() {
   const unblockMutation = useUnblockDates();
 
   // All useColorModeValue calls at top of component
-  const pageBg = useColorModeValue('gray.50', 'navy.900');
   const cardBg = useColorModeValue('white', 'navy.700');
   const cardBorder = useColorModeValue('gray.100', 'navy.600');
   const headerTextColor = useColorModeValue('text.primary', 'white');
@@ -109,12 +109,12 @@ export default function CarAvailabilityPage() {
     const map = new Map<string, 'blocked' | 'rental'>();
 
     if (calendar) {
-      calendar.blockedDates.forEach((bd) => {
+      calendar.blockedDates.forEach((bd: BlockedDate) => {
         const dateStr = format(new Date(bd.date), 'yyyy-MM-dd');
         map.set(dateStr, 'blocked');
       });
 
-      calendar.rentals.forEach((rental) => {
+      calendar.rentals.forEach((rental: RentalBlock) => {
         const start = new Date(rental.startDate);
         const end = new Date(rental.endDate);
         const days = eachDayOfInterval({ start, end });

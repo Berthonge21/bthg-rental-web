@@ -142,7 +142,7 @@ export const useAuthStore = create<AuthState>()(
         if (state.isAuthenticated && state.user) {
           set({ isInitializing: false });
           api.auth.me()
-            .then((user) => set({ user, isAuthenticated: true }))
+            .then((user: CurrentUser) => set({ user, isAuthenticated: true }))
             .catch(async () => {
               await api.clearTokens();
               set({ user: null, isAuthenticated: false });

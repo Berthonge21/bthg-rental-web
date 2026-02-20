@@ -137,7 +137,7 @@ export default function CarsPage() {
   const agencies = agenciesData?.data ?? [];
 
   // Client-side filtering for fuel/gearbox/price/search
-  const filtered = allCars.filter((car) => {
+  const filtered = allCars.filter((car: Car) => {
     const q = search.toLowerCase();
     const matchSearch = !q || `${car.brand} ${car.model}`.toLowerCase().includes(q);
     const matchFuel = fuel === 'All' || car.fuel?.toLowerCase() === fuel.toLowerCase();
@@ -191,7 +191,7 @@ export default function CarsPage() {
               </Text>
               <Select size="sm" borderRadius="lg" onChange={handleAgencyChange}>
                 <option value="">All Agencies</option>
-                {agencies.map((a) => (
+                {agencies.map((a: { id: number; name: string }) => (
                   <option key={a.id} value={a.id}>{a.name}</option>
                 ))}
               </Select>
@@ -274,7 +274,7 @@ export default function CarsPage() {
             </Box>
           ) : (
             <SimpleGrid columns={{ base: 1, sm: 2, xl: 3 }} spacing={5}>
-              {filtered.map((car) => <CarCard key={car.id} car={car} />)}
+              {filtered.map((car: Car) => <CarCard key={car.id} car={car} />)}
             </SimpleGrid>
           )}
 

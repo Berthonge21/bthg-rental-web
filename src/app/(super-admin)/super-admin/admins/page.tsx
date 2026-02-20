@@ -39,7 +39,7 @@ export default function SuperAdminAdminsPage() {
   const { data, isLoading } = useSuperAdminUsers({ page, limit: 10, search: search || undefined });
   const updateStatusMutation = useUpdateUserStatus();
 
-  const filteredData = (data?.data || []).filter((admin) => {
+  const filteredData = (data?.data || []).filter((admin: AdminUser) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return (

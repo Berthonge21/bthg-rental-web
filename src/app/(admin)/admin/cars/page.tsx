@@ -200,7 +200,6 @@ function RecentActivitySidebar() {
   const sidebarCardBg = useColorModeValue('white', 'navy.700');
   const sidebarBorder = useColorModeValue('gray.100', 'navy.600');
   const sidebarTitleColor = useColorModeValue('text.primary', 'white');
-  const sidebarTextColor = useColorModeValue('text.secondary', 'gray.300');
   const sidebarMutedColor = useColorModeValue('text.muted', 'gray.400');
   const progressBg = useColorModeValue('gray.200', 'navy.600');
   const dividerColor = useColorModeValue('gray.200', 'navy.600');
@@ -448,7 +447,7 @@ function RecentActivitySidebar() {
       )}
 
       {/* Show remaining rentals as compact list */}
-      {rentals.slice(3).map((rental) => (
+      {rentals.slice(3).map((rental: Rental) => (
         <Box key={rental.id} bg={sidebarCardBg} borderRadius="xl" border="1px" borderColor={sidebarBorder} p={4}>
           <Flex align="center" gap={3}>
             <Avatar
@@ -532,7 +531,7 @@ export default function AdminCarsPage() {
 
   // Filter by agency for admin users
   const agencyId = user?.role === 'superAdmin' ? undefined : user?.agency?.id;
-  const { data, isLoading, isFetching } = useCars({ agencyId });
+  const { data, isLoading } = useCars({ agencyId });
   const showLoading = useMinLoading(isLoading);
   const deleteMutation = useDeleteCar();
 
