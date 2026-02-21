@@ -54,13 +54,13 @@ import { CarLoader } from '@/components/ui/CarLoader';
 import { FadeInOnScroll } from '@/components/ui/FadeInOnScroll';
 import type { Car } from '@berthonge21/sdk';
 
-const MotionBox = motion(Box);
-const MotionVStack = motion(VStack);
-const MotionHeading = motion(Heading);
-const MotionText = motion(Text);
-const MotionBadge = motion(Badge);
-const MotionHStack = motion(HStack);
-const MotionIconButton = motion(IconButton);
+const MotionBox = motion.create(Box);
+const MotionVStack = motion.create(VStack);
+const MotionHeading = motion.create(Heading);
+const MotionText = motion.create(Text);
+const MotionBadge = motion.create(Badge);
+const MotionHStack = motion.create(HStack);
+const MotionIconButton = motion.create(IconButton);
 
 /* ── Featured car card ── */
 function FeaturedCarCard({ car }: { car: Car }) {
@@ -703,7 +703,7 @@ function LandingPage() {
                   position="relative"
                 >
                   <Image
-                    src="/img/bthg-signin.png"
+                    src="/img/car.png"
                     alt="Premium rental car"
                     w="100%"
                     h={{ lg: '480px', xl: '520px' }}

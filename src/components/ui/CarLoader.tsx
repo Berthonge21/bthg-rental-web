@@ -4,7 +4,7 @@ import { Box, Center, Icon, Text, VStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FiTruck } from 'react-icons/fi';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 const sizeMap = {
   sm: 6,

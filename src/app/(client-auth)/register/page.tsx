@@ -32,7 +32,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/stores/auth.store';
 import { ProgressButton } from '@/components/ui/ProgressButton';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 const registerSchema = z
   .object({

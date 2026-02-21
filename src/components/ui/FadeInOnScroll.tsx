@@ -4,7 +4,7 @@ import { useRef, type ReactNode } from 'react';
 import { Box } from '@chakra-ui/react';
 import { motion, useInView } from 'framer-motion';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 interface FadeInOnScrollProps {
   children: ReactNode;
