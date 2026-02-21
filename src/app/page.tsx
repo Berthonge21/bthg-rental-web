@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import NextLink from 'next/link';
 import {
@@ -17,7 +17,6 @@ import {
   Input,
   Select,
   SimpleGrid,
-  Spinner,
   Text,
   VStack,
   Badge,
@@ -28,6 +27,7 @@ import {
 import {
   FiTruck,
   FiArrowRight,
+  FiArrowUp,
   FiUsers,
   FiAward,
   FiShield,
@@ -37,11 +37,30 @@ import {
   FiCalendar,
   FiSearch,
   FiCheckCircle,
+  FiChevronsDown,
 } from 'react-icons/fi';
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+  useMotionValueEvent,
+  useInView,
+} from 'framer-motion';
 import { useAuthStore } from '@/stores/auth.store';
 import { useCars, useAgencies } from '@/hooks';
 import { parseCarImages } from '@/lib/imageUtils';
+import { CarLoader } from '@/components/ui/CarLoader';
+import { FadeInOnScroll } from '@/components/ui/FadeInOnScroll';
 import type { Car } from '@berthonge21/sdk';
+
+const MotionBox = motion(Box);
+const MotionVStack = motion(VStack);
+const MotionHeading = motion(Heading);
+const MotionText = motion(Text);
+const MotionBadge = motion(Badge);
+const MotionHStack = motion(HStack);
+const MotionIconButton = motion(IconButton);
 
 /* ── Featured car card ── */
 function FeaturedCarCard({ car }: { car: Car }) {
@@ -156,7 +175,7 @@ function LandingNav() {
           </Text>
         </HStack>
 
-        {/* Center — Browse Cars link */}
+        {/* Center -- Browse Cars link */}
         <Button
           as={NextLink}
           href="/cars"
@@ -356,6 +375,110 @@ function QuickSearchBar() {
   );
 }
 
+/* ── Scroll indicator ── */
+function ScrollIndicator() {
+  const { scrollY } = useScroll();
+  const opacity = useTransform(scrollY, [0, 80], [1, 0]);
+
+  return (
+    <MotionBox
+      position="absolute"
+      bottom={8}
+      left="50%"
+      transform="translateX(-50%)"
+      style={{ opacity }}
+      textAlign="center"
+    >
+      <MotionBox
+        animate={{ y: [0, 8, 0] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <Icon as={FiChevronsDown} boxSize={6} color="whiteAlpha.700" />
+      </MotionBox>
+      <Text fontSize="xs" color="whiteAlpha.500" mt={1}>
+        Scroll
+      </Text>
+    </MotionBox>
+  );
+}
+
+/* ── Animated connector line for How It Works ── */
+function ConnectorLine() {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.5 });
+
+  return (
+    <Box
+      ref={ref}
+      position="absolute"
+      top="50%"
+      left="100%"
+      w="calc(100% - 40px)"
+      h="2px"
+      display={{ base: 'none', md: 'block' }}
+      overflow="hidden"
+      zIndex={1}
+      transform="translateX(20px)"
+    >
+      <MotionBox
+        h="100%"
+        bg="brand.400"
+        initial={{ scaleX: 0 }}
+        animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
+        transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
+        style={{ transformOrigin: 'left' }}
+      />
+    </Box>
+  );
+}
+
+/* ── Back to Top button ── */
+function FloatingBackToTop() {
+  const [show, setShow] = useState(false);
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    setShow(latest > 400);
+  });
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <MotionIconButton
+          aria-label="Back to top"
+          icon={<FiArrowUp />}
+          position="fixed"
+          bottom={8}
+          right={8}
+          zIndex={1000}
+          bg="brand.400"
+          color="white"
+          borderRadius="full"
+          size="lg"
+          boxShadow="lg"
+          _hover={{ bg: 'brand.500' }}
+          onClick={scrollToTop}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.8, opacity: 0 }}
+          transition={{ duration: 0.25 }}
+        />
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ── Hero entry animation variants ── */
+const heroFadeUp = (delay: number) => ({
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: 'easeOut', delay },
+});
+
 /* ── Landing page (public) ── */
 function LandingPage() {
   const { isAuthenticated, user } = useAuthStore();
@@ -420,7 +543,7 @@ function LandingPage() {
     <Box bg="white">
       <LandingNav />
 
-      {/* ── Hero Section ── */}
+      {/* ---- Hero Section ---- */}
       <Box bg="navy.800" minH="100vh" pt="80px" position="relative" overflow="hidden">
         {/* Decorative background elements */}
         <Box
@@ -450,10 +573,10 @@ function LandingPage() {
             minH={{ base: 'auto', lg: 'calc(70vh - 80px)' }}
             pt={{ base: 8, lg: 12 }}
           >
-            {/* Left column — text content */}
+            {/* Left column -- text content with entry animations */}
             <GridItem>
               <VStack align="start" spacing={6}>
-                <Badge
+                <MotionBadge
                   bg="whiteAlpha.200"
                   color="brand.400"
                   borderRadius="full"
@@ -463,34 +586,42 @@ function LandingPage() {
                   fontWeight="semibold"
                   textTransform="uppercase"
                   letterSpacing="wider"
+                  {...heroFadeUp(0.1)}
                 >
                   Premium Car Rental
-                </Badge>
+                </MotionBadge>
 
-                <Heading
+                <MotionHeading
                   fontSize={{ base: '4xl', md: '5xl', lg: '6xl', xl: '7xl' }}
                   fontWeight="extrabold"
                   color="white"
                   lineHeight="1.05"
+                  {...heroFadeUp(0.2)}
                 >
                   The Smarter Way{' '}
                   <Text as="span" color="brand.400">
                     to Rent
                   </Text>{' '}
                   a Car
-                </Heading>
+                </MotionHeading>
 
-                <Text
+                <MotionText
                   fontSize={{ base: 'md', lg: 'lg' }}
                   color="whiteAlpha.700"
                   maxW="480px"
                   lineHeight="tall"
+                  {...heroFadeUp(0.3)}
                 >
                   Browse hundreds of vehicles from top agencies. Book in minutes,
                   drive with confidence. The easiest way to rent a car online.
-                </Text>
+                </MotionText>
 
-                <HStack spacing={4} flexWrap="wrap" pt={2}>
+                <MotionHStack
+                  spacing={4}
+                  flexWrap="wrap"
+                  pt={2}
+                  {...heroFadeUp(0.4)}
+                >
                   <Button
                     as={NextLink}
                     href="/cars"
@@ -535,27 +666,37 @@ function LandingPage() {
                       </Button>
                     )
                   )}
-                </HStack>
+                </MotionHStack>
 
-                {/* Stats */}
+                {/* Stats with stagger */}
                 <HStack spacing={10} pt={6}>
-                  {stats.map((s) => (
-                    <VStack key={s.label} spacing={0}>
+                  {stats.map((s, i) => (
+                    <MotionVStack
+                      key={s.label}
+                      spacing={0}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, ease: 'easeOut', delay: 0.5 + i * 0.1 }}
+                    >
                       <Text fontSize="2xl" fontWeight="bold" color="brand.400">
                         {s.value}
                       </Text>
                       <Text fontSize="sm" color="whiteAlpha.600">
                         {s.label}
                       </Text>
-                    </VStack>
+                    </MotionVStack>
                   ))}
                 </HStack>
               </VStack>
             </GridItem>
 
-            {/* Right column — car image */}
+            {/* Right column -- car image with float animation */}
             <GridItem display={{ base: 'none', lg: 'block' }}>
-              <Box position="relative">
+              <MotionBox
+                position="relative"
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              >
                 <Box
                   borderRadius="2xl"
                   overflow="hidden"
@@ -579,7 +720,7 @@ function LandingPage() {
                     bgGradient="linear(to-t, rgba(11,28,45,0.6), transparent)"
                     borderBottomRadius="2xl"
                   />
-                  {/* Floating price badge — bottom left */}
+                  {/* Floating price badge */}
                   <Box
                     position="absolute"
                     bottom={4}
@@ -597,7 +738,7 @@ function LandingPage() {
                       $29/day
                     </Text>
                   </Box>
-                  {/* Floating rating badge — top right */}
+                  {/* Floating rating badge */}
                   <Box
                     position="absolute"
                     top={4}
@@ -616,93 +757,25 @@ function LandingPage() {
                     </HStack>
                   </Box>
                 </Box>
-              </Box>
+              </MotionBox>
             </GridItem>
           </Grid>
 
-          {/* Quick search bar — still inside dark hero */}
+          {/* Quick search bar */}
           <QuickSearchBar />
 
           {/* Bottom spacer */}
           <Box h={16} />
         </Box>
+
+        {/* Scroll indicator */}
+        <ScrollIndicator />
       </Box>
 
-      {/* ── How It Works ── */}
+      {/* ---- How It Works ---- */}
       <Box bg="white" py={20} px={{ base: 4, md: 8, lg: 12 }}>
         <VStack spacing={12} maxW="1200px" mx="auto">
-          <VStack spacing={3} textAlign="center">
-            <Text
-              fontSize="sm"
-              fontWeight="semibold"
-              color="accent.400"
-              textTransform="uppercase"
-              letterSpacing="wider"
-            >
-              Simple Process
-            </Text>
-            <Heading size="xl" color="navy.800">
-              How It Works
-            </Heading>
-          </VStack>
-
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8} w="full">
-            {steps.map((step) => (
-              <Box
-                key={step.title}
-                bg="white"
-                border="1px"
-                borderColor="gray.100"
-                borderRadius="2xl"
-                p={8}
-                position="relative"
-                overflow="hidden"
-                transition="all 0.3s"
-                _hover={{ boxShadow: 'lg', transform: 'translateY(-4px)' }}
-              >
-                {/* Big background number */}
-                <Text
-                  position="absolute"
-                  top={-2}
-                  right={3}
-                  fontSize="7xl"
-                  fontWeight="bold"
-                  color="brand.400"
-                  opacity={0.12}
-                  lineHeight={1}
-                  userSelect="none"
-                >
-                  {step.number}
-                </Text>
-                <VStack align="start" spacing={4} position="relative">
-                  <Box
-                    w={12}
-                    h={12}
-                    bg="brand.50"
-                    borderRadius="xl"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Icon as={step.icon} boxSize={6} color="brand.400" />
-                  </Box>
-                  <Text fontWeight="bold" fontSize="lg" color="navy.800">
-                    {step.title}
-                  </Text>
-                  <Text color="gray.500" fontSize="sm" lineHeight="tall">
-                    {step.desc}
-                  </Text>
-                </VStack>
-              </Box>
-            ))}
-          </SimpleGrid>
-        </VStack>
-      </Box>
-
-      {/* ── Featured Cars ── */}
-      {cars.length > 0 && (
-        <Box bg="gray.50" py={20} px={{ base: 4, md: 8, lg: 12 }}>
-          <VStack spacing={10} maxW="1200px" mx="auto">
+          <FadeInOnScroll>
             <VStack spacing={3} textAlign="center">
               <Text
                 fontSize="sm"
@@ -711,163 +784,276 @@ function LandingPage() {
                 textTransform="uppercase"
                 letterSpacing="wider"
               >
-                Our Fleet
+                Simple Process
               </Text>
               <Heading size="xl" color="navy.800">
-                Featured Cars
+                How It Works
               </Heading>
-              <Text color="gray.500" maxW="500px">
-                Discover our selection of premium vehicles from trusted agencies
-              </Text>
             </VStack>
-            <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} spacing={6} w="full">
-              {cars.map((car: Car) => (
-                <FeaturedCarCard key={car.id} car={car} />
-              ))}
-            </SimpleGrid>
-            <Button
-              as={NextLink}
-              href="/cars"
-              variant="outline"
-              color="navy.800"
-              borderColor="navy.800"
-              rightIcon={<FiArrowRight />}
-              borderRadius="lg"
-              size="lg"
-              _hover={{ bg: 'gray.100' }}
-            >
-              View All Cars
-            </Button>
-          </VStack>
-        </Box>
-      )}
+          </FadeInOnScroll>
 
-      {/* ── Why Choose Us ── */}
-      <Box bg="white" py={20} px={{ base: 4, md: 8, lg: 12 }}>
-        <VStack spacing={12} maxW="1200px" mx="auto">
-          <VStack spacing={3} textAlign="center">
-            <Text
-              fontSize="sm"
-              fontWeight="semibold"
-              color="brand.400"
-              textTransform="uppercase"
-              letterSpacing="wider"
-            >
-              Why Choose Us
-            </Text>
-            <Heading size="xl" color="navy.800">
-              The Smarter Way to Rent
-            </Heading>
-          </VStack>
-          <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={6} w="full">
-            {features.map((f) => (
-              <VStack
-                key={f.title}
-                p={8}
-                bg="white"
-                borderRadius="2xl"
-                spacing={4}
-                align="start"
-                border="1px"
-                borderColor="gray.100"
-                transition="all 0.3s"
-                _hover={{ boxShadow: 'lg', transform: 'translateY(-4px)' }}
-              >
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8} w="full">
+            {steps.map((step, index) => (
+              <FadeInOnScroll key={step.title} delay={0.1 * index}>
                 <Box
-                  w={12}
-                  h={12}
-                  bg="brand.50"
-                  borderRadius="xl"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
+                  bg="white"
+                  border="1px"
+                  borderColor="gray.100"
+                  borderRadius="2xl"
+                  p={8}
+                  position="relative"
+                  overflow="hidden"
+                  transition="all 0.3s"
+                  _hover={{
+                    boxShadow: 'xl',
+                    transform: 'translateY(-8px)',
+                  }}
+                  h="full"
                 >
-                  <Icon as={f.icon} boxSize={6} color="brand.400" />
+                  {/* Big background number */}
+                  <Text
+                    position="absolute"
+                    top={-2}
+                    right={3}
+                    fontSize="7xl"
+                    fontWeight="bold"
+                    color="brand.400"
+                    opacity={0.12}
+                    lineHeight={1}
+                    userSelect="none"
+                  >
+                    {step.number}
+                  </Text>
+
+                  {/* Connector line between cards (not on last card) */}
+                  {index < steps.length - 1 && <ConnectorLine />}
+
+                  <VStack align="start" spacing={4} position="relative">
+                    <MotionBox
+                      w={12}
+                      h={12}
+                      bg="brand.50"
+                      borderRadius="xl"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      whileInView={{ scale: [0.8, 1], rotate: [-15, 0] }}
+                      viewport={{ once: true, amount: 0.5 }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                    >
+                      <Icon as={step.icon} boxSize={6} color="brand.400" />
+                    </MotionBox>
+                    <Text fontWeight="bold" fontSize="lg" color="navy.800">
+                      {step.title}
+                    </Text>
+                    <Text color="gray.500" fontSize="sm" lineHeight="tall">
+                      {step.desc}
+                    </Text>
+                  </VStack>
                 </Box>
-                <Text fontWeight="bold" fontSize="lg" color="navy.800">
-                  {f.title}
-                </Text>
-                <Text color="gray.500" fontSize="sm" lineHeight="tall">
-                  {f.desc}
-                </Text>
-              </VStack>
+              </FadeInOnScroll>
             ))}
           </SimpleGrid>
         </VStack>
       </Box>
 
-      {/* ── CTA Banner ── */}
-      <Box py={16} px={{ base: 4, md: 8, lg: 12 }}>
-        <Box
-          maxW="1200px"
-          mx="auto"
-          bg="navy.800"
-          borderRadius="3xl"
-          py={16}
-          px={{ base: 6, md: 12 }}
-          textAlign="center"
-          position="relative"
-          overflow="hidden"
-        >
-          {/* Decorative circles */}
-          <Box
-            position="absolute"
-            top="-20%"
-            right="-5%"
-            w="300px"
-            h="300px"
-            borderRadius="full"
-            bg="rgba(201,162,39,0.08)"
-          />
-          <Box
-            position="absolute"
-            bottom="-15%"
-            left="-5%"
-            w="250px"
-            h="250px"
-            borderRadius="full"
-            bg="rgba(27,197,189,0.06)"
-          />
-
-          <VStack spacing={6} position="relative">
-            <Heading size="xl" color="white">
-              Ready to Drive?
-            </Heading>
-            <Text color="whiteAlpha.700" maxW="500px" fontSize="lg">
-              Join thousands of happy customers who trust us for their car rental needs.
-            </Text>
-            <HStack spacing={4} flexWrap="wrap" justify="center" pt={2}>
-              <Button
-                as={NextLink}
-                href="/register"
-                size="lg"
-                bg="brand.400"
-                color="white"
-                _hover={{ bg: 'brand.500' }}
-                borderRadius="lg"
-                px={8}
-              >
-                Get Started Free
-              </Button>
+      {/* ---- Featured Cars ---- */}
+      {cars.length > 0 && (
+        <Box bg="gray.50" py={20} px={{ base: 4, md: 8, lg: 12 }}>
+          <VStack spacing={10} maxW="1200px" mx="auto">
+            <FadeInOnScroll>
+              <VStack spacing={3} textAlign="center">
+                <Text
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="accent.400"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  Our Fleet
+                </Text>
+                <Heading size="xl" color="navy.800">
+                  Featured Cars
+                </Heading>
+                <Text color="gray.500" maxW="500px">
+                  Discover our selection of premium vehicles from trusted agencies
+                </Text>
+              </VStack>
+            </FadeInOnScroll>
+            <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} spacing={6} w="full">
+              {cars.map((car: Car, index: number) => (
+                <FadeInOnScroll key={car.id} delay={0.08 * index}>
+                  <FeaturedCarCard car={car} />
+                </FadeInOnScroll>
+              ))}
+            </SimpleGrid>
+            <FadeInOnScroll delay={0.2}>
               <Button
                 as={NextLink}
                 href="/cars"
-                size="lg"
                 variant="outline"
-                color="white"
-                borderColor="whiteAlpha.400"
-                _hover={{ bg: 'whiteAlpha.100' }}
+                color="navy.800"
+                borderColor="navy.800"
+                rightIcon={<FiArrowRight />}
                 borderRadius="lg"
-                px={8}
+                size="lg"
+                _hover={{ bg: 'gray.100' }}
               >
-                Browse Cars
+                View All Cars
               </Button>
-            </HStack>
+            </FadeInOnScroll>
           </VStack>
         </Box>
+      )}
+
+      {/* ---- Why Choose Us ---- */}
+      <Box bgGradient="linear(to-b, gray.50, white)" py={20} px={{ base: 4, md: 8, lg: 12 }}>
+        <VStack spacing={12} maxW="1200px" mx="auto">
+          <FadeInOnScroll>
+            <VStack spacing={3} textAlign="center">
+              <Text
+                fontSize="sm"
+                fontWeight="semibold"
+                color="brand.400"
+                textTransform="uppercase"
+                letterSpacing="wider"
+              >
+                Why Choose Us
+              </Text>
+              <Heading size="xl" color="navy.800">
+                The Smarter Way to Rent
+              </Heading>
+            </VStack>
+          </FadeInOnScroll>
+          <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={6} w="full">
+            {features.map((f, index) => (
+              <FadeInOnScroll key={f.title} delay={0.1 * index}>
+                <Box
+                  p={8}
+                  bg={index % 2 === 0 ? 'white' : 'gray.50'}
+                  borderRadius="2xl"
+                  border="1px"
+                  borderColor="gray.100"
+                  transition="all 0.3s"
+                  cursor="default"
+                  _hover={{
+                    transform: 'translateY(-8px) scale(1.02)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                  }}
+                  role="group"
+                  h="full"
+                >
+                  <VStack spacing={4} align="start">
+                    <Box
+                      w={12}
+                      h={12}
+                      bg="brand.50"
+                      borderRadius="xl"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      transition="all 0.3s"
+                      _groupHover={{
+                        transform: 'scale(1.15)',
+                        bg: 'brand.400',
+                      }}
+                    >
+                      <Icon
+                        as={f.icon}
+                        boxSize={6}
+                        color="brand.400"
+                        transition="all 0.3s"
+                        _groupHover={{ color: 'white' }}
+                      />
+                    </Box>
+                    <Text fontWeight="bold" fontSize="lg" color="navy.800">
+                      {f.title}
+                    </Text>
+                    <Text color="gray.500" fontSize="sm" lineHeight="tall">
+                      {f.desc}
+                    </Text>
+                  </VStack>
+                </Box>
+              </FadeInOnScroll>
+            ))}
+          </SimpleGrid>
+        </VStack>
       </Box>
 
-      {/* ── Footer ── */}
+      {/* ---- CTA Banner ---- */}
+      <Box py={16} px={{ base: 4, md: 8, lg: 12 }}>
+        <FadeInOnScroll>
+          <Box
+            maxW="1200px"
+            mx="auto"
+            bg="navy.800"
+            borderRadius="3xl"
+            py={16}
+            px={{ base: 6, md: 12 }}
+            textAlign="center"
+            position="relative"
+            overflow="hidden"
+          >
+            {/* Decorative circles */}
+            <Box
+              position="absolute"
+              top="-20%"
+              right="-5%"
+              w="300px"
+              h="300px"
+              borderRadius="full"
+              bg="rgba(201,162,39,0.08)"
+            />
+            <Box
+              position="absolute"
+              bottom="-15%"
+              left="-5%"
+              w="250px"
+              h="250px"
+              borderRadius="full"
+              bg="rgba(27,197,189,0.06)"
+            />
+
+            <VStack spacing={6} position="relative">
+              <Heading size="xl" color="white">
+                Ready to Drive?
+              </Heading>
+              <Text color="whiteAlpha.700" maxW="500px" fontSize="lg">
+                Join thousands of happy customers who trust us for their car rental needs.
+              </Text>
+              <HStack spacing={4} flexWrap="wrap" justify="center" pt={2}>
+                <Button
+                  as={NextLink}
+                  href="/register"
+                  size="lg"
+                  bg="brand.400"
+                  color="white"
+                  _hover={{ bg: 'brand.500' }}
+                  borderRadius="lg"
+                  px={8}
+                >
+                  Get Started Free
+                </Button>
+                <Button
+                  as={NextLink}
+                  href="/cars"
+                  size="lg"
+                  variant="outline"
+                  color="white"
+                  borderColor="whiteAlpha.400"
+                  _hover={{ bg: 'whiteAlpha.100' }}
+                  borderRadius="lg"
+                  px={8}
+                >
+                  Browse Cars
+                </Button>
+              </HStack>
+            </VStack>
+          </Box>
+        </FadeInOnScroll>
+      </Box>
+
+      {/* ---- Footer ---- */}
       <Box bg="gray.50" py={10} px={{ base: 4, md: 8, lg: 12 }}>
         <Flex
           maxW="1200px"
@@ -927,6 +1113,9 @@ function LandingPage() {
           </Text>
         </Flex>
       </Box>
+
+      {/* Back to top */}
+      <FloatingBackToTop />
     </Box>
   );
 }
@@ -950,22 +1139,14 @@ export default function HomePage() {
     // Client role: stay on landing page (don't redirect)
   }, [isAuthenticated, user, isLoading, isInitializing, router]);
 
-  // Show spinner while initializing auth state
+  // Show loader while initializing auth state
   if (isInitializing) {
-    return (
-      <Center h="100vh" bg="navy.800">
-        <Spinner size="xl" color="brand.400" thickness="4px" />
-      </Center>
-    );
+    return <CarLoader fullScreen text="Loading..." />;
   }
 
-  // Admin/superAdmin authenticated — waiting for redirect
+  // Admin/superAdmin authenticated -- waiting for redirect
   if (isAuthenticated && (user?.role === 'admin' || user?.role === 'superAdmin')) {
-    return (
-      <Center h="100vh" bg="navy.800">
-        <Spinner size="xl" color="brand.400" thickness="4px" />
-      </Center>
-    );
+    return <CarLoader fullScreen text="Redirecting..." />;
   }
 
   // Show landing page for guests AND authenticated clients

@@ -79,12 +79,19 @@ export default function AdminLoginPage() {
     try {
       await loginAdmin(data.email, data.password);
       const user = useAuthStore.getState().user;
+
+      // Guard against race condition where store may not yet be updated
+      if (!user) {
+        router.push('/admin/dashboard');
+        return;
+      }
+
       toast({
-        title: user?.role === 'superAdmin' ? 'Welcome back, Super Admin!' : 'Welcome back, Admin!',
+        title: user.role === 'superAdmin' ? 'Welcome back, Super Admin!' : 'Welcome back, Admin!',
         status: 'success',
         duration: 3000,
       });
-      if (user?.role === 'superAdmin') {
+      if (user.role === 'superAdmin') {
         router.push('/super-admin/dashboard');
       } else {
         router.push('/admin/dashboard');

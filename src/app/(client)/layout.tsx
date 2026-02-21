@@ -15,11 +15,11 @@ import {
   useColorModeValue,
   Tooltip,
   Center,
-  Spinner,
 } from '@chakra-ui/react';
 import { FiTruck, FiSearch, FiCalendar, FiUser, FiLogOut, FiSun, FiMoon } from 'react-icons/fi';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
+import { CarLoader } from '@/components/ui/CarLoader';
 
 function ClientNav() {
   const pathname = usePathname();
@@ -172,11 +172,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   }, [isAuthenticated, user, isLoading, router]);
 
   if (isLoading || !isAuthenticated || user?.role === 'admin' || user?.role === 'superAdmin') {
-    return (
-      <Center h="100vh">
-        <Spinner size="xl" color="brand.400" thickness="4px" />
-      </Center>
-    );
+    return <CarLoader fullScreen />;
   }
 
   return (

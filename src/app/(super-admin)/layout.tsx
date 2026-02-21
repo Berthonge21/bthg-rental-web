@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Box, useColorModeValue } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/auth.store';
 import { TopNavigation, superAdminNavItems } from '@/components/ui/TopNavigation';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { CarLoader } from '@/components/ui/CarLoader';
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -27,7 +27,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   }, [isAuthenticated, user, isLoading, router]);
 
   if (isLoading || !isAuthenticated || user?.role !== 'superAdmin') {
-    return <LoadingSpinner fullPage />;
+    return <CarLoader fullScreen />;
   }
 
   return (

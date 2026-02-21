@@ -1,11 +1,12 @@
 'use client';
 
 import { CacheProvider } from '@chakra-ui/next-js';
-import { ChakraProvider, ColorModeScript, Center, Spinner } from '@chakra-ui/react';
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, useEffect, type ReactNode } from 'react';
 import { theme } from '@/theme';
 import { useAuthStore } from '@/stores/auth.store';
+import { CarLoader } from '@/components/ui/CarLoader';
 
 function AuthInitializer({ children }: { children: ReactNode }) {
   const fetchUser = useAuthStore((state) => state.fetchUser);
@@ -17,11 +18,7 @@ function AuthInitializer({ children }: { children: ReactNode }) {
   }, []);
 
   if (isInitializing) {
-    return (
-      <Center h="100vh">
-        <Spinner size="xl" color="brand.400" thickness="4px" />
-      </Center>
-    );
+    return <CarLoader fullScreen text="Loading..." />;
   }
 
   return <>{children}</>;

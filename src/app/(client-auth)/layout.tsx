@@ -4,6 +4,7 @@ import { Box, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { FiTruck } from 'react-icons/fi';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
+import NextLink from 'next/link';
 
 export default function ClientAuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -30,22 +31,22 @@ export default function ClientAuthLayout({ children }: { children: ReactNode }) 
         px={4}
       >
         {/* Logo */}
-        <HStack spacing={3} mb={8}>
-          <Box
-            w={10}
-            h={10}
-            bg="brand.400"
-            borderRadius="lg"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Icon as={FiTruck} color="white" boxSize={5} />
-          </Box>
-          <Text fontSize="xl" fontWeight="bold" color="white">
-            BTHG Rental
-          </Text>
-        </HStack>
+          <HStack spacing={3} mb={8} as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+            <Box
+              w={10}
+              h={10}
+              bg="brand.400"
+              borderRadius="lg"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Icon as={FiTruck} color="white" boxSize={5} />
+            </Box>
+            <Text fontSize="xl" fontWeight="bold" color="white">
+              BTHG Rental
+            </Text>
+          </HStack>
 
         {children}
 
