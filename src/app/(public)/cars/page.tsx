@@ -15,7 +15,6 @@ import {
   VStack,
   Icon,
   Image,
-  Badge,
   Button,
   Flex,
   RangeSlider,
@@ -25,14 +24,56 @@ import {
   useColorModeValue,
   Skeleton,
   Avatar,
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  IconButton,
+  Divider,
 } from '@chakra-ui/react';
-import { FiSearch, FiFilter, FiArrowRight } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiArrowRight, FiX } from 'react-icons/fi';
+import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { useCars, useAgencies } from '@/hooks';
 import { parseCarImages } from '@/lib/imageUtils';
+import { FadeInOnScroll } from '@/components/ui/FadeInOnScroll';
 import type { Car } from '@berthonge21/sdk';
+
+const MotionBox = motion.create(Box);
 
 const FUEL_OPTIONS = ['All', 'Petrol', 'Diesel', 'Electric', 'Hybrid'];
 const GEARBOX_OPTIONS = ['All', 'Automatic', 'Manual'];
+
+function TiltCard({ children }: { children: React.ReactNode }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [6, -6]), { stiffness: 200, damping: 20 });
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-6, 6]), { stiffness: 200, damping: 20 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <MotionBox
+      style={{ rotateX, rotateY, transformPerspective: 800 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      transition={{ type: 'spring', stiffness: 200, damping: 20 } as never}
+    >
+      {children}
+    </MotionBox>
+  );
+}
 
 function CarCard({ car }: { car: Car }) {
   const cardBg = useColorModeValue('white', 'navy.700');
@@ -50,7 +91,10 @@ function CarCard({ car }: { car: Car }) {
       borderColor={cardBorder}
       transition="all 0.3s"
       _hover={{ transform: 'translateY(-4px)', boxShadow: 'lg' }}
+      position="relative"
     >
+      {/* Gold accent bar — left edge */}
+      <Box position="absolute" left={0} top={0} bottom={0} w="3px" bg="brand.400" zIndex={1} borderLeftRadius="2xl" />
       {/* Image */}
       <Box h="220px" bg="navy.800" position="relative" overflow="hidden">
         <Image
@@ -60,16 +104,16 @@ function CarCard({ car }: { car: Car }) {
           h="100%"
           objectFit="cover"
         />
-        <Box position="absolute" top={3} right={3}>
-          <Badge bg="brand.400" color="white" borderRadius="full" px={3} py={1} fontSize="sm" fontWeight="bold">
-            ${car.price}/day
-          </Badge>
+        <Box position="absolute" top={0} right={0}>
+          <Box bg="brand.400" px={3} py={1.5} borderBottomLeftRadius="lg" fontFamily="var(--font-display)" fontSize="xl" color="white" letterSpacing="0.04em" lineHeight="1">
+            ${car.price}<Text as="span" fontSize="xs" fontWeight="normal" letterSpacing="normal">/day</Text>
+          </Box>
         </Box>
       </Box>
 
       {/* Body */}
       <Box p={4}>
-        <Text fontWeight="bold" fontSize="lg" mb={1}>
+        <Text fontFamily="var(--font-display)" fontSize="2xl" letterSpacing="0.02em" color={useColorModeValue('navy.800', 'white')} mb={0.5} lineHeight="1.1">
           {car.brand} {car.model}
         </Text>
         <HStack spacing={3} mb={2} flexWrap="wrap">
@@ -118,6 +162,90 @@ function CarCardSkeleton() {
   );
 }
 
+function FilterPanel({
+  agencies,
+  agencyId,
+  fuel,
+  gearBox,
+  priceRange,
+  onAgencyChange,
+  onFuelChange,
+  onGearBoxChange,
+  onPriceChange,
+  onClear,
+}: {
+  agencies: { id: number; name: string }[];
+  agencyId: number | undefined;
+  fuel: string;
+  gearBox: string;
+  priceRange: [number, number];
+  onAgencyChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onFuelChange: (val: string) => void;
+  onGearBoxChange: (val: string) => void;
+  onPriceChange: (val: [number, number]) => void;
+  onClear: () => void;
+}) {
+  const textMuted = useColorModeValue('text.muted', 'gray.400');
+
+  return (
+    <VStack spacing={5} align="stretch">
+      <Box>
+        <Text fontSize="xs" fontWeight="semibold" color={textMuted} mb={2} textTransform="uppercase" letterSpacing="wider">
+          Agency
+        </Text>
+        <Select size="sm" borderRadius="lg" onChange={onAgencyChange} value={agencyId ?? ''}>
+          <option value="">All Agencies</option>
+          {agencies.map((a) => (
+            <option key={a.id} value={a.id}>{a.name}</option>
+          ))}
+        </Select>
+      </Box>
+
+      <Box>
+        <Text fontSize="xs" fontWeight="semibold" color={textMuted} mb={2} textTransform="uppercase" letterSpacing="wider">
+          Fuel Type
+        </Text>
+        <Select size="sm" borderRadius="lg" value={fuel} onChange={(e) => onFuelChange(e.target.value)}>
+          {FUEL_OPTIONS.map((f) => <option key={f}>{f}</option>)}
+        </Select>
+      </Box>
+
+      <Box>
+        <Text fontSize="xs" fontWeight="semibold" color={textMuted} mb={2} textTransform="uppercase" letterSpacing="wider">
+          Transmission
+        </Text>
+        <Select size="sm" borderRadius="lg" value={gearBox} onChange={(e) => onGearBoxChange(e.target.value)}>
+          {GEARBOX_OPTIONS.map((g) => <option key={g}>{g}</option>)}
+        </Select>
+      </Box>
+
+      <Box>
+        <Flex justify="space-between" mb={2}>
+          <Text fontSize="xs" fontWeight="semibold" color={textMuted} textTransform="uppercase" letterSpacing="wider">
+            Price / day
+          </Text>
+          <Text fontSize="xs" color="accent.400" fontWeight="semibold">
+            ${priceRange[0]} – ${priceRange[1]}
+          </Text>
+        </Flex>
+        <RangeSlider
+          min={0} max={1000} step={10}
+          value={priceRange}
+          onChange={(val) => onPriceChange(val as [number, number])}
+        >
+          <RangeSliderTrack><RangeSliderFilledTrack bg="accent.400" /></RangeSliderTrack>
+          <RangeSliderThumb index={0} />
+          <RangeSliderThumb index={1} />
+        </RangeSlider>
+      </Box>
+
+      <Button size="sm" variant="outline" colorScheme="gray" borderRadius="lg" onClick={onClear}>
+        Clear Filters
+      </Button>
+    </VStack>
+  );
+}
+
 export default function CarsPage() {
   const [search, setSearch] = useState('');
   const [agencyId, setAgencyId] = useState<number | undefined>();
@@ -125,6 +253,7 @@ export default function CarsPage() {
   const [gearBox, setGearBox] = useState('All');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [page, setPage] = useState(1);
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
   const { data, isLoading } = useCars({ page, limit: 12, agencyId });
   const { data: agenciesData } = useAgencies({ limit: 100 });
@@ -166,7 +295,7 @@ export default function CarsPage() {
       </VStack>
 
       <Flex gap={6} align="flex-start">
-        {/* Filters sidebar */}
+        {/* Desktop sidebar */}
         <Box
           w={{ base: 'full', lg: '260px' }}
           flexShrink={0}
@@ -183,70 +312,36 @@ export default function CarsPage() {
             <Icon as={FiFilter} color="brand.400" />
             <Text fontWeight="semibold">Filters</Text>
           </Flex>
-
-          <VStack spacing={5} align="stretch">
-            <Box>
-              <Text fontSize="xs" fontWeight="semibold" color={textMuted} mb={2} textTransform="uppercase" letterSpacing="wider">
-                Agency
-              </Text>
-              <Select size="sm" borderRadius="lg" onChange={handleAgencyChange}>
-                <option value="">All Agencies</option>
-                {agencies.map((a: { id: number; name: string }) => (
-                  <option key={a.id} value={a.id}>{a.name}</option>
-                ))}
-              </Select>
-            </Box>
-
-            <Box>
-              <Text fontSize="xs" fontWeight="semibold" color={textMuted} mb={2} textTransform="uppercase" letterSpacing="wider">
-                Fuel Type
-              </Text>
-              <Select size="sm" borderRadius="lg" value={fuel} onChange={(e) => setFuel(e.target.value)}>
-                {FUEL_OPTIONS.map((f) => <option key={f}>{f}</option>)}
-              </Select>
-            </Box>
-
-            <Box>
-              <Text fontSize="xs" fontWeight="semibold" color={textMuted} mb={2} textTransform="uppercase" letterSpacing="wider">
-                Transmission
-              </Text>
-              <Select size="sm" borderRadius="lg" value={gearBox} onChange={(e) => setGearBox(e.target.value)}>
-                {GEARBOX_OPTIONS.map((g) => <option key={g}>{g}</option>)}
-              </Select>
-            </Box>
-
-            <Box>
-              <Flex justify="space-between" mb={2}>
-                <Text fontSize="xs" fontWeight="semibold" color={textMuted} textTransform="uppercase" letterSpacing="wider">
-                  Price / day
-                </Text>
-                <Text fontSize="xs" color="accent.400" fontWeight="semibold">
-                  ${priceRange[0]} – ${priceRange[1]}
-                </Text>
-              </Flex>
-              <RangeSlider
-                min={0}
-                max={1000}
-                step={10}
-                value={priceRange}
-                onChange={(val) => setPriceRange(val as [number, number])}
-              >
-                <RangeSliderTrack><RangeSliderFilledTrack bg="accent.400" /></RangeSliderTrack>
-                <RangeSliderThumb index={0} />
-                <RangeSliderThumb index={1} />
-              </RangeSlider>
-            </Box>
-
-            <Button size="sm" variant="outline" colorScheme="gray" borderRadius="lg" onClick={() => {
-              setSearch(''); setAgencyId(undefined); setFuel('All'); setGearBox('All'); setPriceRange([0, 1000]); setPage(1);
-            }}>
-              Clear Filters
-            </Button>
-          </VStack>
+          <FilterPanel
+            agencies={agencies}
+            agencyId={agencyId}
+            fuel={fuel}
+            gearBox={gearBox}
+            priceRange={priceRange}
+            onAgencyChange={handleAgencyChange}
+            onFuelChange={setFuel}
+            onGearBoxChange={setGearBox}
+            onPriceChange={setPriceRange}
+            onClear={() => { setSearch(''); setAgencyId(undefined); setFuel('All'); setGearBox('All'); setPriceRange([0, 1000]); setPage(1); }}
+          />
         </Box>
 
         {/* Main content */}
         <Box flex="1" minW={0}>
+          {/* Mobile filter button */}
+          <Button
+            display={{ base: 'flex', lg: 'none' }}
+            leftIcon={<FiFilter />}
+            variant="outline"
+            borderRadius="xl"
+            mb={4}
+            w="full"
+            onClick={() => setFilterDrawerOpen(true)}
+            borderColor={filterBorder}
+          >
+            Filters {(fuel !== 'All' || gearBox !== 'All' || agencyId !== undefined || priceRange[0] > 0 || priceRange[1] < 1000) && '·  Active'}
+          </Button>
+
           {/* Search bar */}
           <InputGroup mb={6}>
             <InputLeftElement pointerEvents="none" h="full">
@@ -274,7 +369,13 @@ export default function CarsPage() {
             </Box>
           ) : (
             <SimpleGrid columns={{ base: 1, sm: 2, xl: 3 }} spacing={5}>
-              {filtered.map((car: Car) => <CarCard key={car.id} car={car} />)}
+              {filtered.map((car: Car, index: number) => (
+                <FadeInOnScroll key={car.id} delay={Math.min(index % 3, 2) * 0.08} direction="up">
+                  <TiltCard>
+                    <CarCard car={car} />
+                  </TiltCard>
+                </FadeInOnScroll>
+              ))}
             </SimpleGrid>
           )}
 
@@ -292,6 +393,34 @@ export default function CarsPage() {
           )}
         </Box>
       </Flex>
+
+      {/* Mobile filter drawer */}
+      <Drawer isOpen={filterDrawerOpen} placement="left" onClose={() => setFilterDrawerOpen(false)} size="xs">
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader borderBottomWidth="1px">
+            <Flex align="center" gap={2}>
+              <Icon as={FiFilter} color="brand.400" />
+              <Text fontWeight="semibold">Filters</Text>
+            </Flex>
+          </DrawerHeader>
+          <DrawerCloseButton />
+          <DrawerBody py={5}>
+            <FilterPanel
+              agencies={agencies}
+              agencyId={agencyId}
+              fuel={fuel}
+              gearBox={gearBox}
+              priceRange={priceRange}
+              onAgencyChange={handleAgencyChange}
+              onFuelChange={setFuel}
+              onGearBoxChange={setGearBox}
+              onPriceChange={setPriceRange}
+              onClear={() => { setSearch(''); setAgencyId(undefined); setFuel('All'); setGearBox('All'); setPriceRange([0, 1000]); setPage(1); setFilterDrawerOpen(false); }}
+            />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </Box>
   );
 }

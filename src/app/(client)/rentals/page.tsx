@@ -3,99 +3,121 @@
 import { useState } from 'react';
 import NextLink from 'next/link';
 import {
-  Box, Badge, Button, Center, Flex, Heading, HStack, Icon, Image, Spinner,
-  Tab, TabList, TabPanel, TabPanels, Tabs, Text, VStack,
-  useColorModeValue, useDisclosure, useToast,
+  Box, Button, Center, Flex, HStack, Icon, Image, SimpleGrid,
+  Spinner, Text, VStack, useColorModeValue, useDisclosure, useToast,
 } from '@chakra-ui/react';
-import { FiCalendar, FiArrowRight, FiSearch, FiX } from 'react-icons/fi';
+import {
+  FiCalendar, FiArrowRight, FiSearch, FiClock, FiZap,
+  FiCheckCircle, FiXCircle, FiDollarSign, FiTrendingUp, FiX,
+} from 'react-icons/fi';
+import type { IconType } from 'react-icons';
+import { motion } from 'framer-motion';
 import { useRentals, useCancelRental } from '@/hooks';
 import { ConfirmDialog } from '@/components/ui';
 import { RentalStatus } from '@berthonge21/sdk';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 import type { Rental } from '@berthonge21/sdk';
+import { parseCarImages } from '@/lib/imageUtils';
+import { FadeInOnScroll } from '@/components/ui/FadeInOnScroll';
 
-const STATUS_COLOR: Record<string, string> = {
-  reserved: 'yellow',
-  ongoing: 'blue',
-  completed: 'green',
-  cancelled: 'red',
+const MotionBox = motion.create(Box);
+
+const STATUS_META: Record<string, { color: string; bg: string; label: string; icon: IconType }> = {
+  reserved:  { color: '#C9A227', bg: 'rgba(201,162,39,0.15)',  label: 'Reserved',  icon: FiClock },
+  ongoing:   { color: '#1BC5BD', bg: 'rgba(27,197,189,0.15)',  label: 'Ongoing',   icon: FiZap },
+  completed: { color: '#38A169', bg: 'rgba(56,161,105,0.15)',  label: 'Completed', icon: FiCheckCircle },
+  cancelled: { color: '#E53E3E', bg: 'rgba(229,62,62,0.15)',   label: 'Cancelled', icon: FiXCircle },
 };
 
 function RentalCard({ rental, onCancel }: { rental: Rental; onCancel?: (id: number) => void }) {
-  const cardBg = useColorModeValue('white', 'navy.700');
-  const cardBorder = useColorModeValue('gray.100', 'navy.600');
-  const textMuted = useColorModeValue('text.muted', 'gray.400');
-  const imageBg = useColorModeValue('gray.100', 'navy.800');
+  const images = parseCarImages(rental.car?.image);
+  const coverImage = images[0] || 'https://via.placeholder.com/400x220?text=Car';
+  const meta = STATUS_META[rental.status] ?? STATUS_META.reserved;
+  const StatusIcon = meta.icon;
 
-  const days = Math.ceil(
-    (new Date(rental.endDate).getTime() - new Date(rental.startDate).getTime()) / (1000 * 60 * 60 * 24)
+  const days = Math.max(
+    1,
+    Math.ceil((new Date(rental.endDate).getTime() - new Date(rental.startDate).getTime()) / 86400000)
   );
 
+  const startFmt = isValid(parseISO(rental.startDate)) ? format(parseISO(rental.startDate), 'MMM d') : '—';
+  const endFmt   = isValid(parseISO(rental.endDate))   ? format(parseISO(rental.endDate),   'MMM d, yyyy') : '—';
+
+  const cardBg     = useColorModeValue('white', 'navy.700');
+  const cardBorder = useColorModeValue('gray.100', 'navy.600');
+  const specColor  = useColorModeValue('gray.500', 'gray.400');
+
   return (
-    <Box bg={cardBg} border="1px" borderColor={cardBorder} borderRadius="2xl" overflow="hidden" transition="all 0.2s" _hover={{ boxShadow: 'md' }}>
-      <Flex>
-        {/* Car image */}
-        <Box w={{ base: '100px', md: '160px' }} flexShrink={0} bg={imageBg}>
-          <Image
-            src={rental.car?.image || 'https://via.placeholder.com/160x120?text=Car'}
-            alt={`${rental.car?.brand} ${rental.car?.model}`}
-            w="100%"
-            h="100%"
-            objectFit="cover"
-            minH="120px"
-          />
-        </Box>
-
-        {/* Info */}
-        <Box p={4} flex="1" minW={0}>
-          <Flex justify="space-between" align="flex-start" mb={2}>
-            <Box>
-              <Text fontWeight="bold" fontSize="md">{rental.car?.brand} {rental.car?.model}</Text>
-              <Text fontSize="sm" color={textMuted}>{rental.car?.year}</Text>
-            </Box>
-            <Badge colorScheme={STATUS_COLOR[rental.status] ?? 'gray'} borderRadius="full" px={3} py={1} textTransform="capitalize">
-              {rental.status}
-            </Badge>
+    <Box
+      bg={cardBg}
+      borderRadius="2xl"
+      overflow="hidden"
+      border="1px"
+      borderColor={cardBorder}
+      transition="all 0.3s"
+      _hover={{ transform: 'translateY(-4px)', boxShadow: 'lg' }}
+      position="relative"
+    >
+      <Box position="absolute" left={0} top={0} bottom={0} w="3px" bg="brand.400" zIndex={1} borderLeftRadius="2xl" />
+      {/* Cover image */}
+      <Box h="220px" bg="navy.800" position="relative" overflow="hidden">
+        <Image src={coverImage} alt={`${rental.car?.brand} ${rental.car?.model}`} w="100%" h="100%" objectFit="cover" />
+        <Box position="absolute" top={3} right={3}>
+          <Flex
+            bg={meta.bg}
+            backdropFilter="blur(8px)"
+            borderRadius="full" px={3} py={1}
+            align="center" gap={1}
+            border={`1px solid ${meta.color}50`}
+          >
+            <Icon as={StatusIcon} color={meta.color} boxSize={3} />
+            <Text fontSize="xs" fontWeight="semibold" color={meta.color}>{meta.label}</Text>
           </Flex>
+        </Box>
+      </Box>
 
-          <HStack spacing={4} mb={3} flexWrap="wrap">
-            <HStack spacing={1}>
-              <Icon as={FiCalendar} boxSize={3} color={textMuted} />
-              <Text fontSize="sm" color={textMuted}>
-                {format(parseISO(rental.startDate), 'MMM d')} → {format(parseISO(rental.endDate), 'MMM d, yyyy')}
-              </Text>
-            </HStack>
-            <Text fontSize="sm" color={textMuted}>{days} day{days !== 1 ? 's' : ''}</Text>
+      {/* Body */}
+      <Box p={4}>
+        <Text fontFamily="var(--font-display)" fontSize="2xl" letterSpacing="0.02em" lineHeight="1.1" mb={0.5} color={useColorModeValue('navy.800', 'white')}>
+          {rental.car?.brand} {rental.car?.model}
+        </Text>
+        <HStack spacing={3} mb={2} flexWrap="wrap">
+          <Text fontSize="xs" color={specColor}>{rental.car?.year}</Text>
+          <Text fontSize="xs" color={specColor}>·</Text>
+          <HStack spacing={1}>
+            <Icon as={FiCalendar} boxSize={3} color={specColor} />
+            <Text fontSize="xs" color={specColor}>{startFmt} → {endFmt}</Text>
           </HStack>
-
-          <Flex justify="space-between" align="center">
-            <Text fontWeight="bold" color="accent.400" fontSize="lg">${rental.total?.toLocaleString()}</Text>
-            <HStack spacing={2}>
-              {rental.status === 'reserved' && onCancel && (
-                <Button
-                  size="xs"
-                  colorScheme="red"
-                  variant="outline"
-                  leftIcon={<FiX />}
-                  onClick={() => onCancel(rental.id)}
-                >
-                  Cancel
-                </Button>
-              )}
-              <Button
-                as={NextLink}
-                href={`/rentals/${rental.id}`}
-                size="xs"
-                variant="outline"
-                colorScheme="brand"
-                rightIcon={<FiArrowRight />}
-              >
-                Details
-              </Button>
-            </HStack>
-          </Flex>
-        </Box>
-      </Flex>
+          <Text fontSize="xs" color={specColor}>·</Text>
+          <HStack spacing={1}>
+            <Icon as={FiClock} boxSize={3} color={specColor} />
+            <Text fontSize="xs" color={specColor}>{days} day{days !== 1 ? 's' : ''}</Text>
+          </HStack>
+        </HStack>
+        <Flex justify="space-between" align="center" mb={3}>
+          <Text fontSize="xs" color={specColor} textTransform="uppercase" letterSpacing="wide">Total</Text>
+          <Text fontWeight="bold" fontSize="lg" color="accent.400">${rental.total?.toLocaleString()}</Text>
+        </Flex>
+        <HStack spacing={2}>
+          {rental.status === 'reserved' && onCancel && (
+            <Button
+              size="sm" variant="outline" colorScheme="red"
+              leftIcon={<FiX />} borderRadius="xl" flexShrink={0}
+              onClick={() => onCancel(rental.id)}
+            >
+              Cancel
+            </Button>
+          )}
+          <Button
+            as={NextLink} href={`/rentals/${rental.id}`}
+            flex={1} size="sm" bg="brand.400" color="white"
+            borderRadius="xl" rightIcon={<FiArrowRight />}
+            _hover={{ bg: 'brand.500' }}
+          >
+            View Details
+          </Button>
+        </HStack>
+      </Box>
     </Box>
   );
 }
@@ -104,23 +126,23 @@ export default function RentalsPage() {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [cancelId, setCancelId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
   const cancelMutation = useCancelRental();
 
-  const { data: activeData, isLoading: activeLoading } = useRentals({ status: RentalStatus.RESERVED });
-  const { data: ongoingData } = useRentals({ status: RentalStatus.ONGOING });
-  const { data: historyData, isLoading: historyLoading } = useRentals({ status: RentalStatus.COMPLETED });
+  const { data: activeData,    isLoading: activeLoading }  = useRentals({ status: RentalStatus.RESERVED });
+  const { data: ongoingData }                               = useRentals({ status: RentalStatus.ONGOING });
+  const { data: historyData,   isLoading: historyLoading }  = useRentals({ status: RentalStatus.COMPLETED });
+  const { data: cancelledData }                             = useRentals({ status: RentalStatus.CANCELLED });
+
+  const activeRentals    = [...(activeData?.data ?? []), ...(ongoingData?.data ?? [])];
+  const historyRentals   = historyData?.data ?? [];
+  const cancelledRentals = cancelledData?.data ?? [];
+  const totalSpent       = historyRentals.reduce((sum: number, r: Rental) => sum + (r.total ?? 0), 0);
 
   const textMuted = useColorModeValue('text.muted', 'gray.400');
 
-  const activeRentals = [...(activeData?.data ?? []), ...(ongoingData?.data ?? [])];
-  const historyRentals = historyData?.data ?? [];
-
-  const handleCancelRequest = (id: number) => {
-    setCancelId(id);
-    onOpen();
-  };
-
-  const handleConfirmCancel = async () => {
+  const handleCancelRequest  = (id: number) => { setCancelId(id); onOpen(); };
+  const handleConfirmCancel  = async () => {
     if (!cancelId) return;
     try {
       await cancelMutation.mutateAsync(cancelId);
@@ -134,67 +156,128 @@ export default function RentalsPage() {
   };
 
   return (
-    <Box>
-      <VStack align="start" spacing={1} mb={6}>
-        <HStack>
-          <Icon as={FiCalendar} color="brand.400" boxSize={6} />
-          <Heading size="lg">My Rentals</Heading>
-        </HStack>
-        <Text color={textMuted} fontSize="sm">Track and manage your car reservations</Text>
-      </VStack>
+    <Box minH="calc(100vh - 80px)">
+      {/* Page header */}
+      <Box mb={8}>
+        <Text fontSize="xs" fontWeight="semibold" color="accent.400" textTransform="uppercase" letterSpacing="wider" mb={1}>
+          My Account
+        </Text>
+        <Text fontSize="2xl" fontWeight="bold" color={useColorModeValue('navy.800', 'white')}>My Rentals</Text>
+        <Text fontSize="sm" color={textMuted} mt={0.5}>Track and manage your car reservations</Text>
+      </Box>
 
-      <Tabs colorScheme="brand" variant="soft-rounded">
-        <TabList mb={6}>
-          <Tab>Active ({activeRentals.length})</Tab>
-          <Tab>History ({historyRentals.length})</Tab>
-        </TabList>
+      {/* Stats */}
+      <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={8}>
+        {([
+          { icon: FiCalendar,   label: 'Active',      value: String(activeRentals.length),      color: 'brand.400' },
+          { icon: FiTrendingUp, label: 'Completed',   value: String(historyRentals.length),     color: 'accent.400' },
+          { icon: FiXCircle,    label: 'Cancelled',   value: String(cancelledRentals.length),   color: '#E53E3E' },
+          { icon: FiDollarSign, label: 'Total Spent', value: `$${totalSpent.toLocaleString()}`, color: 'accent.400' },
+        ] as const).map((s) => (
+          <Box
+            key={s.label}
+            bg="rgba(255,255,255,0.85)"
+            backdropFilter="blur(12px)"
+            border="1px solid rgba(255,255,255,0.9)"
+            borderRadius="2xl" px={5} py={4}
+            boxShadow="0 2px 12px rgba(11,28,45,0.06)"
+          >
+            <HStack spacing={3}>
+              <Box w={10} h={10} borderRadius="xl" bg="rgba(201,162,39,0.08)" display="flex" alignItems="center" justifyContent="center">
+                <Icon as={s.icon} color={s.color} boxSize={5} />
+              </Box>
+              <Box>
+                <Text fontSize="xs" color={textMuted}>{s.label}</Text>
+                <Text fontWeight="bold" fontSize="lg" color={useColorModeValue('navy.800', 'white')}>{s.value}</Text>
+              </Box>
+            </HStack>
+          </Box>
+        ))}
+      </SimpleGrid>
 
-        <TabPanels>
-          {/* Active */}
-          <TabPanel px={0}>
-            {activeLoading ? (
-              <Center py={10}><Spinner size="lg" color="brand.400" /></Center>
-            ) : activeRentals.length === 0 ? (
-              <Center py={20}>
-                <VStack spacing={4}>
-                  <Icon as={FiSearch} boxSize={10} color={textMuted} />
-                  <Text color={textMuted}>No active rentals</Text>
-                  <Button as={NextLink} href="/cars" colorScheme="brand" borderRadius="full">Browse Cars</Button>
-                </VStack>
-              </Center>
-            ) : (
-              <VStack spacing={4} align="stretch">
-                {activeRentals.map(r => (
-                  <RentalCard key={r.id} rental={r} onCancel={handleCancelRequest} />
-                ))}
+      {/* Segmented tabs */}
+      <Box
+        display="flex"
+        w={{ base: 'full', md: 'auto' }}
+        bg="rgba(255,255,255,0.7)"
+        backdropFilter="blur(8px)"
+        border="1px solid rgba(255,255,255,0.9)"
+        borderRadius="xl" p={1} mb={6}
+        boxShadow="0 2px 8px rgba(11,28,45,0.06)"
+      >
+        {(['active', 'history'] as const).map((tab) => (
+          <Button
+            key={tab} size="sm" borderRadius="lg" px={6} flex={1}
+            bg={activeTab === tab ? 'brand.400' : 'transparent'}
+            color={activeTab === tab ? 'white' : 'gray.500'}
+            fontWeight={activeTab === tab ? 'semibold' : 'medium'}
+            _hover={{ bg: activeTab === tab ? 'brand.500' : 'gray.100' }}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab === 'active' ? `Active (${activeRentals.length})` : `History (${historyRentals.length})`}
+          </Button>
+        ))}
+      </Box>
+
+      {/* Active */}
+      {activeTab === 'active' && (
+        activeLoading ? (
+          <Center py={16}><Spinner size="lg" color="brand.400" thickness="3px" /></Center>
+        ) : activeRentals.length === 0 ? (
+          <Center py={20}>
+            <VStack spacing={4}>
+              <Box w={20} h={20} borderRadius="full" bg="rgba(201,162,39,0.08)" display="flex" alignItems="center" justifyContent="center">
+                <Icon as={FiSearch} boxSize={8} color="brand.400" />
+              </Box>
+              <VStack spacing={1}>
+                <Text fontWeight="semibold" color={useColorModeValue('navy.800', 'white')}>No active rentals</Text>
+                <Text fontSize="sm" color={textMuted}>Browse our fleet and book your next ride</Text>
               </VStack>
-            )}
-          </TabPanel>
+              <Button as={NextLink} href="/cars" bg="brand.400" color="white" borderRadius="lg" _hover={{ bg: 'brand.500' }}>
+                Browse Cars
+              </Button>
+            </VStack>
+          </Center>
+        ) : (
+          <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={5}>
+            {activeRentals.map((r, i: number) => (
+              <FadeInOnScroll key={r.id} delay={Math.min(i, 4) * 0.07} direction="up">
+                <RentalCard rental={r} onCancel={handleCancelRequest} />
+              </FadeInOnScroll>
+            ))}
+          </SimpleGrid>
+        )
+      )}
 
-          {/* History */}
-          <TabPanel px={0}>
-            {historyLoading ? (
-              <Center py={10}><Spinner size="lg" color="brand.400" /></Center>
-            ) : historyRentals.length === 0 ? (
-              <Center py={20}>
-                <VStack spacing={3}>
-                  <Icon as={FiCalendar} boxSize={10} color={textMuted} />
-                  <Text color={textMuted}>No past rentals</Text>
-                </VStack>
-              </Center>
-            ) : (
-              <VStack spacing={4} align="stretch">
-                {historyRentals.map((r: Rental) => <RentalCard key={r.id} rental={r} />)}
+      {/* History */}
+      {activeTab === 'history' && (
+        historyLoading ? (
+          <Center py={16}><Spinner size="lg" color="brand.400" thickness="3px" /></Center>
+        ) : historyRentals.length === 0 ? (
+          <Center py={20}>
+            <VStack spacing={4}>
+              <Box w={20} h={20} borderRadius="full" bg="rgba(27,197,189,0.08)" display="flex" alignItems="center" justifyContent="center">
+                <Icon as={FiCalendar} boxSize={8} color="accent.400" />
+              </Box>
+              <VStack spacing={1}>
+                <Text fontWeight="semibold" color={useColorModeValue('navy.800', 'white')}>No rental history yet</Text>
+                <Text fontSize="sm" color={textMuted}>Your completed rentals will appear here</Text>
               </VStack>
-            )}
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+            </VStack>
+          </Center>
+        ) : (
+          <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={5}>
+            {historyRentals.map((r: Rental, i: number) => (
+              <FadeInOnScroll key={r.id} delay={Math.min(i, 4) * 0.07} direction="up">
+                <RentalCard rental={r} />
+              </FadeInOnScroll>
+            ))}
+          </SimpleGrid>
+        )
+      )}
 
       <ConfirmDialog
-        isOpen={isOpen}
-        onClose={onClose}
-        onConfirm={handleConfirmCancel}
+        isOpen={isOpen} onClose={onClose} onConfirm={handleConfirmCancel}
         title="Cancel Rental"
         message="Are you sure you want to cancel this reservation? This action cannot be undone."
         confirmText="Cancel Booking"

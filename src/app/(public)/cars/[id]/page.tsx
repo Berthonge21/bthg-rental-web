@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   Box, Button, Flex, Grid, GridItem, Heading, HStack, Icon, Image,
@@ -9,14 +9,156 @@ import {
   StepIndicator, StepNumber, Stepper, StepSeparator, StepStatus,
   StepTitle, Text, Textarea, useColorModeValue, useDisclosure,
   useSteps, useToast, VStack, Badge, Avatar, FormControl,
-  FormLabel, Input, Center,
+  FormLabel, Input, Center, FormErrorMessage, InputGroup,
+  InputLeftElement, InputRightElement, IconButton,
 } from '@chakra-ui/react';
-import { FiArrowLeft, FiCalendar, FiUsers, FiZap, FiCheckCircle } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiUsers, FiZap, FiCheckCircle, FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useCar, useCarAvailabilityCalendar, useCreateRental } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
 import { parseCarImages } from '@/lib/imageUtils';
 import { format, addDays, differenceInCalendarDays, parseISO, isValid } from 'date-fns';
 import { Suspense } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+/* ── Auth gate — shown when unauthenticated user clicks "Book" ── */
+const authSchema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(6, 'Min 6 characters'),
+});
+type AuthFormData = z.infer<typeof authSchema>;
+
+function AuthGateModal({
+  carId,
+  isOpen,
+  onClose,
+  onAuthSuccess,
+}: {
+  carId: number;
+  isOpen: boolean;
+  onClose: () => void;
+  onAuthSuccess: () => void;
+}) {
+  const router = useRouter();
+  const toast = useToast();
+  const { login, isLoading } = useAuthStore();
+  const [showPassword, setShowPassword] = useState(false);
+  const { register, handleSubmit, formState: { errors } } = useForm<AuthFormData>({
+    resolver: zodResolver(authSchema),
+  });
+
+  const onSubmit = async (data: AuthFormData) => {
+    try {
+      await login(data.email, data.password);
+      sessionStorage.removeItem('bthg-booking-intent');
+      onAuthSuccess();
+    } catch (error) {
+      toast({
+        title: 'Login failed',
+        description: error instanceof Error ? error.message : 'An error occurred',
+        status: 'error',
+        duration: 4000,
+      });
+    }
+  };
+
+  const handleSignUp = () => {
+    // Pass the booking destination through a proper URL redirect chain:
+    // /register?redirect=/cars/5?book=true → /login?redirect=... → /cars/5?book=true → modal opens
+    const destination = encodeURIComponent(`/cars/${carId}?book=true`);
+    router.push(`/register?redirect=${destination}`);
+    onClose();
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="sm" isCentered>
+      <ModalOverlay backdropFilter="blur(6px)" bg="blackAlpha.600" />
+      <ModalContent borderRadius="2xl" mx={4}>
+        <ModalHeader pb={1}>
+          <Text fontSize="lg" fontWeight="bold" color="navy.800">Sign in to continue</Text>
+          <Text fontSize="sm" fontWeight="normal" color="gray.500">Log in to book this car</Text>
+        </ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          <Box as="form" onSubmit={handleSubmit(onSubmit)}>
+            <VStack spacing={4}>
+              <FormControl isInvalid={!!errors.email}>
+                <FormLabel fontSize="sm" fontWeight="medium">Email</FormLabel>
+                <InputGroup>
+                  <InputLeftElement h="full" pointerEvents="none">
+                    <Icon as={FiMail} color="gray.400" />
+                  </InputLeftElement>
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    h={12}
+                    pl={10}
+                    borderRadius="lg"
+                    _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #C9A227' }}
+                    {...register('email')}
+                  />
+                </InputGroup>
+                <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+              </FormControl>
+
+              <FormControl isInvalid={!!errors.password}>
+                <FormLabel fontSize="sm" fontWeight="medium">Password</FormLabel>
+                <InputGroup>
+                  <InputLeftElement h="full" pointerEvents="none">
+                    <Icon as={FiLock} color="gray.400" />
+                  </InputLeftElement>
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Your password"
+                    h={12}
+                    pl={10}
+                    borderRadius="lg"
+                    _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #C9A227' }}
+                    {...register('password')}
+                  />
+                  <InputRightElement h="full" pr={1}>
+                    <IconButton
+                      aria-label="Toggle password"
+                      icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                      variant="ghost"
+                      size="sm"
+                      color="gray.400"
+                      _hover={{ color: 'brand.400' }}
+                      onClick={() => setShowPassword(p => !p)}
+                    />
+                  </InputRightElement>
+                </InputGroup>
+                <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+              </FormControl>
+
+              <Button
+                type="submit"
+                w="full"
+                h={12}
+                bg="brand.400"
+                color="white"
+                borderRadius="lg"
+                fontWeight="semibold"
+                isLoading={isLoading}
+                _hover={{ bg: 'brand.500' }}
+              >
+                Sign In & Continue Booking
+              </Button>
+
+              <Text fontSize="sm" color="gray.500" textAlign="center">
+                No account?{' '}
+                <Text as="span" color="brand.400" fontWeight="medium" cursor="pointer" onClick={handleSignUp}>
+                  Create one free
+                </Text>
+              </Text>
+            </VStack>
+          </Box>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+}
 
 /* ── Availability calendar (read-only) ── */
 function MiniCalendar({ carId }: { carId: number }) {
@@ -138,12 +280,14 @@ function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; price
 
   const handleConfirm = async () => {
     try {
+      const startDateTime = new Date(`${form.startDate}T${form.startTime}:00`).toISOString();
+      const endDateTime = new Date(`${form.endDate}T${form.endTime}:00`).toISOString();
       await createRental.mutateAsync({
         carId,
         startDate: form.startDate,
         endDate: form.endDate,
-        startTime: form.startTime,
-        endTime: form.endTime,
+        startTime: startDateTime,
+        endTime: endDateTime,
         total,
       });
       toast({ title: 'Booking confirmed!', description: 'Your reservation is now active.', status: 'success', duration: 4000 });
@@ -278,10 +422,37 @@ function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; price
 function CarDetailContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const carId = Number(params.id);
   const { data: car, isLoading } = useCar(carId);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isBookingOpen, onOpen: onBookingOpen, onClose: onBookingClose } = useDisclosure();
+  const { isOpen: isAuthOpen, onOpen: onAuthOpen, onClose: onAuthClose } = useDisclosure();
   const { isAuthenticated } = useAuthStore();
+
+  // Auto-open booking modal: after login via auth gate OR after register->login redirect
+  useEffect(() => {
+    if (!isAuthenticated || !car) return;
+
+    // Path 1: URL redirect chain (?book=true set by login page after register flow)
+    if (searchParams.get('book') === 'true') {
+      sessionStorage.removeItem('bthg-booking-intent');
+      onBookingOpen();
+      router.replace(`/cars/${carId}`, { scroll: false });
+      return;
+    }
+
+    // Path 2: came through register flow -- sessionStorage intent
+    const raw = sessionStorage.getItem('bthg-booking-intent');
+    if (raw) {
+      try {
+        const intent = JSON.parse(raw);
+        if (intent.carId === carId) {
+          sessionStorage.removeItem('bthg-booking-intent');
+          onBookingOpen();
+        }
+      } catch { /* ignore */ }
+    }
+  }, [isAuthenticated, car, carId, searchParams, onBookingOpen, router]);
 
   const cardBg = useColorModeValue('white', 'navy.700');
   const cardBorder = useColorModeValue('gray.100', 'navy.600');
@@ -293,10 +464,10 @@ function CarDetailContent() {
 
   const handleBookClick = () => {
     if (!isAuthenticated) {
-      router.push(`/login?redirect=/cars/${carId}`);
+      onAuthOpen();
       return;
     }
-    onOpen();
+    onBookingOpen();
   };
 
   if (isLoading) return (
@@ -429,8 +600,16 @@ function CarDetailContent() {
         </GridItem>
       </Grid>
 
+      {/* Auth gate modal */}
+      <AuthGateModal
+        carId={carId}
+        isOpen={isAuthOpen}
+        onClose={onAuthClose}
+        onAuthSuccess={() => { onAuthClose(); onBookingOpen(); }}
+      />
+
       {/* Booking modal */}
-      <Modal isOpen={isOpen} onClose={onClose} size="lg" scrollBehavior="inside">
+      <Modal isOpen={isBookingOpen} onClose={onBookingClose} size="lg" scrollBehavior="inside">
         <ModalOverlay />
         <ModalContent borderRadius="2xl">
           <ModalHeader>
@@ -442,7 +621,7 @@ function CarDetailContent() {
             <BookingWizard
               carId={carId}
               pricePerDay={car.price}
-              onSuccess={() => { onClose(); router.push('/rentals'); }}
+              onSuccess={() => { onBookingClose(); router.push('/rentals'); }}
             />
           </ModalBody>
           <ModalFooter />

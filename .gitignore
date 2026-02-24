@@ -33,3 +33,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# macOS duplicate artifacts
+*\ 2.tsx
+*\ 2.ts
+*\ 2.js
+*\ 2.png
+*\ 2.jpg
+
+# tooling
+.agents/
+skills-lock.json
