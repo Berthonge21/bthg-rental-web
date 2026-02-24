@@ -147,7 +147,7 @@ export default function ProfilePage() {
         status: 'info',
         duration: 5000,
       });
-      router.push('/admin/login');
+      router.push('/auth/login');
     } catch (error) {
       toast({
         title: 'Failed to deactivate account',

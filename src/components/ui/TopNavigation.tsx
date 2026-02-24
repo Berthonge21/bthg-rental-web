@@ -66,7 +66,7 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/admin/login';
+    window.location.href = '/auth/login';
   };
 
   return (

@@ -13,7 +13,6 @@ interface AuthState {
   // Actions
   setUser: (user: CurrentUser | null) => void;
   login: (email: string, password: string) => Promise<void>;
-  loginAdmin: (email: string, password: string) => Promise<void>;
   register: (data: {
     firstname: string;
     name: string;
@@ -47,26 +46,27 @@ export const useAuthStore = create<AuthState>()(
       login: async (email, password) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await api.auth.login({ email, password });
+          let response: AuthResponse;
+          try {
+            // 1st attempt: client table
+            response = await api.auth.login({ email, password });
+          } catch (clientErr: unknown) {
+            // Re-throw 403 (account deactivated) immediately — no point trying admin
+            // ApiError uses .statusCode (not .status)
+            const statusCode = (clientErr as { statusCode?: number })?.statusCode;
+            if (statusCode === 403) throw clientErr;
+            // 2nd attempt: agency/admin table
+            try {
+              response = await api.auth.loginAdmin({ email, password });
+            } catch {
+              // Both failed — surface the original client error so deactivation
+              // messages are preserved correctly
+              throw clientErr;
+            }
+          }
           await api.setTokens(response.accessToken, response.refreshToken);
-
-          const user = await api.auth.me();
-          set({ user, isAuthenticated: true, isLoading: false });
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'Login failed';
-          set({ error: message, isLoading: false });
-          throw error;
-        }
-      },
-
-      loginAdmin: async (email, password) => {
-        set({ isLoading: true, error: null });
-        try {
-          const response = await api.auth.loginAdmin({ email, password });
-          await api.setTokens(response.accessToken, response.refreshToken);
-
-          const user = await api.auth.me();
-          set({ user, isAuthenticated: true, isLoading: false });
+          set({ user: response.user as unknown as CurrentUser, isAuthenticated: true, isLoading: false });
+          api.auth.me().then((u: CurrentUser) => set({ user: u })).catch(() => {});
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Login failed';
           set({ error: message, isLoading: false });
@@ -77,11 +77,9 @@ export const useAuthStore = create<AuthState>()(
       register: async (data) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await api.auth.register(data);
-          await api.setTokens(response.accessToken, response.refreshToken);
-
-          const user = await api.auth.me();
-          set({ user, isAuthenticated: true, isLoading: false });
+          // Backend returns { message, user } — no tokens issued at registration
+          await api.auth.register(data);
+          set({ isLoading: false });
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Registration failed';
           set({ error: message, isLoading: false });
@@ -143,8 +141,9 @@ export const useAuthStore = create<AuthState>()(
           set({ isInitializing: false });
           api.auth.me()
             .then((user: CurrentUser) => set({ user, isAuthenticated: true }))
-            .catch(async () => {
-              await api.clearTokens();
+            .catch(() => {
+              // Don't clearTokens — a concurrent login may have just set fresh tokens.
+              // The next protected call will trigger re-auth naturally.
               set({ user: null, isAuthenticated: false });
             });
           return;

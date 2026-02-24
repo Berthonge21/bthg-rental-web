@@ -108,7 +108,7 @@ export default function ClientProfilePage() {
     try {
       await deactivateAccount();
       toast({ title: 'Account deactivated', description: 'You have been logged out.', status: 'info', duration: 5000 });
-      router.push('/login');
+      router.push('/auth/login');
     } catch (err) {
       toast({ title: 'Failed to deactivate', description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
     } finally {

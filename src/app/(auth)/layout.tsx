@@ -28,10 +28,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       >
         {/* Background Image */}
         <Image
-          src="/img/bthg-signin.png"
+          src="/img/car.png"
           alt="BTHG Rental Car"
           fill
-          style={{ objectFit: 'cover', opacity: 0.4 }}
+          style={{ objectFit: 'cover', opacity: 0.35 }}
           priority
         />
 

@@ -17,12 +17,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (isLoading) return;
 
     if (!isAuthenticated) {
-      router.push('/admin/login');
+      router.push('/auth/login');
       return;
     }
 
     if (user?.role !== 'admin' && user?.role !== 'superAdmin') {
-      router.push('/login');
+      router.push('/auth/login');
     }
   }, [isAuthenticated, user, isLoading, router]);
 

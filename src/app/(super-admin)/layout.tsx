@@ -17,7 +17,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     if (isLoading) return;
 
     if (!isAuthenticated) {
-      router.push('/admin/login');
+      router.push('/auth/login');
       return;
     }
 

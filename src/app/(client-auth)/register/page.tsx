@@ -72,7 +72,7 @@ const inputStyles = {
   border: '1px solid',
   borderColor: 'gray.200',
   borderRadius: 'lg',
-  h: 10,
+  h: 9,
   _focus: {
     borderColor: 'brand.400',
     boxShadow: focusGlow,
@@ -121,11 +121,15 @@ export default function RegisterPage() {
       await registerUser(registerData);
       toast({
         title: 'Account created!',
-        description: 'Welcome to BTHG Rental Car',
+        description: 'Your account is ready. Please sign in to continue.',
         status: 'success',
-        duration: 3000,
+        duration: 4000,
       });
-      router.push('/');
+      // Forward the redirect param so the login page knows where to send the user after sign-in.
+      // Chain: /register?redirect=/cars/5?book=true → /login?redirect=/cars/5?book=true → /cars/5?book=true
+      const params = new URLSearchParams(window.location.search);
+      const redirectTarget = params.get('redirect');
+      router.push(redirectTarget ? `/auth/login?redirect=${encodeURIComponent(redirectTarget)}` : '/auth/login');
     } catch (error) {
       toast({
         title: 'Registration failed',
@@ -138,11 +142,11 @@ export default function RegisterPage() {
 
   return (
     <Box
-      maxW="520px"
+      maxW="420px"
       w="full"
       bg="white"
       borderRadius="2xl"
-      p={8}
+      p={6}
       boxShadow="2xl"
       overflow="hidden"
       position="relative"
@@ -157,7 +161,7 @@ export default function RegisterPage() {
         right={0}
       />
 
-      <VStack spacing={6}>
+      <VStack spacing={4}>
         {/* Header */}
         <VStack spacing={1}>
           <Heading size="lg" color="navy.800">
@@ -180,15 +184,15 @@ export default function RegisterPage() {
         </Box>
 
         {/* Step dots */}
-        <HStack spacing={6} justify="center">
+        <HStack spacing={5} justify="center">
           {STEP_META.map((s, i) => {
             const isCompleted = i < step;
             const isCurrent = i === step;
             return (
               <VStack key={s.label} spacing={1}>
                 <Box
-                  w={10}
-                  h={10}
+                  w={8}
+                  h={8}
                   borderRadius="full"
                   display="flex"
                   alignItems="center"
@@ -199,7 +203,7 @@ export default function RegisterPage() {
                   fontWeight="bold"
                   fontSize="sm"
                 >
-                  {isCompleted ? <Icon as={FiCheck} boxSize={4} /> : <Icon as={s.icon} boxSize={4} />}
+                  {isCompleted ? <Icon as={FiCheck} boxSize={3.5} /> : <Icon as={s.icon} boxSize={3.5} />}
                 </Box>
                 <Text
                   fontSize="xs"
@@ -222,9 +226,6 @@ export default function RegisterPage() {
               animate={{
                 x: 0,
                 opacity: 1,
-                ...(shakeKey > 0 && errors && Object.keys(errors).length > 0
-                  ? {}
-                  : {}),
               }}
               exit={{ x: -40, opacity: 0 }}
               transition={{ duration: 0.35 }}
@@ -239,7 +240,7 @@ export default function RegisterPage() {
                 }
                 transition={{ duration: 0.4 }}
               >
-                <Stack spacing={4}>
+                <Stack spacing={3}>
                   {/* Step 1: Account */}
                   {step === 0 && (
                     <>
@@ -389,12 +390,12 @@ export default function RegisterPage() {
           </AnimatePresence>
 
           {/* Navigation buttons */}
-          <HStack spacing={4} mt={6} w="full">
+          <HStack spacing={4} mt={4} w="full">
             {step > 0 && (
               <Button
                 variant="outline"
                 borderRadius="lg"
-                h={12}
+                h={10}
                 flex={1}
                 leftIcon={<FiArrowLeft />}
                 onClick={handleBack}
@@ -411,7 +412,7 @@ export default function RegisterPage() {
                 bg="brand.400"
                 color="white"
                 borderRadius="lg"
-                h={12}
+                h={10}
                 fontWeight="semibold"
                 rightIcon={<FiArrowRight />}
                 _hover={{ bg: 'brand.500' }}
@@ -423,13 +424,13 @@ export default function RegisterPage() {
             ) : (
               <ProgressButton
                 type="submit"
-                size="lg"
+                size="md"
                 w="full"
                 flex={1}
                 bg="brand.400"
                 color="white"
                 borderRadius="lg"
-                h={12}
+                h={10}
                 fontWeight="semibold"
                 isLoading={isLoading}
                 _hover={{ bg: 'brand.500' }}
@@ -444,7 +445,7 @@ export default function RegisterPage() {
         {/* Footer */}
         <Text textAlign="center" fontSize="sm" color="gray.500">
           Already have an account?{' '}
-          <Link as={NextLink} href="/login" color="brand.400" fontWeight="medium">
+          <Link as={NextLink} href="/auth/login" color="brand.400" fontWeight="medium">
             Sign in
           </Link>
         </Text>
