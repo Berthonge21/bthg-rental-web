@@ -31,6 +31,7 @@ import { FiEye, FiEyeOff, FiArrowRight, FiArrowLeft, FiUser, FiLock, FiMapPin, F
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/stores/auth.store';
 import { ProgressButton } from '@/components/ui/ProgressButton';
+import { Logo } from '@/components/ui/Logo';
 
 const MotionBox = motion.create(Box);
 
@@ -65,19 +66,20 @@ const STEP_META = [
   { label: 'Profile', icon: FiMapPin },
 ];
 
-const focusGlow = '0 0 0 3px rgba(201,162,39,0.25)';
+const focusGlow = '0 0 0 3px rgba(255,215,0,0.25)';
 
 const inputStyles = {
-  bg: 'white',
+  bg: '#0a0a0a',
   border: '1px solid',
-  borderColor: 'gray.200',
+  borderColor: 'rgba(255,215,0,0.15)',
   borderRadius: 'lg',
   h: 9,
+  color: 'white',
   _focus: {
     borderColor: 'brand.400',
     boxShadow: focusGlow,
   },
-  _placeholder: { color: 'gray.400' },
+  _placeholder: { color: 'gray.500' },
 };
 
 export default function RegisterPage() {
@@ -126,7 +128,6 @@ export default function RegisterPage() {
         duration: 4000,
       });
       // Forward the redirect param so the login page knows where to send the user after sign-in.
-      // Chain: /register?redirect=/cars/5?book=true → /login?redirect=/cars/5?book=true → /cars/5?book=true
       const params = new URLSearchParams(window.location.search);
       const redirectTarget = params.get('redirect');
       router.push(redirectTarget ? `/auth/login?redirect=${encodeURIComponent(redirectTarget)}` : '/auth/login');
@@ -144,10 +145,12 @@ export default function RegisterPage() {
     <Box
       maxW="420px"
       w="full"
-      bg="white"
+      bg="rgba(0,0,0,0.85)"
       borderRadius="2xl"
       p={6}
-      boxShadow="2xl"
+      border="1px solid"
+      borderColor="rgba(255,215,0,0.15)"
+      boxShadow="0 24px 60px rgba(0,0,0,0.5)"
       overflow="hidden"
       position="relative"
     >
@@ -164,10 +167,10 @@ export default function RegisterPage() {
       <VStack spacing={4}>
         {/* Header */}
         <VStack spacing={1}>
-          <Heading size="lg" color="navy.800">
+          <Heading size="lg" color="white">
             Create Account
           </Heading>
-          <Text color="gray.500" fontSize="sm">
+          <Text color="gray.400" fontSize="sm">
             Sign up to get started with BTHG Rental
           </Text>
         </VStack>
@@ -179,7 +182,7 @@ export default function RegisterPage() {
             size="xs"
             borderRadius="full"
             colorScheme="yellow"
-            bg="gray.100"
+            bg="rgba(255,255,255,0.05)"
           />
         </Box>
 
@@ -197,8 +200,8 @@ export default function RegisterPage() {
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  bg={isCompleted ? 'brand.400' : isCurrent ? 'brand.400' : 'gray.100'}
-                  color={isCompleted || isCurrent ? 'white' : 'gray.400'}
+                  bg={isCompleted ? 'brand.400' : isCurrent ? 'brand.400' : 'rgba(255,255,255,0.05)'}
+                  color={isCompleted || isCurrent ? '#000000' : 'gray.500'}
                   transition="all 0.3s"
                   fontWeight="bold"
                   fontSize="sm"
@@ -208,7 +211,7 @@ export default function RegisterPage() {
                 <Text
                   fontSize="xs"
                   fontWeight={isCurrent ? 'semibold' : 'medium'}
-                  color={isCurrent ? 'brand.400' : 'gray.400'}
+                  color={isCurrent ? 'brand.400' : 'gray.500'}
                 >
                   {s.label}
                 </Text>
@@ -246,7 +249,7 @@ export default function RegisterPage() {
                     <>
                       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                         <FormControl isInvalid={!!errors.firstname}>
-                          <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+                          <FormLabel fontWeight="medium" fontSize="sm" color="white">
                             First Name
                           </FormLabel>
                           <Input placeholder="John" {...inputStyles} {...register('firstname')} />
@@ -254,7 +257,7 @@ export default function RegisterPage() {
                         </FormControl>
 
                         <FormControl isInvalid={!!errors.name}>
-                          <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+                          <FormLabel fontWeight="medium" fontSize="sm" color="white">
                             Last Name
                           </FormLabel>
                           <Input placeholder="Doe" {...inputStyles} {...register('name')} />
@@ -263,7 +266,7 @@ export default function RegisterPage() {
                       </SimpleGrid>
 
                       <FormControl isInvalid={!!errors.email}>
-                        <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+                        <FormLabel fontWeight="medium" fontSize="sm" color="white">
                           Email
                         </FormLabel>
                         <Input
@@ -281,7 +284,7 @@ export default function RegisterPage() {
                   {step === 1 && (
                     <>
                       <FormControl isInvalid={!!errors.password}>
-                        <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+                        <FormLabel fontWeight="medium" fontSize="sm" color="white">
                           Password
                         </FormLabel>
                         <InputGroup>
@@ -298,7 +301,7 @@ export default function RegisterPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => setShowPassword(!showPassword)}
-                              color="gray.400"
+                              color="gray.500"
                               _hover={{ color: 'brand.400' }}
                             />
                           </InputRightElement>
@@ -307,7 +310,7 @@ export default function RegisterPage() {
                       </FormControl>
 
                       <FormControl isInvalid={!!errors.confirmPassword}>
-                        <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+                        <FormLabel fontWeight="medium" fontSize="sm" color="white">
                           Confirm Password
                         </FormLabel>
                         <InputGroup>
@@ -324,7 +327,7 @@ export default function RegisterPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                              color="gray.400"
+                              color="gray.500"
                               _hover={{ color: 'brand.400' }}
                             />
                           </InputRightElement>
@@ -339,7 +342,7 @@ export default function RegisterPage() {
                     <>
                       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                         <FormControl isInvalid={!!errors.telephone}>
-                          <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+                          <FormLabel fontWeight="medium" fontSize="sm" color="white">
                             Phone Number
                           </FormLabel>
                           <Input
@@ -351,7 +354,7 @@ export default function RegisterPage() {
                         </FormControl>
 
                         <FormControl isInvalid={!!errors.numPermis}>
-                          <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+                          <FormLabel fontWeight="medium" fontSize="sm" color="white">
                             Driver License
                           </FormLabel>
                           <Input
@@ -364,7 +367,7 @@ export default function RegisterPage() {
                       </SimpleGrid>
 
                       <FormControl isInvalid={!!errors.address}>
-                        <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+                        <FormLabel fontWeight="medium" fontSize="sm" color="white">
                           Address
                         </FormLabel>
                         <Input
@@ -376,7 +379,7 @@ export default function RegisterPage() {
                       </FormControl>
 
                       <FormControl isInvalid={!!errors.city}>
-                        <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+                        <FormLabel fontWeight="medium" fontSize="sm" color="white">
                           City
                         </FormLabel>
                         <Input placeholder="New York" {...inputStyles} {...register('city')} />
@@ -399,9 +402,9 @@ export default function RegisterPage() {
                 flex={1}
                 leftIcon={<FiArrowLeft />}
                 onClick={handleBack}
-                borderColor="gray.200"
-                color="gray.600"
-                _hover={{ bg: 'gray.50' }}
+                borderColor="rgba(255,215,0,0.2)"
+                color="white"
+                _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               >
                 Back
               </Button>
@@ -410,12 +413,12 @@ export default function RegisterPage() {
               <Button
                 flex={1}
                 bg="brand.400"
-                color="white"
+                color="#000000"
                 borderRadius="lg"
                 h={10}
                 fontWeight="semibold"
                 rightIcon={<FiArrowRight />}
-                _hover={{ bg: 'brand.500' }}
+                _hover={{ bg: 'lightGold.400' }}
                 _active={{ bg: 'brand.600' }}
                 onClick={handleNext}
               >
@@ -428,12 +431,12 @@ export default function RegisterPage() {
                 w="full"
                 flex={1}
                 bg="brand.400"
-                color="white"
+                color="#000000"
                 borderRadius="lg"
                 h={10}
                 fontWeight="semibold"
                 isLoading={isLoading}
-                _hover={{ bg: 'brand.500' }}
+                _hover={{ bg: 'lightGold.400' }}
                 _active={{ bg: 'brand.600' }}
               >
                 Create Account
@@ -443,7 +446,7 @@ export default function RegisterPage() {
         </Box>
 
         {/* Footer */}
-        <Text textAlign="center" fontSize="sm" color="gray.500">
+        <Text textAlign="center" fontSize="sm" color="gray.400">
           Already have an account?{' '}
           <Link as={NextLink} href="/auth/login" color="brand.400" fontWeight="medium">
             Sign in

@@ -22,10 +22,10 @@ import {
   Avatar,
   Tooltip,
   VStack,
-  useColorModeValue,
 } from '@chakra-ui/react';
-import { FiTruck, FiSearch, FiCalendar, FiUser, FiLogOut, FiMenu } from 'react-icons/fi';
+import { FiSearch, FiCalendar, FiUser, FiLogOut, FiMenu } from 'react-icons/fi';
 import { useAuthStore } from '@/stores/auth.store';
+import { Logo } from '@/components/ui/Logo';
 
 function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
   const router = useRouter();
@@ -48,45 +48,26 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
       left={0}
       right={0}
       zIndex={100}
-      bg="white"
+      bg="rgba(0,0,0,0.95)"
       borderBottom="1px"
-      borderColor="gray.100"
+      borderColor="rgba(255,215,0,0.1)"
       px={{ base: 4, md: 8, lg: 12 }}
       py={3}
     >
       <Flex align="center" justify="space-between" maxW="1400px" mx="auto">
         {/* Logo */}
-        <HStack spacing={3} as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
-          <Box
-            w={10}
-            h={10}
-            bg="#0096C7"
-            borderRadius="lg"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Icon as={FiTruck} color="brand.400" boxSize={5} />
-          </Box>
-          <Text
-            fontFamily="var(--font-display)"
-            fontSize="2xl"
-            color="navy.800"
-            letterSpacing="0.06em"
-            display={{ base: 'none', md: 'block' }}
-          >
-            BTHG RENTAL
-          </Text>
-        </HStack>
+        <Box as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+          <Logo size="sm" />
+        </Box>
 
-        {/* Center — Browse Cars active link */}
+        {/* Center -- Browse Cars active link */}
         <>
           {/* Desktop: full button */}
           <Button
             as={NextLink}
             href="/cars"
             variant="ghost"
-            color={isBrowseActive ? 'brand.400' : 'navy.800'}
+            color={isBrowseActive ? 'brand.400' : 'white'}
             fontWeight="semibold"
             fontSize="sm"
             leftIcon={<FiSearch />}
@@ -102,8 +83,9 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
             aria-label="Browse Cars"
             icon={<FiSearch />}
             variant="ghost"
-            color={isBrowseActive ? 'brand.400' : 'navy.800'}
+            color={isBrowseActive ? 'brand.400' : 'white'}
             display={{ base: 'inline-flex', md: 'none' }}
+            _hover={{ bg: 'rgba(255,215,0,0.08)' }}
           />
         </>
 
@@ -114,11 +96,11 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
               <Button
                 as={NextLink}
                 href={user.role === 'superAdmin' ? '/super-admin/dashboard' : '/admin/dashboard'}
-                bg="navy.800"
-                color="white"
+                bg="brand.400"
+                color="#000000"
                 size="sm"
                 borderRadius="lg"
-                _hover={{ bg: 'navy.700' }}
+                _hover={{ bg: 'lightGold.400' }}
                 display={{ base: 'none', md: 'inline-flex' }}
               >
                 Go to Dashboard
@@ -128,10 +110,12 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
                 aria-label="Open menu"
                 icon={<FiMenu />}
                 variant="ghost"
+                color="white"
                 borderRadius="lg"
                 size="md"
                 display={{ base: 'inline-flex', md: 'none' }}
                 onClick={onMenuOpen}
+                _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               />
             </HStack>
           ) : (
@@ -141,10 +125,11 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
                 href="/rentals"
                 variant="ghost"
                 size="sm"
-                color="navy.800"
+                color="white"
                 fontWeight="medium"
                 leftIcon={<FiCalendar />}
                 display={{ base: 'none', md: 'inline-flex' }}
+                _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               >
                 My Rentals
               </Button>
@@ -153,10 +138,11 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
                 href="/profile"
                 variant="ghost"
                 size="sm"
-                color="navy.800"
+                color="white"
                 fontWeight="medium"
                 leftIcon={<FiUser />}
                 display={{ base: 'none', md: 'inline-flex' }}
+                _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               >
                 Profile
               </Button>
@@ -166,12 +152,12 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
                   name={`${user.firstname} ${user.name}`}
                   src={user.image}
                   bg="brand.400"
-                  color="white"
+                  color="#000000"
                 />
                 <Text
                   fontSize="sm"
                   fontWeight="medium"
-                  color="navy.800"
+                  color="white"
                   display={{ base: 'none', lg: 'block' }}
                 >
                   {user.firstname}
@@ -182,8 +168,8 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
                     icon={<FiLogOut />}
                     variant="ghost"
                     size="sm"
-                    color="red.500"
-                    _hover={{ bg: 'red.50' }}
+                    color="red.400"
+                    _hover={{ bg: 'rgba(229,62,62,0.1)' }}
                     onClick={handleLogout}
                   />
                 </Tooltip>
@@ -193,10 +179,12 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
                 aria-label="Open menu"
                 icon={<FiMenu />}
                 variant="ghost"
+                color="white"
                 borderRadius="lg"
                 size="md"
                 display={{ base: 'inline-flex', md: 'none' }}
                 onClick={onMenuOpen}
+                _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               />
             </HStack>
           )
@@ -206,19 +194,20 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
               as={NextLink}
               href="/auth/login"
               variant="ghost"
-              color="navy.800"
+              color="white"
               size="sm"
               fontWeight="medium"
               display={{ base: 'none', md: 'inline-flex' }}
+              _hover={{ bg: 'rgba(255,215,0,0.08)' }}
             >
               Sign In
             </Button>
             <Button
               as={NextLink}
               href="/register"
-              bg="navy.800"
-              color="white"
-              _hover={{ bg: 'navy.700' }}
+              bg="brand.400"
+              color="#000000"
+              _hover={{ bg: 'lightGold.400' }}
               size="sm"
               borderRadius="lg"
               display={{ base: 'none', md: 'inline-flex' }}
@@ -230,10 +219,12 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
               aria-label="Open menu"
               icon={<FiMenu />}
               variant="ghost"
+              color="white"
               borderRadius="lg"
               size="md"
               display={{ base: 'inline-flex', md: 'none' }}
               onClick={onMenuOpen}
+              _hover={{ bg: 'rgba(255,215,0,0.08)' }}
             />
           </HStack>
         )}
@@ -246,11 +237,6 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const { user, isAuthenticated, logout } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
-  const bgColor = useColorModeValue('white', 'navy.800');
-  const borderColor = useColorModeValue('gray.100', 'navy.700');
-  const textColor = useColorModeValue('navy.800', 'white');
-  const hoverBg = useColorModeValue('gray.50', 'navy.700');
-  const logoutHoverBg = useColorModeValue('red.50', 'rgba(229,62,62,0.1)');
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superAdmin';
 
@@ -269,15 +255,12 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   return (
     <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xs">
       <DrawerOverlay backdropFilter="blur(4px)" />
-      <DrawerContent bg={bgColor}>
-        <DrawerCloseButton />
-        <DrawerHeader borderBottomWidth="1px" borderColor={borderColor} pb={4}>
-          <HStack spacing={3} mt={2}>
-            <Box w={9} h={9} bg="navy.800" borderRadius="lg" display="flex" alignItems="center" justifyContent="center">
-              <Icon as={FiTruck} color="brand.400" boxSize={4} />
-            </Box>
-            <Text fontWeight="bold" color={textColor}>BTHG Rental</Text>
-          </HStack>
+      <DrawerContent bg="#000000">
+        <DrawerCloseButton color="white" />
+        <DrawerHeader borderBottomWidth="1px" borderColor="rgba(255,215,0,0.1)" pb={4}>
+          <Box mt={2}>
+            <Logo size="sm" />
+          </Box>
         </DrawerHeader>
         <DrawerBody px={3} py={4}>
           <VStack spacing={1} align="stretch">
@@ -289,9 +272,9 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   onClick={onClose}
                   display="flex" alignItems="center" gap={3}
                   px={4} py={3} borderRadius="xl"
-                  bg="navy.800" color="white"
+                  bg="brand.400" color="#000000"
                   fontWeight="semibold" fontSize="sm"
-                  _hover={{ bg: 'navy.700', textDecoration: 'none' }}
+                  _hover={{ bg: 'lightGold.400', textDecoration: 'none' }}
                 >
                   <Icon as={FiSearch} boxSize={5} />
                   <Text>Go to Dashboard</Text>
@@ -307,12 +290,12 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                       onClick={onClose}
                       display="flex" alignItems="center" gap={3}
                       px={4} py={3} borderRadius="xl"
-                      bg={isActive ? 'accent.400' : 'transparent'}
-                      color={isActive ? 'white' : textColor}
+                      bg={isActive ? '#FFD700' : 'transparent'}
+                      color={isActive ? '#000000' : 'white'}
                       fontWeight={isActive ? 'semibold' : 'medium'}
                       fontSize="sm"
                       transition="all 0.2s"
-                      _hover={{ bg: isActive ? 'accent.500' : hoverBg, textDecoration: 'none' }}
+                      _hover={{ bg: isActive ? '#FFD700' : 'rgba(255,215,0,0.08)', textDecoration: 'none' }}
                     >
                       <Icon as={item.icon} boxSize={5} />
                       <Text>{item.label}</Text>
@@ -326,8 +309,8 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   as={NextLink} href="/cars" onClick={onClose}
                   display="flex" alignItems="center" gap={3}
                   px={4} py={3} borderRadius="xl"
-                  color={textColor} fontWeight="medium" fontSize="sm"
-                  _hover={{ bg: hoverBg, textDecoration: 'none' }}
+                  color="white" fontWeight="medium" fontSize="sm"
+                  _hover={{ bg: 'rgba(255,215,0,0.08)', textDecoration: 'none' }}
                 >
                   <Icon as={FiSearch} boxSize={5} />
                   <Text>Browse Cars</Text>
@@ -336,8 +319,8 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   as={NextLink} href="/auth/login" onClick={onClose}
                   display="flex" alignItems="center" gap={3}
                   px={4} py={3} borderRadius="xl"
-                  color={textColor} fontWeight="medium" fontSize="sm"
-                  _hover={{ bg: hoverBg, textDecoration: 'none' }}
+                  color="white" fontWeight="medium" fontSize="sm"
+                  _hover={{ bg: 'rgba(255,215,0,0.08)', textDecoration: 'none' }}
                 >
                   <Icon as={FiUser} boxSize={5} />
                   <Text>Sign In</Text>
@@ -346,9 +329,9 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   as={NextLink} href="/register" onClick={onClose}
                   display="flex" alignItems="center" gap={3}
                   px={4} py={3} borderRadius="xl"
-                  bg="navy.800" color="white"
+                  bg="brand.400" color="#000000"
                   fontWeight="semibold" fontSize="sm"
-                  _hover={{ bg: 'navy.700', textDecoration: 'none' }}
+                  _hover={{ bg: 'lightGold.400', textDecoration: 'none' }}
                 >
                   <Icon as={FiUser} boxSize={5} />
                   <Text>Sign Up</Text>
@@ -358,14 +341,14 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
             {isAuthenticated && !isAdmin && (
               <>
-                <Divider my={2} />
+                <Divider my={2} borderColor="rgba(255,215,0,0.1)" />
                 <Box
                   as="button"
                   display="flex" alignItems="center" gap={3}
                   px={4} py={3} borderRadius="xl"
-                  color="red.500" fontWeight="medium" fontSize="sm"
+                  color="red.400" fontWeight="medium" fontSize="sm"
                   w="full" transition="all 0.2s"
-                  _hover={{ bg: logoutHoverBg }}
+                  _hover={{ bg: 'rgba(229,62,62,0.1)' }}
                   onClick={handleLogout}
                 >
                   <Icon as={FiLogOut} boxSize={5} />
@@ -383,7 +366,7 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   return (
-    <Box minH="100vh" bg="gray.50">
+    <Box minH="100vh" bg="#000000">
       <PublicNav onMenuOpen={() => setDrawerOpen(true)} />
       <Box as="main" pt="80px" px={{ base: 4, md: 6, lg: 8 }} pb={8} maxW="1400px" mx="auto">
         {children}

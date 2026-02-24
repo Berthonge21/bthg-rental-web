@@ -1,10 +1,10 @@
 'use client';
 
-import { Box, Flex, HStack, Icon, Text } from '@chakra-ui/react';
-import { FiTruck } from 'react-icons/fi';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 import NextLink from 'next/link';
+import { Logo } from '@/components/ui/Logo';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -19,14 +19,14 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       />
 
       {/* Dark overlay */}
-      <Box position="absolute" inset={0} bg="rgba(11,28,45,0.72)" />
+      <Box position="absolute" inset={0} bg="rgba(0,0,0,0.78)" />
 
       {/* Diagonal gold accent lines */}
       <Box
         position="absolute"
         inset={0}
         opacity={0.05}
-        background="repeating-linear-gradient(-45deg, #C9A227 0px, #C9A227 1px, transparent 1px, transparent 48px)"
+        background="repeating-linear-gradient(-45deg, #FFD700 0px, #FFD700 1px, transparent 1px, transparent 48px)"
         pointerEvents="none"
       />
 
@@ -41,22 +41,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         py={10}
       >
         {/* Logo */}
-        <HStack spacing={3} mb={8} as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
-          <Box
-            w={10}
-            h={10}
-            bg="brand.400"
-            borderRadius="lg"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Icon as={FiTruck} color="white" boxSize={5} />
-          </Box>
-          <Text fontFamily="var(--font-display)" fontSize="2xl" letterSpacing="0.06em" color="white">
-            BTHG RENTAL
-          </Text>
-        </HStack>
+        <Box as={NextLink} href="/" mb={8} _hover={{ textDecoration: 'none' }}>
+          <Logo size="md" />
+        </Box>
 
         {children}
 

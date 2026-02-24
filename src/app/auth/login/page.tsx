@@ -98,8 +98,8 @@ function LoginForm() {
         return;
       }
 
-      
-      // Client — restore booking intent or go to redirect/default
+
+      // Client -- restore booking intent or go to redirect/default
       const intentRaw = sessionStorage.getItem('bthg-booking-intent');
       if (intentRaw && !redirectTo) {
         try {
@@ -162,11 +162,13 @@ function LoginForm() {
     <Box
       w="full"
       maxW="420px"
-      bg="rgba(255,255,255,0.96)"
+      bg="rgba(0,0,0,0.85)"
       borderRadius="2xl"
       overflow="hidden"
       position="relative"
-      boxShadow="0 24px 60px rgba(11,28,45,0.35)"
+      border="1px solid"
+      borderColor="rgba(255,215,0,0.15)"
+      boxShadow="0 24px 60px rgba(0,0,0,0.5)"
     >
       {/* Gold top accent bar */}
       <Box h="4px" bg="brand.400" />
@@ -178,12 +180,12 @@ function LoginForm() {
             fontFamily="var(--font-display)"
             fontSize="3xl"
             letterSpacing="0.04em"
-            color="navy.800"
+            color="white"
             textTransform="uppercase"
           >
             Sign In
           </Text>
-          <Text color="gray.500" fontSize="sm">
+          <Text color="gray.400" fontSize="sm">
             Works for clients, admins &amp; super admins
           </Text>
         </VStack>
@@ -221,12 +223,12 @@ function LoginForm() {
         <Box as="form" onSubmit={handleSubmit(onSubmit)} w="full">
           <Stack spacing={4}>
             <FormControl isInvalid={!!errors.email}>
-              <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+              <FormLabel fontWeight="medium" fontSize="sm" color="white">
                 Email Address
               </FormLabel>
               <InputGroup>
                 <InputLeftElement pointerEvents="none" h="full">
-                  <Icon as={FiMail} color="gray.400" />
+                  <Icon as={FiMail} color="gray.500" />
                 </InputLeftElement>
                 <Input
                   type="email"
@@ -234,9 +236,12 @@ function LoginForm() {
                   borderRadius="lg"
                   h={12}
                   pl={10}
-                  borderColor="gray.200"
-                  _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #C9A227' }}
-                  _placeholder={{ color: 'gray.400' }}
+                  bg="#0a0a0a"
+                  color="white"
+                  border="1px solid"
+                  borderColor="rgba(255,215,0,0.15)"
+                  _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }}
+                  _placeholder={{ color: 'gray.500' }}
                   {...register('email')}
                 />
               </InputGroup>
@@ -244,12 +249,12 @@ function LoginForm() {
             </FormControl>
 
             <FormControl isInvalid={!!errors.password}>
-              <FormLabel fontWeight="medium" fontSize="sm" color="navy.800">
+              <FormLabel fontWeight="medium" fontSize="sm" color="white">
                 Password
               </FormLabel>
               <InputGroup>
                 <InputLeftElement pointerEvents="none" h="full">
-                  <Icon as={FiLock} color="gray.400" />
+                  <Icon as={FiLock} color="gray.500" />
                 </InputLeftElement>
                 <Input
                   type={showPassword ? 'text' : 'password'}
@@ -257,9 +262,12 @@ function LoginForm() {
                   borderRadius="lg"
                   h={12}
                   pl={10}
-                  borderColor="gray.200"
-                  _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #C9A227' }}
-                  _placeholder={{ color: 'gray.400' }}
+                  bg="#0a0a0a"
+                  color="white"
+                  border="1px solid"
+                  borderColor="rgba(255,215,0,0.15)"
+                  _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }}
+                  _placeholder={{ color: 'gray.500' }}
                   {...register('password')}
                 />
                 <InputRightElement h="full" pr={1}>
@@ -269,7 +277,7 @@ function LoginForm() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowPassword(!showPassword)}
-                    color="gray.400"
+                    color="gray.500"
                     _hover={{ color: 'brand.400' }}
                   />
                 </InputRightElement>
@@ -282,12 +290,12 @@ function LoginForm() {
               size="lg"
               w="full"
               bg="brand.400"
-              color="white"
+              color="#000000"
               borderRadius="lg"
               h={12}
               fontWeight="semibold"
               isLoading={isLoading}
-              _hover={{ bg: 'brand.500' }}
+              _hover={{ bg: 'lightGold.400' }}
             >
               Sign In
             </ProgressButton>
@@ -296,13 +304,13 @@ function LoginForm() {
 
         {/* Footer links */}
         <VStack spacing={2} w="full">
-          <Text textAlign="center" fontSize="sm" color="gray.500">
+          <Text textAlign="center" fontSize="sm" color="gray.400">
             New client?{' '}
             <Link as={NextLink} href="/register" color="brand.400" fontWeight="semibold">
               Create an account
             </Link>
           </Text>
-          <Text textAlign="center" fontSize="xs" color="gray.400">
+          <Text textAlign="center" fontSize="xs" color="gray.500">
             Admins are created by the super admin
           </Text>
         </VStack>

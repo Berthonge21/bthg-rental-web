@@ -22,10 +22,11 @@ import {
   DrawerCloseButton,
   Divider,
 } from '@chakra-ui/react';
-import { FiTruck, FiSearch, FiCalendar, FiUser, FiLogOut, FiSun, FiMoon, FiMenu } from 'react-icons/fi';
+import { FiSearch, FiCalendar, FiUser, FiLogOut, FiSun, FiMoon, FiMenu } from 'react-icons/fi';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
 import { CarLoader } from '@/components/ui/CarLoader';
+import { Logo } from '@/components/ui/Logo';
 
 const navItems = [
   { label: 'Browse Cars', href: '/cars', icon: FiSearch },
@@ -38,15 +39,6 @@ function ClientNav({ onMenuOpen }: { onMenuOpen: () => void }) {
   const { colorMode, toggleColorMode } = useColorMode();
   const { user, logout } = useAuthStore();
   const router = useRouter();
-
-  const bgColor = useColorModeValue('white', 'navy.800');
-  const borderColor = useColorModeValue('gray.100', 'navy.700');
-  const navPillBg = useColorModeValue('gray.50', 'navy.700');
-  const brandTextColor = useColorModeValue('navy.800', 'white');
-  const activeBg = 'accent.400';
-  const activeColor = 'white';
-  const hoverBg = useColorModeValue('gray.100', 'navy.600');
-  const textColor = useColorModeValue('text.secondary', 'gray.300');
 
   const handleLogout = () => {
     logout();
@@ -61,29 +53,21 @@ function ClientNav({ onMenuOpen }: { onMenuOpen: () => void }) {
       left={0}
       right={0}
       zIndex={100}
-      bg={bgColor}
+      bg="rgba(0,0,0,0.95)"
       borderBottom="1px"
-      borderColor={borderColor}
+      borderColor="rgba(255,215,0,0.1)"
       boxShadow="sm"
       px={{ base: 4, md: 6 }}
       py={3}
     >
       <Flex align="center" justify="space-between" maxW="1400px" mx="auto">
         {/* Brand */}
-        <HStack spacing={3} as={NextLink} href="/cars" _hover={{ textDecoration: 'none' }}>
-          <Box
-            w={10} h={10} bg="navy.800" borderRadius="lg"
-            display="flex" alignItems="center" justifyContent="center"
-          >
-            <Icon as={FiTruck} color="brand.400" boxSize={5} />
-          </Box>
-          <Text fontFamily="var(--font-display)" fontSize="2xl" color={brandTextColor} letterSpacing="0.06em" display={{ base: 'none', md: 'block' }}>
-            BTHG RENTAL
-          </Text>
-        </HStack>
+        <Box as={NextLink} href="/cars" _hover={{ textDecoration: 'none' }}>
+          <Logo size="sm" />
+        </Box>
 
-        {/* Nav links — desktop pill */}
-        <HStack spacing={1} display={{ base: 'none', md: 'flex' }} bg={navPillBg} borderRadius="full" p={1}>
+        {/* Nav links -- desktop pill */}
+        <HStack spacing={1} display={{ base: 'none', md: 'flex' }} bg="rgba(255,255,255,0.05)" borderRadius="full" p={1}>
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
@@ -95,12 +79,12 @@ function ClientNav({ onMenuOpen }: { onMenuOpen: () => void }) {
                 alignItems="center"
                 px={4} py={2}
                 borderRadius="full"
-                bg={isActive ? activeBg : 'transparent'}
-                color={isActive ? activeColor : textColor}
+                bg={isActive ? '#FFD700' : 'transparent'}
+                color={isActive ? '#000000' : 'gray.300'}
                 fontWeight={isActive ? 'semibold' : 'medium'}
                 fontSize="sm"
                 transition="all 0.2s"
-                _hover={{ bg: isActive ? activeBg : hoverBg, color: isActive ? activeColor : 'text.primary', textDecoration: 'none' }}
+                _hover={{ bg: isActive ? '#FFD700' : 'rgba(255,215,0,0.08)', color: isActive ? '#000000' : 'white', textDecoration: 'none' }}
               >
                 <Icon as={item.icon} boxSize={4} mr={2} />
                 <Text>{item.label}</Text>
@@ -111,29 +95,31 @@ function ClientNav({ onMenuOpen }: { onMenuOpen: () => void }) {
 
         {/* Right side */}
         <HStack spacing={2}>
-          {/* Theme toggle — always visible */}
+          {/* Theme toggle */}
           <IconButton
             aria-label="Toggle color mode"
             icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
             variant="ghost"
+            color="white"
             borderRadius="full"
             size="md"
             onClick={toggleColorMode}
+            _hover={{ bg: 'rgba(255,215,0,0.08)' }}
           />
 
           {/* Desktop: avatar + name + logout */}
           <HStack spacing={2} pl={1} display={{ base: 'none', md: 'flex' }}>
-            <Avatar size="sm" name={`${user?.firstname} ${user?.name}`} src={user?.image} bg="brand.400" color="white" />
-            <Text fontSize="sm" fontWeight="medium" color="text.primary">{user?.firstname}</Text>
+            <Avatar size="sm" name={`${user?.firstname} ${user?.name}`} src={user?.image} bg="brand.400" color="#000000" />
+            <Text fontSize="sm" fontWeight="medium" color="white">{user?.firstname}</Text>
             <IconButton
               aria-label="Logout"
               icon={<FiLogOut />}
               variant="ghost"
               borderRadius="full"
               size="sm"
-              color="red.500"
-              bg="red.50"
-              _hover={{ bg: 'red.100' }}
+              color="red.400"
+              bg="rgba(229,62,62,0.1)"
+              _hover={{ bg: 'rgba(229,62,62,0.2)' }}
               onClick={handleLogout}
             />
           </HStack>
@@ -143,10 +129,12 @@ function ClientNav({ onMenuOpen }: { onMenuOpen: () => void }) {
             aria-label="Open menu"
             icon={<FiMenu />}
             variant="ghost"
+            color="white"
             borderRadius="lg"
             size="md"
             display={{ base: 'inline-flex', md: 'none' }}
             onClick={onMenuOpen}
+            _hover={{ bg: 'rgba(255,215,0,0.08)' }}
           />
         </HStack>
       </Flex>
@@ -160,13 +148,6 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   const { user, logout } = useAuthStore();
   const router = useRouter();
 
-  const bgColor = useColorModeValue('white', 'navy.800');
-  const borderColor = useColorModeValue('gray.100', 'navy.700');
-  const textColor = useColorModeValue('navy.800', 'white');
-  const mutedColor = useColorModeValue('gray.500', 'gray.400');
-  const hoverBg = useColorModeValue('gray.50', 'navy.700');
-  const logoutHoverBg = useColorModeValue('red.50', 'rgba(229,62,62,0.1)');
-
   const handleLogout = () => {
     logout();
     onClose();
@@ -176,17 +157,17 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   return (
     <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xs">
       <DrawerOverlay backdropFilter="blur(4px)" />
-      <DrawerContent bg={bgColor}>
-        <DrawerCloseButton />
-        <DrawerHeader borderBottomWidth="1px" borderColor={borderColor}>
+      <DrawerContent bg="#000000">
+        <DrawerCloseButton color="white" />
+        <DrawerHeader borderBottomWidth="1px" borderColor="rgba(255,215,0,0.1)">
           {/* User info */}
           <HStack spacing={3} mt={2}>
-            <Avatar size="md" name={`${user?.firstname} ${user?.name}`} src={user?.image} bg="brand.400" color="white" />
+            <Avatar size="md" name={`${user?.firstname} ${user?.name}`} src={user?.image} bg="brand.400" color="#000000" />
             <Box>
-              <Text fontSize="md" fontWeight="bold" color={textColor}>
+              <Text fontSize="md" fontWeight="bold" color="white">
                 {user?.firstname} {user?.name}
               </Text>
-              <Text fontSize="xs" color={mutedColor}>{user?.email}</Text>
+              <Text fontSize="xs" color="gray.400">{user?.email}</Text>
             </Box>
           </HStack>
         </DrawerHeader>
@@ -206,12 +187,12 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                   gap={3}
                   px={4} py={3}
                   borderRadius="xl"
-                  bg={isActive ? 'accent.400' : 'transparent'}
-                  color={isActive ? 'white' : textColor}
+                  bg={isActive ? '#FFD700' : 'transparent'}
+                  color={isActive ? '#000000' : 'white'}
                   fontWeight={isActive ? 'semibold' : 'medium'}
                   fontSize="sm"
                   transition="all 0.2s"
-                  _hover={{ bg: isActive ? 'accent.500' : hoverBg, textDecoration: 'none' }}
+                  _hover={{ bg: isActive ? '#FFD700' : 'rgba(255,215,0,0.08)', textDecoration: 'none' }}
                 >
                   <Icon as={item.icon} boxSize={5} />
                   <Text>{item.label}</Text>
@@ -219,7 +200,7 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
               );
             })}
 
-            <Divider my={2} />
+            <Divider my={2} borderColor="rgba(255,215,0,0.1)" />
 
             {/* Theme toggle */}
             <Box
@@ -229,12 +210,12 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
               gap={3}
               px={4} py={3}
               borderRadius="xl"
-              color={textColor}
+              color="white"
               fontWeight="medium"
               fontSize="sm"
               w="full"
               transition="all 0.2s"
-              _hover={{ bg: hoverBg }}
+              _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               onClick={toggleColorMode}
             >
               <Icon as={colorMode === 'light' ? FiMoon : FiSun} boxSize={5} />
@@ -249,12 +230,12 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
               gap={3}
               px={4} py={3}
               borderRadius="xl"
-              color="red.500"
+              color="red.400"
               fontWeight="medium"
               fontSize="sm"
               w="full"
               transition="all 0.2s"
-              _hover={{ bg: logoutHoverBg }}
+              _hover={{ bg: 'rgba(229,62,62,0.1)' }}
               onClick={handleLogout}
             >
               <Icon as={FiLogOut} boxSize={5} />
@@ -270,7 +251,6 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuthStore();
-  const bgColor = useColorModeValue('surface.light', 'surface.dark');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -285,7 +265,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   }
 
   return (
-    <Box minH="100vh" bg={bgColor}>
+    <Box minH="100vh" bg="#000000">
       <ClientNav onMenuOpen={() => setDrawerOpen(true)} />
       <Box as="main" pt="80px" px={{ base: 4, md: 6, lg: 8 }} pb={8} maxW="1400px" mx="auto">
         {children}

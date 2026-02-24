@@ -1,7 +1,7 @@
 import { extendTheme, type ThemeConfig } from '@chakra-ui/react';
 
 const config: ThemeConfig = {
-  initialColorMode: 'light',
+  initialColorMode: 'dark',
   useSystemColorMode: false,
 };
 
@@ -11,7 +11,7 @@ export const theme = extendTheme({
     colors: {
       'text.primary': {
         default: '#1a202c',
-        _dark: '#E2E8F0',
+        _dark: '#FFFFFF',
       },
       'text.secondary': {
         default: '#4a5568',
@@ -26,48 +26,61 @@ export const theme = extendTheme({
   colors: {
     // Primary Gold - for buttons and accents
     brand: {
-      50: '#fdf8e8',
-      100: '#f9ecc5',
-      200: '#f3d98a',
-      300: '#dfc04f',
-      400: '#C9A227', // Primary gold
-      500: '#b8931f',
-      600: '#9a7a1a',
-      700: '#7c6215',
-      800: '#5e4a10',
-      900: '#40320b',
+      50: '#fff9db',
+      100: '#fff3b0',
+      200: '#ffec80',
+      300: '#ffe44d',
+      400: '#FFD700', // Primary gold
+      500: '#e6c200',
+      600: '#b89b00',
+      700: '#8a7400',
+      800: '#5c4d00',
+      900: '#2e2700',
     },
-    // Teal - for active states and success
+    // Dark Green - for secondary highlights
     accent: {
-      50: '#e6f9f8',
-      100: '#c0f0ed',
-      200: '#8be5df',
-      300: '#55d9d1',
-      400: '#1BC5BD', // Active teal
-      500: '#18b0a9',
-      600: '#148f89',
-      700: '#106e69',
-      800: '#0c4d49',
-      900: '#082c29',
+      50: '#e6f0ea',
+      100: '#b3d4c0',
+      200: '#80b896',
+      300: '#4d9c6c',
+      400: '#014421', // Dark green
+      500: '#013a1c',
+      600: '#012f17',
+      700: '#012512',
+      800: '#001a0c',
+      900: '#001007',
     },
-    // Navy - for sidebar and dark elements
+    // Black scale - for sidebar and dark elements
     navy: {
-      50: '#e8ecef',
-      100: '#c5cdd4',
-      200: '#9eabb7',
-      300: '#77899a',
-      400: '#506785',
-      500: '#2a4570',
-      600: '#1e3554',
-      700: '#142538',
-      800: '#0B1C2D', // Sidebar navy
-      900: '#060e17',
+      50: '#e6e6e6',
+      100: '#b3b3b3',
+      200: '#808080',
+      300: '#4d4d4d',
+      400: '#333333',
+      500: '#1a1a1a',
+      600: '#141414',
+      700: '#0d0d0d',
+      800: '#000000', // Pure black
+      900: '#000000',
+    },
+    // Light Gold
+    lightGold: {
+      50: '#fffbeb',
+      100: '#fff5cc',
+      200: '#ffefaa',
+      300: '#ffe899',
+      400: '#FFE082', // Light gold
+      500: '#e6ca75',
+      600: '#ccb368',
+      700: '#b39d5b',
+      800: '#99864e',
+      900: '#806f41',
     },
     // Surface colors
     surface: {
-      light: '#F9FAFB', // Main background
-      dark: '#0f172a',
-      card: '#FFFFFF',
+      light: '#F9FAFB',
+      dark: '#000000',
+      card: '#0a0a0a',
     },
   },
   fonts: {
@@ -77,7 +90,7 @@ export const theme = extendTheme({
   styles: {
     global: (props: { colorMode: string }) => ({
       body: {
-        bg: props.colorMode === 'dark' ? 'navy.800' : 'surface.light',
+        bg: props.colorMode === 'dark' ? '#000000' : 'surface.light',
         color: props.colorMode === 'dark' ? 'white' : 'text.primary',
       },
     }),
@@ -94,9 +107,9 @@ export const theme = extendTheme({
       variants: {
         solid: (props: { colorScheme: string }) => ({
           bg: props.colorScheme === 'brand' ? 'brand.400' : undefined,
-          color: props.colorScheme === 'brand' ? 'white' : undefined,
+          color: props.colorScheme === 'brand' ? '#000000' : undefined,
           _hover: {
-            bg: props.colorScheme === 'brand' ? 'brand.500' : undefined,
+            bg: props.colorScheme === 'brand' ? 'lightGold.400' : undefined,
             transform: 'translateY(-1px)',
             boxShadow: 'md',
           },
@@ -113,28 +126,28 @@ export const theme = extendTheme({
             boxShadow: 'md',
           },
         },
-        ghost: {
+        ghost: (props: { colorMode: string }) => ({
           _hover: {
-            bg: 'gray.100',
+            bg: props.colorMode === 'dark' ? 'rgba(255,215,0,0.08)' : 'gray.100',
           },
-        },
-        outline: {
+        }),
+        outline: (props: { colorMode: string }) => ({
           borderColor: 'brand.400',
           color: 'brand.400',
           _hover: {
-            bg: 'brand.50',
+            bg: props.colorMode === 'dark' ? 'rgba(255,215,0,0.08)' : 'brand.50',
           },
-        },
+        }),
       },
     },
     Card: {
       baseStyle: (props: { colorMode: string }) => ({
         container: {
-          bg: props.colorMode === 'dark' ? 'navy.700' : 'white',
+          bg: props.colorMode === 'dark' ? '#0a0a0a' : 'white',
           borderRadius: 'xl',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
           border: '1px solid',
-          borderColor: props.colorMode === 'dark' ? 'navy.600' : 'gray.100',
+          borderColor: props.colorMode === 'dark' ? 'rgba(255,215,0,0.1)' : 'gray.100',
         },
       }),
     },
@@ -143,26 +156,30 @@ export const theme = extendTheme({
         focusBorderColor: 'brand.400',
       },
       variants: {
-        filled: {
+        filled: (props: { colorMode: string }) => ({
           field: {
             borderRadius: 'lg',
-            bg: 'gray.50',
-            _hover: { bg: 'gray.100' },
+            bg: props.colorMode === 'dark' ? '#0a0a0a' : 'gray.50',
+            border: '1px solid',
+            borderColor: props.colorMode === 'dark' ? 'rgba(255,215,0,0.1)' : 'transparent',
+            _hover: { bg: props.colorMode === 'dark' ? '#111' : 'gray.100' },
             _focus: {
-              bg: 'white',
+              bg: props.colorMode === 'dark' ? '#0a0a0a' : 'white',
               borderColor: 'brand.400',
+              boxShadow: '0 0 0 1px #FFD700',
             },
           },
-        },
-        outline: {
+        }),
+        outline: (props: { colorMode: string }) => ({
           field: {
             borderRadius: 'lg',
+            borderColor: props.colorMode === 'dark' ? 'rgba(255,215,0,0.15)' : 'gray.200',
             _focus: {
               borderColor: 'brand.400',
-              boxShadow: '0 0 0 1px var(--chakra-colors-brand-400)',
+              boxShadow: '0 0 0 1px #FFD700',
             },
           },
-        },
+        }),
       },
     },
     Select: {
@@ -180,22 +197,24 @@ export const theme = extendTheme({
       },
     },
     Menu: {
-      baseStyle: {
+      baseStyle: (props: { colorMode: string }) => ({
         list: {
           borderRadius: 'lg',
           border: '1px solid',
-          borderColor: 'gray.100',
+          borderColor: props.colorMode === 'dark' ? 'rgba(255,215,0,0.1)' : 'gray.100',
+          bg: props.colorMode === 'dark' ? '#0a0a0a' : 'white',
           boxShadow: 'lg',
           p: 1,
         },
         item: {
           borderRadius: 'md',
           fontSize: 'sm',
+          bg: props.colorMode === 'dark' ? '#0a0a0a' : 'white',
           _hover: {
-            bg: 'gray.50',
+            bg: props.colorMode === 'dark' ? 'rgba(255,215,0,0.08)' : 'gray.50',
           },
         },
-      },
+      }),
     },
     Table: {
       variants: {
@@ -239,7 +258,7 @@ export const theme = extendTheme({
             fontWeight: '500',
             color: 'text.muted',
             _selected: {
-              color: 'white',
+              color: '#000000',
               bg: 'brand.400',
             },
           },

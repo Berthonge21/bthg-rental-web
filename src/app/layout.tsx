@@ -14,8 +14,12 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: 'BTHG Rental Car',
+  title: 'BTHG Rental',
   description: 'Modern car rental management platform',
+  icons: {
+    icon: '/img/logo.png',
+    apple: '/img/logo.png',
+  },
 };
 
 export default function RootLayout({

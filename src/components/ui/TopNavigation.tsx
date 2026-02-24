@@ -11,7 +11,6 @@ import {
   IconButton,
   Avatar,
   useColorMode,
-  useColorModeValue,
   useDisclosure,
   Drawer,
   DrawerOverlay,
@@ -38,6 +37,7 @@ import {
 } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
 import { useAuthStore } from '@/stores/auth.store';
+import { Logo } from '@/components/ui/Logo';
 
 interface NavItem {
   label: string;
@@ -56,14 +56,6 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
   const { user, logout } = useAuthStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // All useColorModeValue calls at top of component
-  const bgColor = useColorModeValue('white', 'navy.800');
-  const borderColor = useColorModeValue('gray.100', 'navy.700');
-  const textMuted = useColorModeValue('text.muted', 'gray.400');
-  const navPillBg = useColorModeValue('gray.50', 'navy.700');
-  const drawerBg = useColorModeValue('white', 'navy.800');
-  const brandTextColor = useColorModeValue('navy.800', 'white');
-
   const handleLogout = () => {
     logout();
     window.location.href = '/auth/login';
@@ -79,9 +71,9 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
         left={0}
         right={0}
         zIndex={1000}
-        bg={bgColor}
+        bg="rgba(0,0,0,0.95)"
         borderBottom="1px"
-        borderColor={borderColor}
+        borderColor="rgba(255,215,0,0.1)"
         boxShadow="sm"
         px={{ base: 4, md: 6 }}
         py={3}
@@ -94,32 +86,16 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
               aria-label="Open menu"
               icon={<FiMenu />}
               variant="ghost"
+              color="white"
               display={{ base: 'flex', lg: 'none' }}
               onClick={onOpen}
+              _hover={{ bg: 'rgba(255,215,0,0.08)' }}
             />
 
             {/* Brand Logo */}
-            <HStack spacing={3} as={NextLink} href="/admin/dashboard">
-              <Box
-                w={10}
-                h={10}
-                bg="navy.800"
-                borderRadius="lg"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Icon as={FiTruck} color="brand.400" boxSize={5} />
-              </Box>
-              <Text
-                fontSize="lg"
-                fontWeight="bold"
-                color={brandTextColor}
-                display={{ base: 'none', md: 'block' }}
-              >
-                {brandName}
-              </Text>
-            </HStack>
+            <Box as={NextLink} href="/admin/dashboard" _hover={{ textDecoration: 'none' }}>
+              <Logo size="sm" />
+            </Box>
           </HStack>
 
           {/* Center: Navigation Links */}
@@ -129,7 +105,7 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
             position="absolute"
             left="50%"
             transform="translateX(-50%)"
-            bg={navPillBg}
+            bg="rgba(255,255,255,0.05)"
             borderRadius="full"
             p={1}
           >
@@ -169,8 +145,10 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
                   </Box>
                 }
                 variant="ghost"
+                color="white"
                 borderRadius="full"
                 size="md"
+                _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               />
             </Tooltip>
 
@@ -180,9 +158,11 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
                 aria-label="Toggle color mode"
                 icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
                 variant="ghost"
+                color="white"
                 borderRadius="full"
                 size="md"
                 onClick={toggleColorMode}
+                _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               />
             </Tooltip>
 
@@ -193,22 +173,22 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
                 name={`${user?.firstname} ${user?.name}`}
                 src={user?.image}
                 bg="brand.400"
-                color="white"
+                color="#000000"
               />
               <VStack
                 spacing={0}
                 alignItems="flex-start"
                 display={{ base: 'none', md: 'flex' }}
               >
-                <Text fontSize="sm" fontWeight="medium" lineHeight="short" color="text.primary">
+                <Text fontSize="sm" fontWeight="medium" lineHeight="short" color="white">
                   {user?.firstname} {user?.name}
                 </Text>
-                <Text fontSize="xs" color={textMuted} lineHeight="short">
+                <Text fontSize="xs" color="gray.400" lineHeight="short">
                   {user?.role === 'superAdmin' ? 'Super Admin' : 'Admin'}
                 </Text>
               </VStack>
 
-              {/* Logout icon -- filled style for prominence */}
+              {/* Logout icon */}
               <Tooltip label="Logout" hasArrow>
                 <IconButton
                   aria-label="Logout"
@@ -230,25 +210,10 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
       {/* Mobile Drawer */}
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent bg={drawerBg}>
-          <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px">
-            <HStack spacing={3}>
-              <Box
-                w={8}
-                h={8}
-                bg="navy.800"
-                borderRadius="lg"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Icon as={FiTruck} color="brand.400" boxSize={4} />
-              </Box>
-              <Text fontWeight="bold" color={brandTextColor}>
-                {brandName}
-              </Text>
-            </HStack>
+        <DrawerContent bg="#000000">
+          <DrawerCloseButton color="white" />
+          <DrawerHeader borderBottomWidth="1px" borderColor="rgba(255,215,0,0.1)">
+            <Logo size="sm" />
           </DrawerHeader>
           <DrawerBody p={4}>
             <VStack spacing={1} align="stretch">
@@ -272,11 +237,6 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
 }
 
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
-  const activeBg = 'accent.400';
-  const activeColor = 'white';
-  const hoverBg = useColorModeValue('gray.100', 'navy.600');
-  const textColor = useColorModeValue('text.secondary', 'gray.300');
-
   return (
     <Box
       as={NextLink}
@@ -286,14 +246,14 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
       px={4}
       py={2}
       borderRadius="full"
-      bg={isActive ? activeBg : 'transparent'}
-      color={isActive ? activeColor : textColor}
+      bg={isActive ? '#FFD700' : 'transparent'}
+      color={isActive ? '#000000' : 'gray.300'}
       fontWeight={isActive ? 'semibold' : 'medium'}
       fontSize="sm"
       transition="all 0.2s"
       _hover={{
-        bg: isActive ? activeBg : hoverBg,
-        color: isActive ? activeColor : 'text.primary',
+        bg: isActive ? '#FFD700' : 'rgba(255,215,0,0.08)',
+        color: isActive ? '#000000' : 'white',
       }}
     >
       <Icon as={item.icon} boxSize={4} mr={2} />
@@ -311,9 +271,6 @@ function MobileNavLink({
   isActive: boolean;
   onClick: () => void;
 }) {
-  const activeBg = 'accent.400';
-  const activeColor = 'white';
-
   return (
     <Box
       as={NextLink}
@@ -323,11 +280,11 @@ function MobileNavLink({
       px={4}
       py={3}
       borderRadius="lg"
-      bg={isActive ? activeBg : 'transparent'}
-      color={isActive ? activeColor : undefined}
+      bg={isActive ? '#FFD700' : 'transparent'}
+      color={isActive ? '#000000' : 'white'}
       fontWeight={isActive ? 'semibold' : 'medium'}
       onClick={onClick}
-      _hover={{ bg: isActive ? activeBg : 'gray.50' }}
+      _hover={{ bg: isActive ? '#FFD700' : 'rgba(255,215,0,0.08)' }}
     >
       <Icon as={item.icon} boxSize={5} mr={3} />
       <Text>{item.label}</Text>

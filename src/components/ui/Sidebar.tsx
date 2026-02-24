@@ -8,7 +8,6 @@ import {
   Icon,
   Text,
   VStack,
-  useColorModeValue,
   Divider,
 } from '@chakra-ui/react';
 import {
@@ -18,9 +17,9 @@ import {
   FiUser,
   FiUsers,
   FiGrid,
-  FiSettings,
 } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
+import { Logo } from '@/components/ui/Logo';
 
 interface NavItem {
   label: string;
@@ -35,8 +34,6 @@ interface SidebarProps {
 
 export function Sidebar({ items, brandName = 'BTHG Rental' }: SidebarProps) {
   const pathname = usePathname();
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   return (
     <Box
@@ -46,29 +43,15 @@ export function Sidebar({ items, brandName = 'BTHG Rental' }: SidebarProps) {
       top={0}
       h="100vh"
       w="240px"
-      bg={bg}
+      bg="#000000"
       borderRight="1px"
-      borderColor={borderColor}
+      borderColor="rgba(255,215,0,0.1)"
       py={6}
       display={{ base: 'none', lg: 'block' }}
     >
       {/* Brand */}
       <Flex px={6} mb={8} alignItems="center">
-        <Box
-          w={10}
-          h={10}
-          bg="brand.400"
-          borderRadius="lg"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          mr={3}
-        >
-          <Icon as={FiTruck} color="white" boxSize={5} />
-        </Box>
-        <Text fontSize="lg" fontWeight="bold" color="brand.400">
-          {brandName}
-        </Text>
+        <Logo size="sm" />
       </Flex>
 
       {/* Navigation */}
@@ -85,11 +68,6 @@ export function Sidebar({ items, brandName = 'BTHG Rental' }: SidebarProps) {
 }
 
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
-  const activeBg = useColorModeValue('brand.50', 'brand.900');
-  const activeColor = useColorModeValue('brand.600', 'brand.200');
-  const hoverBg = useColorModeValue('gray.100', 'gray.700');
-  const textColor = useColorModeValue('gray.700', 'gray.200');
-
   return (
     <Box
       as={NextLink}
@@ -99,12 +77,12 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
       px={4}
       py={3}
       borderRadius="lg"
-      bg={isActive ? activeBg : 'transparent'}
-      color={isActive ? activeColor : textColor}
+      bg={isActive ? '#FFD700' : 'transparent'}
+      color={isActive ? '#000000' : 'white'}
       fontWeight={isActive ? 'semibold' : 'medium'}
       transition="all 0.2s"
       _hover={{
-        bg: isActive ? activeBg : hoverBg,
+        bg: isActive ? '#FFD700' : 'rgba(255,215,0,0.08)',
       }}
     >
       <Icon as={item.icon} boxSize={5} mr={3} />

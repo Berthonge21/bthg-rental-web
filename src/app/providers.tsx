@@ -4,9 +4,10 @@ import { CacheProvider } from '@chakra-ui/next-js';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, useEffect, type ReactNode } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { theme } from '@/theme';
 import { useAuthStore } from '@/stores/auth.store';
-import { CarLoader } from '@/components/ui/CarLoader';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 function AuthInitializer({ children }: { children: ReactNode }) {
   const fetchUser = useAuthStore((state) => state.fetchUser);
@@ -17,11 +18,14 @@ function AuthInitializer({ children }: { children: ReactNode }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (isInitializing) {
-    return <CarLoader fullScreen text="Loading..." />;
-  }
-
-  return <>{children}</>;
+  return (
+    <>
+      <AnimatePresence>
+        {isInitializing && <LoadingScreen key="loading-screen" />}
+      </AnimatePresence>
+      {!isInitializing && children}
+    </>
+  );
 }
 
 export function Providers({ children }: { children: ReactNode }) {
