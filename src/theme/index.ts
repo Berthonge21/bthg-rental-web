@@ -59,7 +59,7 @@ export const theme = extendTheme({
       400: '#333333',
       500: '#1a1a1a',
       600: '#141414',
-      700: '#0d0d0d',
+      700: '#080808',
       800: '#000000', // Pure black
       900: '#000000',
     },
@@ -80,7 +80,7 @@ export const theme = extendTheme({
     surface: {
       light: '#F9FAFB',
       dark: '#000000',
-      card: '#0a0a0a',
+      card: '#080808',
     },
   },
   fonts: {
@@ -143,7 +143,7 @@ export const theme = extendTheme({
     Card: {
       baseStyle: (props: { colorMode: string }) => ({
         container: {
-          bg: props.colorMode === 'dark' ? '#0a0a0a' : 'white',
+          bg: props.colorMode === 'dark' ? '#080808' : 'white',
           borderRadius: 'xl',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
           border: '1px solid',
@@ -159,7 +159,7 @@ export const theme = extendTheme({
         filled: (props: { colorMode: string }) => ({
           field: {
             borderRadius: 'lg',
-            bg: props.colorMode === 'dark' ? '#0a0a0a' : 'gray.50',
+            bg: props.colorMode === 'dark' ? '#080808' : 'gray.50',
             border: '1px solid',
             borderColor: props.colorMode === 'dark' ? 'rgba(255,215,0,0.1)' : 'transparent',
             _hover: { bg: props.colorMode === 'dark' ? '#111' : 'gray.100' },
@@ -202,14 +202,14 @@ export const theme = extendTheme({
           borderRadius: 'lg',
           border: '1px solid',
           borderColor: props.colorMode === 'dark' ? 'rgba(255,215,0,0.1)' : 'gray.100',
-          bg: props.colorMode === 'dark' ? '#0a0a0a' : 'white',
+          bg: props.colorMode === 'dark' ? '#080808' : 'white',
           boxShadow: 'lg',
           p: 1,
         },
         item: {
           borderRadius: 'md',
           fontSize: 'sm',
-          bg: props.colorMode === 'dark' ? '#0a0a0a' : 'white',
+          bg: props.colorMode === 'dark' ? '#080808' : 'white',
           _hover: {
             bg: props.colorMode === 'dark' ? 'rgba(255,215,0,0.08)' : 'gray.50',
           },

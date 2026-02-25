@@ -32,9 +32,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FiEye, FiEyeOff, FiLock, FiMail, FiRefreshCw } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 import { useAuthStore } from '@/stores/auth.store';
 import type { DeactivationErrorResponse } from '@berthonge21/sdk';
 import { ApiError } from '@berthonge21/sdk';
+
+const MotionBox = motion.create(Box);
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -159,16 +162,34 @@ function LoginForm() {
   };
 
   return (
-    <Box
+    <Box position="relative" w="full" maxW="420px">
+      {/* Atmospheric glow */}
+      <Box
+        position="absolute"
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        w="500px"
+        h="500px"
+        bg="radial-gradient(circle, rgba(255,215,0,0.06) 0%, transparent 65%)"
+        pointerEvents="none"
+        zIndex={0}
+      />
+    <MotionBox
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      position="relative"
+      zIndex={1}
       w="full"
       maxW="420px"
-      bg="rgba(0,0,0,0.85)"
+      bg="rgba(8, 8, 14, 0.9)"
       borderRadius="2xl"
       overflow="hidden"
-      position="relative"
       border="1px solid"
-      borderColor="rgba(255,215,0,0.15)"
-      boxShadow="0 24px 60px rgba(0,0,0,0.5)"
+      borderColor="rgba(255,215,0,0.12)"
+      boxShadow="0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,215,0,0.08), inset 0 1px 0 rgba(255,215,0,0.06)"
+      backdropFilter="blur(24px)"
     >
       {/* Gold top accent bar */}
       <Box h="4px" bg="brand.400" />
@@ -295,7 +316,7 @@ function LoginForm() {
               h={12}
               fontWeight="semibold"
               isLoading={isLoading}
-              _hover={{ bg: 'lightGold.400' }}
+              _hover={{ bg: 'lightGold.400', boxShadow: '0 4px 20px rgba(255,215,0,0.3)' }}
             >
               Sign In
             </ProgressButton>
@@ -315,6 +336,7 @@ function LoginForm() {
           </Text>
         </VStack>
       </VStack>
+    </MotionBox>
     </Box>
   );
 }

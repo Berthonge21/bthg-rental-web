@@ -60,6 +60,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useCars } from '@/hooks';
 import { parseCarImages } from '@/lib/imageUtils';
 import { CarLoader } from '@/components/ui/CarLoader';
+import { Logo } from '@/components/ui/Logo';
 import { FadeInOnScroll, ScrollProgressBar } from '@/components/ui/FadeInOnScroll';
 import type { Car } from '@berthonge21/sdk';
 
@@ -73,24 +74,24 @@ function FeaturedCarCard({ car }: { car: Car }) {
     <Box
       as={NextLink}
       href={`/cars/${car.id}`}
-      bg="rgba(255,255,255,0.82)"
+      bg="rgba(255,255,255,0.03)"
       backdropFilter="blur(16px)"
       borderRadius="2xl"
       overflow="hidden"
-      border="1px solid rgba(255,255,255,0.88)"
-      boxShadow="0 2px 20px rgba(11,28,45,0.06), inset 0 1px 0 rgba(255,255,255,0.9)"
+      border="1px solid rgba(255,215,0,0.1)"
+      boxShadow="0 2px 20px rgba(0,0,0,0.4)"
       transition="all 0.3s"
       _hover={{
         transform: 'translateY(-8px)',
-        boxShadow: '0 20px 44px rgba(11,28,45,0.1), 0 0 0 1px rgba(201,162,39,0.25), inset 0 1px 0 rgba(255,255,255,0.9)',
-        bg: 'rgba(255,255,255,0.96)',
+        boxShadow: '0 20px 44px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,215,0,0.25)',
+        bg: 'rgba(255,255,255,0.05)',
         textDecoration: 'none',
       }}
       display="block"
       position="relative"
     >
       <Box position="absolute" left={0} top={0} bottom={0} w="3px" bg="brand.400" zIndex={1} borderLeftRadius="2xl" />
-      <Box h="220px" bg="gray.100" overflow="hidden" position="relative">
+      <Box h="220px" bg="#080808" overflow="hidden" position="relative">
         <Image
           src={parseCarImages(car.image)[0] || 'https://via.placeholder.com/400x220?text=Car'}
           alt={`${car.brand} ${car.model}`}
@@ -105,20 +106,20 @@ function FeaturedCarCard({ car }: { car: Car }) {
         </Box>
       </Box>
       <Box p={5}>
-        <Text fontFamily="var(--font-display)" fontSize="2xl" color="navy.800" letterSpacing="0.02em" lineHeight="1.1" mb={0.5}>
+        <Text fontFamily="var(--font-display)" fontSize="2xl" color="white" letterSpacing="0.02em" lineHeight="1.1" mb={0.5}>
           {car.brand} {car.model}
         </Text>
         <HStack spacing={3} mb={2}>
-          <Text fontSize="xs" color="gray.500">{car.year}</Text>
-          <Text fontSize="xs" color="gray.500">&middot;</Text>
-          <Text fontSize="xs" color="gray.500">{car.fuel}</Text>
-          <Text fontSize="xs" color="gray.500">&middot;</Text>
-          <Text fontSize="xs" color="gray.500">{car.gearBox}</Text>
+          <Text fontSize="xs" color="gray.400">{car.year}</Text>
+          <Text fontSize="xs" color="gray.400">&middot;</Text>
+          <Text fontSize="xs" color="gray.400">{car.fuel}</Text>
+          <Text fontSize="xs" color="gray.400">&middot;</Text>
+          <Text fontSize="xs" color="gray.400">{car.gearBox}</Text>
         </HStack>
         {car.Agency && (
           <HStack spacing={2} mb={3}>
             <Avatar size="xs" name={car.Agency.name} bg="brand.400" color="white" />
-            <Text fontSize="xs" color="gray.500">{car.Agency.name}</Text>
+            <Text fontSize="xs" color="gray.400">{car.Agency.name}</Text>
           </HStack>
         )}
         <Button
@@ -156,7 +157,7 @@ function LandingNav() {
       left={0}
       right={0}
       zIndex={1000}
-      bg="rgba(11,28,45,0.95)"
+      bg="#00903"
       backdropFilter="blur(12px)"
       px={{ base: 4, md: 8, lg: 12 }}
       py={3}
@@ -164,20 +165,7 @@ function LandingNav() {
       <Flex align="center" justify="space-between" maxW="1200px" mx="auto">
         {/* Logo */}
         <HStack spacing={3} as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
-          <Box
-            w={10}
-            h={10}
-            bg="transparent"
-            borderRadius="lg"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Icon as={FiTruck} color="brand.400" boxSize={6} />
-          </Box>
-          <Text fontFamily="var(--font-display)" fontSize="2xl" color="white" letterSpacing="0.06em">
-            BTHG RENTAL
-          </Text>
+          <Logo size="md"/>
         </HStack>
 
         {/* Center -- Browse Cars link */}
@@ -296,12 +284,12 @@ function QuickSearchBar() {
 
   return (
     <Box
-      bg="rgba(255,255,255,0.92)"
+      bg="rgba(255,255,255,0.03)"
       backdropFilter="blur(24px)"
-      border="1px solid rgba(255,255,255,0.7)"
+      border="1px solid rgba(255,215,0,0.12)"
       borderRadius="2xl"
       p={{ base: 4, md: 6 }}
-      boxShadow="0 8px 40px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.8)"
+      boxShadow="0 8px 40px rgba(0,0,0,0.5)"
       maxW="900px"
       mx="auto"
       mt={12}
@@ -852,7 +840,7 @@ function LandingPage() {
       </Box>
 
       {/* ---- How It Works ---- */}
-      <Box ref={howItWorksRef} bg="white" backgroundImage="radial-gradient(circle, rgba(201,162,39,0.06) 1px, transparent 1px)" backgroundSize="28px 28px" py={20} px={{ base: 4, md: 8, lg: 12 }} position="relative" overflow="hidden">
+      <Box ref={howItWorksRef} bg="#000000" backgroundImage="radial-gradient(circle, rgba(255,215,0,0.04) 1px, transparent 1px)" backgroundSize="28px 28px" py={20} px={{ base: 4, md: 8, lg: 12 }} position="relative" overflow="hidden">
         {/* Parallax orbs — drift in opposite directions as you scroll */}
         <MotionBox position="absolute" top="-8%" right="-3%" w="500px" h="500px" borderRadius="full" bg="rgba(27,197,189,0.08)" filter="blur(72px)" style={{ y: howOrb1Y }} pointerEvents="none" />
         <MotionBox position="absolute" bottom="-8%" left="-3%" w="450px" h="450px" borderRadius="full" bg="rgba(201,162,39,0.07)" filter="blur(60px)" style={{ y: howOrb2Y }} pointerEvents="none" />
@@ -862,11 +850,11 @@ function LandingPage() {
           maxW="1020px"
           mx="auto"
           position="relative"
-          bg="rgba(255,255,255,0.72)"
+          bg="rgba(255,255,255,0.02)"
           backdropFilter="blur(24px)"
-          border="1px solid rgba(255,255,255,0.92)"
+          border="1px solid rgba(255,215,0,0.1)"
           borderRadius="3xl"
-          boxShadow="0 24px 64px rgba(11,28,45,0.08), inset 0 1px 0 rgba(255,255,255,1)"
+          boxShadow="0 24px 64px rgba(0,0,0,0.5)"
           p={{ base: 8, md: 12, lg: 14 }}
         >
           <FadeInOnScroll>
@@ -875,10 +863,10 @@ function LandingPage() {
                 Simple Process
               </Text>
               <Box w="32px" h="2px" bg="brand.400" mb={3} mx="auto" />
-              <Heading fontFamily="var(--font-display)" fontSize={{ base: '4xl', md: '5xl' }} color="navy.800" letterSpacing="0.02em" textTransform="uppercase">
+              <Heading fontFamily="var(--font-display)" fontSize={{ base: '4xl', md: '5xl' }} color="white" letterSpacing="0.02em" textTransform="uppercase">
                 How It Works
               </Heading>
-              <Text color="gray.500" fontSize="md" maxW="420px">
+              <Text color="gray.400" fontSize="md" maxW="420px">
                 Renting a car has never been easier — three steps and you&apos;re on your way.
               </Text>
             </VStack>
@@ -905,7 +893,7 @@ function LandingPage() {
                       </Text>
                     </Box>
                     {index < steps.length - 1 && (
-                      <Box w="2px" h={10} bg="gray.100" mt={2} />
+                      <Box w="2px" h={10} bg="gray.700" mt={2} />
                     )}
                   </VStack>
                   <VStack align="start" spacing={2} pt={2}>
@@ -920,10 +908,10 @@ function LandingPage() {
                     >
                       <Icon as={step.icon} boxSize={5} color="brand.400" />
                     </Box>
-                    <Text fontWeight="bold" fontSize="lg" color="navy.800">
+                    <Text fontWeight="bold" fontSize="lg" color="white">
                       {step.title}
                     </Text>
-                    <Text color="gray.500" fontSize="sm" lineHeight="tall">
+                    <Text color="gray.400" fontSize="sm" lineHeight="tall">
                       {step.desc}
                     </Text>
                   </VStack>
@@ -964,7 +952,7 @@ function LandingPage() {
                       alignItems="center"
                       justifyContent="center"
                       zIndex={2}
-                      boxShadow="0 0 0 6px rgba(255,255,255,0.9), 0 0 0 10px rgba(27,197,189,0.25)"
+                      boxShadow="0 0 0 6px rgba(0,0,0,0.8), 0 0 0 10px rgba(27,197,189,0.2)"
                     >
                       <Text fontWeight="extrabold" fontSize="xl" color="white">
                         {index + 1}
@@ -978,10 +966,10 @@ function LandingPage() {
                           {isLeft ? (
                             /* Text block on left */
                             <VStack align="end" spacing={3} textAlign="right">
-                              <Text fontWeight="bold" fontSize="xl" color="navy.800">
+                              <Text fontWeight="bold" fontSize="xl" color="white">
                                 {step.title}
                               </Text>
-                              <Text color="gray.500" fontSize="sm" lineHeight="tall" maxW="280px">
+                              <Text color="gray.400" fontSize="sm" lineHeight="tall" maxW="280px">
                                 {step.desc}
                               </Text>
                             </VStack>
@@ -1028,10 +1016,10 @@ function LandingPage() {
                           ) : (
                             /* Text block on right */
                             <VStack align="start" spacing={3} textAlign="left">
-                              <Text fontWeight="bold" fontSize="xl" color="navy.800">
+                              <Text fontWeight="bold" fontSize="xl" color="white">
                                 {step.title}
                               </Text>
-                              <Text color="gray.500" fontSize="sm" lineHeight="tall" maxW="280px">
+                              <Text color="gray.400" fontSize="sm" lineHeight="tall" maxW="280px">
                                 {step.desc}
                               </Text>
                             </VStack>
@@ -1049,17 +1037,17 @@ function LandingPage() {
 
       {/* ---- Featured Cars ---- */}
       {cars.length > 0 && (
-        <Box ref={featuredCarsRef} bg="linear-gradient(160deg, rgba(240,245,255,0.9) 0%, rgba(247,249,252,1) 100%)" py={20} px={{ base: 4, md: 8, lg: 12 }} position="relative" overflow="hidden">
+        <Box ref={featuredCarsRef} bg="#000000" py={20} px={{ base: 4, md: 8, lg: 12 }} position="relative" overflow="hidden">
           <MotionBox position="absolute" top="-10%" left="15%" w="580px" h="580px" borderRadius="full" bg="rgba(201,162,39,0.06)" filter="blur(80px)" style={{ y: featOrb1Y }} pointerEvents="none" />
           <MotionBox position="absolute" bottom="-5%" right="10%" w="480px" h="480px" borderRadius="full" bg="rgba(27,197,189,0.06)" filter="blur(70px)" style={{ y: featOrb2Y }} pointerEvents="none" />
           <VStack spacing={10} maxW="1200px" mx="auto" position="relative">
             <FadeInOnScroll>
               <VStack spacing={3} textAlign="center">
                 <Box w="32px" h="2px" bg="brand.400" mb={3} mx="auto" />
-                <Heading fontFamily="var(--font-display)" fontSize={{ base: '4xl', md: '5xl' }} color="navy.800" letterSpacing="0.02em" textTransform="uppercase">
+                <Heading fontFamily="var(--font-display)" fontSize={{ base: '4xl', md: '5xl' }} color="white" letterSpacing="0.02em" textTransform="uppercase">
                   Featured Cars
                 </Heading>
-                <Text color="gray.500" maxW="500px">
+                <Text color="gray.400" maxW="500px">
                   Discover our selection of premium vehicles from trusted agencies
                 </Text>
               </VStack>
@@ -1078,12 +1066,12 @@ function LandingPage() {
                 as={NextLink}
                 href="/cars"
                 variant="outline"
-                color="navy.800"
-                borderColor="navy.800"
+                color="white"
+                borderColor="rgba(255,215,0,0.3)"
                 rightIcon={<FiArrowRight />}
                 borderRadius="lg"
                 size="lg"
-                _hover={{ bg: 'rgba(11,28,45,0.05)' }}
+                _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               >
                 View All Cars
               </Button>
@@ -1093,7 +1081,7 @@ function LandingPage() {
       )}
 
       {/* ---- Why Choose Us ---- */}
-      <Box ref={whyChooseUsRef} bg="white" backgroundImage="radial-gradient(circle, rgba(201,162,39,0.06) 1px, transparent 1px)" backgroundSize="28px 28px" py={20} px={{ base: 4, md: 8, lg: 12 }} position="relative" overflow="hidden">
+      <Box ref={whyChooseUsRef} bg="#000000" backgroundImage="radial-gradient(circle, rgba(255,215,0,0.04) 1px, transparent 1px)" backgroundSize="28px 28px" py={20} px={{ base: 4, md: 8, lg: 12 }} position="relative" overflow="hidden">
         {/* Parallax orbs — drift in opposite directions */}
         <MotionBox position="absolute" top="5%" right="-5%" w="560px" h="560px" borderRadius="full" bg="rgba(201,162,39,0.08)" filter="blur(80px)" style={{ y: whyOrb1Y }} pointerEvents="none" />
         <MotionBox position="absolute" bottom="5%" left="-5%" w="500px" h="500px" borderRadius="full" bg="rgba(27,197,189,0.07)" filter="blur(70px)" style={{ y: whyOrb2Y }} pointerEvents="none" />
@@ -1103,20 +1091,20 @@ function LandingPage() {
           maxW="1240px"
           mx="auto"
           position="relative"
-          bg="rgba(255,255,255,0.72)"
+          bg="rgba(255,255,255,0.02)"
           backdropFilter="blur(24px)"
-          border="1px solid rgba(255,255,255,0.92)"
+          border="1px solid rgba(255,215,0,0.1)"
           borderRadius="3xl"
-          boxShadow="0 24px 64px rgba(11,28,45,0.08), inset 0 1px 0 rgba(255,255,255,1)"
+          boxShadow="0 24px 64px rgba(0,0,0,0.5)"
           p={{ base: 8, md: 12, lg: 14 }}
         >
           <FadeInOnScroll>
             <VStack spacing={3} textAlign="center">
               <Box w="32px" h="2px" bg="brand.400" mb={3} mx="auto" />
-              <Heading fontFamily="var(--font-display)" fontSize={{ base: '4xl', md: '5xl' }} color="navy.800" letterSpacing="0.02em" textTransform="uppercase">
+              <Heading fontFamily="var(--font-display)" fontSize={{ base: '4xl', md: '5xl' }} color="white" letterSpacing="0.02em" textTransform="uppercase">
                 Why Choose Us
               </Heading>
-              <Text color="gray.500" fontSize="md" maxW="460px">
+              <Text color="gray.400" fontSize="md" maxW="460px">
                 Everything you need for a seamless car rental experience, all in one place.
               </Text>
             </VStack>
@@ -1141,10 +1129,10 @@ function LandingPage() {
                     <Icon as={f.icon} boxSize={5} color="brand.400" />
                   </Box>
                   <VStack align="start" spacing={1}>
-                    <Text fontWeight="bold" color="navy.800">
+                    <Text fontWeight="bold" color="white">
                       {f.title}
                     </Text>
-                    <Text fontSize="sm" color="gray.500" lineHeight="tall">
+                    <Text fontSize="sm" color="gray.400" lineHeight="tall">
                       {f.desc}
                     </Text>
                   </VStack>
@@ -1167,10 +1155,10 @@ function LandingPage() {
                 <FadeInOnScroll key={f.title} direction="right" delay={0.1 * index}>
                   <HStack spacing={4} justify="flex-end">
                     <VStack align="end" spacing={1} textAlign="right">
-                      <Text fontWeight="bold" fontSize="md" color="navy.800">
+                      <Text fontWeight="bold" fontSize="md" color="white">
                         {f.title}
                       </Text>
-                      <Text fontSize="sm" color="gray.500" lineHeight="tall" maxW="220px">
+                      <Text fontSize="sm" color="gray.400" lineHeight="tall" maxW="220px">
                         {f.desc}
                       </Text>
                     </VStack>
@@ -1234,10 +1222,10 @@ function LandingPage() {
                       <Icon as={f.icon} boxSize={6} color="brand.400" />
                     </Box>
                     <VStack align="start" spacing={1}>
-                      <Text fontWeight="bold" fontSize="md" color="navy.800">
+                      <Text fontWeight="bold" fontSize="md" color="white">
                         {f.title}
                       </Text>
-                      <Text fontSize="sm" color="gray.500" lineHeight="tall" maxW="220px">
+                      <Text fontSize="sm" color="gray.400" lineHeight="tall" maxW="220px">
                         {f.desc}
                       </Text>
                     </VStack>
@@ -1250,7 +1238,7 @@ function LandingPage() {
       </Box>
 
       {/* ---- CTA Banner ---- */}
-      <Box py={16} px={{ base: 4, md: 8, lg: 12 }} bg="linear-gradient(160deg, rgba(240,244,255,0.7) 0%, rgba(253,248,240,0.7) 100%)">
+      <Box py={16} px={{ base: 4, md: 8, lg: 12 }} bg="#000000">
         <FadeInOnScroll>
           <Box
             maxW="1200px"
@@ -1325,7 +1313,7 @@ function LandingPage() {
       </Box>
 
       {/* ---- Footer ---- */}
-      <Box bg="rgba(247,249,252,0.95)" borderTop="1px solid rgba(201,162,39,0.1)" backdropFilter="blur(8px)" py={10} px={{ base: 4, md: 8, lg: 12 }}>
+      <Box bg="#000000" borderTop="1px solid rgba(255,215,0,0.1)" py={10} px={{ base: 4, md: 8, lg: 12 }}>
         <Flex
           maxW="1200px"
           mx="auto"
@@ -1334,29 +1322,16 @@ function LandingPage() {
           flexWrap="wrap"
           gap={4}
         >
-          <HStack spacing={3}>
-            <Box
-              w={8}
-              h={8}
-              bg="navy.800"
-              borderRadius="lg"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Icon as={FiTruck} color="brand.400" boxSize={4} />
-            </Box>
-            <Text fontWeight="bold" color="navy.800">
-              BTHG Rental Car
-            </Text>
-          </HStack>
+          <Box as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+            <Logo size="sm" />
+          </Box>
           <HStack spacing={6} display={{ base: 'none', md: 'flex' }}>
             <Text
               as={NextLink}
               href="/cars"
               fontSize="sm"
               color="gray.500"
-              _hover={{ color: 'navy.800' }}
+              _hover={{ color: 'white' }}
             >
               Browse Cars
             </Text>
@@ -1365,7 +1340,7 @@ function LandingPage() {
               href="/auth/login"
               fontSize="sm"
               color="gray.500"
-              _hover={{ color: 'navy.800' }}
+              _hover={{ color: 'white' }}
             >
               Sign In
             </Text>
@@ -1374,7 +1349,7 @@ function LandingPage() {
               href="/register"
               fontSize="sm"
               color="gray.500"
-              _hover={{ color: 'navy.800' }}
+              _hover={{ color: 'white' }}
             >
               Sign Up
             </Text>

@@ -43,8 +43,8 @@ function RentalCard({ rental, onCancel }: { rental: Rental; onCancel?: (id: numb
   const startFmt = isValid(parseISO(rental.startDate)) ? format(parseISO(rental.startDate), 'MMM d') : '—';
   const endFmt   = isValid(parseISO(rental.endDate))   ? format(parseISO(rental.endDate),   'MMM d, yyyy') : '—';
 
-  const cardBg     = useColorModeValue('white', 'navy.700');
-  const cardBorder = useColorModeValue('gray.100', 'navy.600');
+  const cardBg     = useColorModeValue('white', '#080808');
+  const cardBorder = useColorModeValue('gray.100', 'rgba(255,215,0,0.08)');
   const specColor  = useColorModeValue('gray.500', 'gray.400');
 
   return (
@@ -55,13 +55,23 @@ function RentalCard({ rental, onCancel }: { rental: Rental; onCancel?: (id: numb
       border="1px"
       borderColor={cardBorder}
       transition="all 0.3s"
-      _hover={{ transform: 'translateY(-4px)', boxShadow: 'lg' }}
+      _hover={{ transform: 'translateY(-4px)', boxShadow: '0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,215,0,0.15)' }}
       position="relative"
     >
       <Box position="absolute" left={0} top={0} bottom={0} w="3px" bg="brand.400" zIndex={1} borderLeftRadius="2xl" />
       {/* Cover image */}
       <Box h="220px" bg="navy.800" position="relative" overflow="hidden">
         <Image src={coverImage} alt={`${rental.car?.brand} ${rental.car?.model}`} w="100%" h="100%" objectFit="cover" />
+        {/* Gradient fade — image to card */}
+        <Box
+          position="absolute"
+          bottom={0}
+          left={0}
+          right={0}
+          h="80px"
+          bgGradient="linear(to-t, #080808, transparent)"
+          pointerEvents="none"
+        />
         <Box position="absolute" top={3} right={3}>
           <Flex
             bg={meta.bg}
@@ -110,7 +120,7 @@ function RentalCard({ rental, onCancel }: { rental: Rental; onCancel?: (id: numb
           )}
           <Button
             as={NextLink} href={`/rentals/${rental.id}`}
-            flex={1} size="sm" bg="brand.400" color="white"
+            flex={1} size="sm" bg="brand.400" color="#000000"
             borderRadius="xl" rightIcon={<FiArrowRight />}
             _hover={{ bg: 'brand.500' }}
           >
@@ -158,12 +168,16 @@ export default function RentalsPage() {
   return (
     <Box minH="calc(100vh - 80px)">
       {/* Page header */}
-      <Box mb={8}>
-        <Text fontSize="xs" fontWeight="semibold" color="accent.400" textTransform="uppercase" letterSpacing="wider" mb={1}>
+      <Box mb={8} position="relative">
+        {/* Decorative gold line */}
+        <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
+        <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
           My Account
         </Text>
-        <Text fontSize="2xl" fontWeight="bold" color={useColorModeValue('navy.800', 'white')}>My Rentals</Text>
-        <Text fontSize="sm" color={textMuted} mt={0.5}>Track and manage your car reservations</Text>
+        <Text fontFamily="var(--font-display)" fontSize="3xl" fontWeight="black" letterSpacing="0.02em" textTransform="uppercase" color="white">
+          My Rentals
+        </Text>
+        <Text fontSize="sm" color="gray.500" mt={1}>Track and manage your car reservations</Text>
       </Box>
 
       {/* Stats */}
@@ -176,9 +190,9 @@ export default function RentalsPage() {
         ] as const).map((s) => (
           <Box
             key={s.label}
-            bg="rgba(255,255,255,0.85)"
+            bg="rgba(255,255,255,0.04)"
             backdropFilter="blur(12px)"
-            border="1px solid rgba(255,255,255,0.9)"
+            border="1px solid rgba(255,255,255,0.07)"
             borderRadius="2xl" px={5} py={4}
             boxShadow="0 2px 12px rgba(11,28,45,0.06)"
           >
@@ -199,9 +213,9 @@ export default function RentalsPage() {
       <Box
         display="flex"
         w={{ base: 'full', md: 'auto' }}
-        bg="rgba(255,255,255,0.7)"
+        bg="rgba(255,255,255,0.04)"
         backdropFilter="blur(8px)"
-        border="1px solid rgba(255,255,255,0.9)"
+        border="1px solid rgba(255,255,255,0.07)"
         borderRadius="xl" p={1} mb={6}
         boxShadow="0 2px 8px rgba(11,28,45,0.06)"
       >
@@ -211,7 +225,7 @@ export default function RentalsPage() {
             bg={activeTab === tab ? 'brand.400' : 'transparent'}
             color={activeTab === tab ? 'white' : 'gray.500'}
             fontWeight={activeTab === tab ? 'semibold' : 'medium'}
-            _hover={{ bg: activeTab === tab ? 'brand.500' : 'gray.100' }}
+            _hover={{ bg: activeTab === tab ? 'brand.500' : 'rgba(255,255,255,0.08)' }}
             onClick={() => setActiveTab(tab)}
           >
             {tab === 'active' ? `Active (${activeRentals.length})` : `History (${historyRentals.length})`}

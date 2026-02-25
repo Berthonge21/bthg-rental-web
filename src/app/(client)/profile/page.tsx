@@ -34,8 +34,8 @@ export default function ClientProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const deactivateDialog = useDisclosure();
 
-  const cardBg = useColorModeValue('white', 'navy.700');
-  const cardBorder = useColorModeValue('gray.100', 'navy.600');
+  const cardBg = useColorModeValue('white', '#080808');
+  const cardBorder = useColorModeValue('gray.100', 'rgba(255,215,0,0.08)');
   const textMuted = useColorModeValue('text.muted', 'gray.400');
   const dangerBg = useColorModeValue('red.50', 'rgba(254, 178, 178, 0.06)');
   const dangerBorder = useColorModeValue('red.200', 'red.800');
@@ -119,12 +119,27 @@ export default function ClientProfilePage() {
 
   return (
     <Box>
-      <Heading size="lg" mb={6}>My Profile</Heading>
+      <Box mb={8}>
+        <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
+        <Text
+          fontFamily="var(--font-display)"
+          fontSize="3xl"
+          fontWeight="black"
+          letterSpacing="0.02em"
+          textTransform="uppercase"
+          color="white"
+        >
+          My Profile
+        </Text>
+        <Text fontSize="sm" color="gray.500" mt={1}>Manage your account details and preferences</Text>
+      </Box>
 
       <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6}>
         {/* Avatar card */}
-        <Box bg={cardBg} border="1px" borderColor={cardBorder} borderRadius="2xl" p={6}>
-          <VStack spacing={4}>
+        <Box bg={cardBg} border="1px" borderColor={cardBorder} borderRadius="2xl" p={6} position="relative" overflow="hidden">
+          {/* Subtle gold top accent */}
+          <Box position="absolute" top={0} left={0} right={0} h="3px" bg="brand.400" borderTopRadius="2xl" />
+          <VStack spacing={4} pt={3}>
             <Box position="relative">
               <Avatar size="2xl" name={`${user?.firstname} ${user?.name}`} src={imagePreview} bg="brand.400" />
               <IconButton
@@ -155,17 +170,19 @@ export default function ClientProfilePage() {
 
         {/* Edit form */}
         <Box bg={cardBg} border="1px" borderColor={cardBorder} borderRadius="2xl" p={6} gridColumn={{ lg: 'span 2' }}>
-          <Heading size="md" mb={6}>Edit Profile</Heading>
+          <Text fontFamily="var(--font-display)" fontSize="xl" fontWeight="black" letterSpacing="0.03em" textTransform="uppercase" color="white" mb={6}>
+            Edit Profile
+          </Text>
           <form onSubmit={handleSubmit(onSubmit)}>
             <VStack spacing={4} align="stretch">
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 <FormControl>
                   <FormLabel fontSize="sm">First Name</FormLabel>
-                  <Input {...register('firstname')} borderRadius="lg" />
+                  <Input {...register('firstname')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
                 <FormControl>
                   <FormLabel fontSize="sm">Last Name</FormLabel>
-                  <Input {...register('name')} borderRadius="lg" />
+                  <Input {...register('name')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
               </SimpleGrid>
               <FormControl>
@@ -174,16 +191,16 @@ export default function ClientProfilePage() {
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="sm">Phone</FormLabel>
-                <Input {...register('telephone')} borderRadius="lg" type="tel" />
+                <Input {...register('telephone')} borderRadius="lg" type="tel" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
               </FormControl>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 <FormControl>
                   <FormLabel fontSize="sm">Address</FormLabel>
-                  <Input {...register('address')} borderRadius="lg" />
+                  <Input {...register('address')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
                 <FormControl>
                   <FormLabel fontSize="sm">City</FormLabel>
-                  <Input {...register('city')} borderRadius="lg" />
+                  <Input {...register('city')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
               </SimpleGrid>
               <Divider />

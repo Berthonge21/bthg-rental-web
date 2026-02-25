@@ -31,7 +31,6 @@ import { FiEye, FiEyeOff, FiArrowRight, FiArrowLeft, FiUser, FiLock, FiMapPin, F
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/stores/auth.store';
 import { ProgressButton } from '@/components/ui/ProgressButton';
-import { Logo } from '@/components/ui/Logo';
 
 const MotionBox = motion.create(Box);
 
@@ -142,17 +141,35 @@ export default function RegisterPage() {
   };
 
   return (
-    <Box
-      maxW="420px"
+    <Box position="relative" w="full" maxW="480px">
+      {/* Atmospheric glow */}
+      <Box
+        position="absolute"
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        w="500px"
+        h="500px"
+        bg="radial-gradient(circle, rgba(255,215,0,0.06) 0%, transparent 65%)"
+        pointerEvents="none"
+        zIndex={0}
+      />
+    <MotionBox
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      maxW="480px"
       w="full"
-      bg="rgba(0,0,0,0.85)"
+      bg="rgba(8, 8, 14, 0.9)"
       borderRadius="2xl"
       p={6}
       border="1px solid"
-      borderColor="rgba(255,215,0,0.15)"
-      boxShadow="0 24px 60px rgba(0,0,0,0.5)"
+      borderColor="rgba(255,215,0,0.12)"
+      boxShadow="0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,215,0,0.08), inset 0 1px 0 rgba(255,215,0,0.06)"
       overflow="hidden"
       position="relative"
+      zIndex={1}
+      backdropFilter="blur(24px)"
     >
       {/* Top accent strip */}
       <Box
@@ -418,7 +435,7 @@ export default function RegisterPage() {
                 h={10}
                 fontWeight="semibold"
                 rightIcon={<FiArrowRight />}
-                _hover={{ bg: 'lightGold.400' }}
+                _hover={{ bg: 'lightGold.400', boxShadow: '0 4px 20px rgba(255,215,0,0.25)' }}
                 _active={{ bg: 'brand.600' }}
                 onClick={handleNext}
               >
@@ -436,7 +453,7 @@ export default function RegisterPage() {
                 h={10}
                 fontWeight="semibold"
                 isLoading={isLoading}
-                _hover={{ bg: 'lightGold.400' }}
+                _hover={{ bg: 'lightGold.400', boxShadow: '0 4px 20px rgba(255,215,0,0.25)' }}
                 _active={{ bg: 'brand.600' }}
               >
                 Create Account
@@ -453,6 +470,7 @@ export default function RegisterPage() {
           </Link>
         </Text>
       </VStack>
+    </MotionBox>
     </Box>
   );
 }
