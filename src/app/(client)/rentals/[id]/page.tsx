@@ -15,6 +15,7 @@ import { useRental, useCancelRental } from '@/hooks';
 import { ConfirmDialog } from '@/components/ui';
 import { format, parseISO, isValid } from 'date-fns';
 import { parseCarImages } from '@/lib/imageUtils';
+import { useTranslation } from 'react-i18next';
 
 const MotionBox = motion.create(Box);
 
@@ -48,6 +49,7 @@ function safeDate(raw: string | undefined, fmt: string): string {
 }
 
 export default function RentalDetailPage() {
+  const { t } = useTranslation();
   const params   = useParams();
   const router   = useRouter();
   const toast    = useToast();
@@ -66,10 +68,10 @@ export default function RentalDetailPage() {
   const handleCancel = async () => {
     try {
       await cancelMutation.mutateAsync(rentalId);
-      toast({ title: 'Rental cancelled successfully', status: 'success', duration: 3000 });
+      toast({ title: t('rentals.rentalCancelledSuccess'), status: 'success', duration: 3000 });
       router.push('/rentals');
     } catch (err) {
-      toast({ title: 'Failed to cancel', description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
+      toast({ title: t('rentals.failedToCancel'), description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
     } finally {
       onClose();
     }
@@ -79,8 +81,8 @@ export default function RentalDetailPage() {
   if (!rental)   return (
     <Center h="60vh">
       <VStack>
-        <Text>Rental not found</Text>
-        <Button onClick={() => router.back()}>Go Back</Button>
+        <Text>{t('rentals.rentalNotFound')}</Text>
+        <Button onClick={() => router.back()}>{t('common.goBack')}</Button>
       </VStack>
     </Center>
   );
@@ -107,7 +109,7 @@ export default function RentalDetailPage() {
         onClick={() => router.push('/rentals')}
         px={0}
       >
-        My Rentals
+        {t('rentals.myRentals')}
       </Button>
 
       {/* Header row — vehicle name + cancel button */}
@@ -129,7 +131,7 @@ export default function RentalDetailPage() {
               leftIcon={<FiX />} borderRadius="xl"
               onClick={onOpen}
             >
-              Cancel Reservation
+              {t('rentals.cancelReservation')}
             </Button>
           )}
         </Flex>
@@ -157,16 +159,16 @@ export default function RentalDetailPage() {
               <Box w={8} h={8} borderRadius="lg" bg="rgba(201,162,39,0.1)" display="flex" alignItems="center" justifyContent="center">
                 <Icon as={FiCalendar} color="brand.400" boxSize={4} />
               </Box>
-              <Text fontWeight="semibold" color={headingColor}>Trip Details</Text>
+              <Text fontWeight="semibold" color={headingColor}>{t('rentals.tripDetails')}</Text>
             </HStack>
 
             <VStack spacing={2} align="stretch">
               {[
-                { label: 'Pick-up Date',  value: safeDate(rental.startDate, 'MMMM d, yyyy') },
-                { label: 'Pick-up Time',  value: safeTime(rental.startTime) },
-                { label: 'Return Date',   value: safeDate(rental.endDate, 'MMMM d, yyyy') },
-                { label: 'Return Time',   value: safeTime(rental.endTime) },
-                { label: 'Duration',      value: `${days} day${days !== 1 ? 's' : ''}` },
+                { label: t('rentals.pickupDate'),  value: safeDate(rental.startDate, 'MMMM d, yyyy') },
+                { label: t('rentals.pickupTime'),  value: safeTime(rental.startTime) },
+                { label: t('rentals.returnDate'),   value: safeDate(rental.endDate, 'MMMM d, yyyy') },
+                { label: t('rentals.returnTime'),   value: safeTime(rental.endTime) },
+                { label: t('rentals.duration'),      value: `${days} day${days !== 1 ? 's' : ''}` },
               ].map(({ label, value }) => (
                 <Flex key={label} justify="space-between" align="center" py={2.5} px={3} bg={rowBg} borderRadius="lg">
                   <Text fontSize="sm" color={textMuted}>{label}</Text>
@@ -241,21 +243,21 @@ export default function RentalDetailPage() {
               <Box w={8} h={8} borderRadius="lg" bg="rgba(27,197,189,0.1)" display="flex" alignItems="center" justifyContent="center">
                 <Icon as={FiDollarSign} color="accent.400" boxSize={4} />
               </Box>
-              <Text fontWeight="semibold" color={headingColor}>Price Breakdown</Text>
+              <Text fontWeight="semibold" color={headingColor}>{t('rentals.priceBreakdown')}</Text>
             </HStack>
 
             <VStack spacing={3} align="stretch">
               <Flex justify="space-between">
-                <Text fontSize="sm" color={textMuted}>Rate per day</Text>
+                <Text fontSize="sm" color={textMuted}>{t('rentals.ratePerDay')}</Text>
                 <Text fontSize="sm" fontWeight="medium" color={headingColor}>${ratePerDay}/day</Text>
               </Flex>
               <Flex justify="space-between">
-                <Text fontSize="sm" color={textMuted}>Duration</Text>
+                <Text fontSize="sm" color={textMuted}>{t('rentals.duration')}</Text>
                 <Text fontSize="sm" fontWeight="medium" color={headingColor}>{days} day{days !== 1 ? 's' : ''}</Text>
               </Flex>
               <Divider />
               <Flex justify="space-between" align="center">
-                <Text fontWeight="bold" color={headingColor}>Total</Text>
+                <Text fontWeight="bold" color={headingColor}>{t('rentals.total')}</Text>
                 <Text fontWeight="extrabold" fontSize="xl" color="accent.400">${rental.total?.toLocaleString()}</Text>
               </Flex>
             </VStack>
@@ -292,8 +294,8 @@ export default function RentalDetailPage() {
               >
                 <Icon as={FiXCircle} color="red.400" boxSize={6} />
                 <Box>
-                  <Text fontWeight="semibold" color="red.400">Cancelled</Text>
-                  <Text fontSize="xs" color={textMuted}>This reservation was cancelled</Text>
+                  <Text fontWeight="semibold" color="red.400">{t('common.status.cancelled')}</Text>
+                  <Text fontSize="xs" color={textMuted}>{t('rentals.reservationCancelled')}</Text>
                 </Box>
               </Flex>
             ) : (
@@ -345,9 +347,9 @@ export default function RentalDetailPage() {
 
       <ConfirmDialog
         isOpen={isOpen} onClose={onClose} onConfirm={handleCancel}
-        title="Cancel Reservation"
-        message="Are you sure you want to cancel this reservation? This action cannot be undone."
-        confirmText="Yes, Cancel"
+        title={t('rentals.cancelReservation')}
+        message={t('rentals.cancelConfirm')}
+        confirmText={t('rentals.yesCancel')}
         isLoading={cancelMutation.isPending}
         colorScheme="red"
       />

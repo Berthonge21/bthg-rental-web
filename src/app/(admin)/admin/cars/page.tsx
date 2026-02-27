@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import {
   Box,
-  Heading,
   Button,
   HStack,
   Image,
@@ -51,6 +51,7 @@ interface CarCardProps {
 }
 
 function CarCard({ car, onView, onEdit, onAvailability, onDelete, onCardClick }: CarCardProps) {
+  const { t } = useTranslation();
   const cardBg = useColorModeValue('white', 'navy.700');
   const cardBorder = useColorModeValue('gray.100', 'navy.600');
   const specColor = useColorModeValue('text.muted', 'gray.400');
@@ -83,18 +84,31 @@ function CarCard({ car, onView, onEdit, onAvailability, onDelete, onCardClick }:
           h="100%"
           objectFit="cover"
         />
+        {/* Gradient fade — image to card */}
+        <Box
+          position="absolute"
+          bottom={0}
+          left={0}
+          right={0}
+          h="80px"
+          bgGradient="linear(to-t, #080808, transparent)"
+          pointerEvents="none"
+          zIndex={1}
+        />
 
         {/* Action icons row - bottom right of image */}
-        <HStack position="absolute" bottom={3} right={3} spacing={1}>
-          <Tooltip label="View Details" hasArrow>
+        <HStack position="absolute" bottom={3} right={3} spacing={1} zIndex={2}>
+          <Tooltip label={t('cars.viewDetails')} hasArrow>
             <IconButton
-              aria-label="View Details"
+              aria-label={t('cars.viewDetails')}
               icon={<FiEye />}
               size="sm"
               borderRadius="full"
-              bg="blackAlpha.500"
-              color="white"
-              _hover={{ bg: 'accent.400', color: 'white' }}
+              bg="rgba(0,0,0,0.65)"
+              color="whiteAlpha.800"
+              backdropFilter="blur(4px)"
+              _hover={{ bg: '#1BC5BD', color: 'white', transform: 'scale(1.1)' }}
+              transition="all 0.2s"
               variant="ghost"
               onClick={(e) => {
                 e.stopPropagation();
@@ -102,15 +116,17 @@ function CarCard({ car, onView, onEdit, onAvailability, onDelete, onCardClick }:
               }}
             />
           </Tooltip>
-          <Tooltip label="Availability" hasArrow>
+          <Tooltip label={t('cars.availability')} hasArrow>
             <IconButton
-              aria-label="Manage Availability"
+              aria-label={t('cars.availability')}
               icon={<FiCalendar />}
               size="sm"
               borderRadius="full"
-              bg="blackAlpha.500"
-              color="white"
-              _hover={{ bg: 'accent.400', color: 'white' }}
+              bg="rgba(0,0,0,0.65)"
+              color="whiteAlpha.800"
+              backdropFilter="blur(4px)"
+              _hover={{ bg: '#6366F1', color: 'white', transform: 'scale(1.1)' }}
+              transition="all 0.2s"
               variant="ghost"
               onClick={(e) => {
                 e.stopPropagation();
@@ -118,15 +134,17 @@ function CarCard({ car, onView, onEdit, onAvailability, onDelete, onCardClick }:
               }}
             />
           </Tooltip>
-          <Tooltip label="Edit Car" hasArrow>
+          <Tooltip label={t('cars.editCar')} hasArrow>
             <IconButton
-              aria-label="Edit Car"
+              aria-label={t('cars.editCar')}
               icon={<FiEdit2 />}
               size="sm"
               borderRadius="full"
-              bg="blackAlpha.500"
-              color="white"
-              _hover={{ bg: 'brand.400', color: 'white' }}
+              bg="rgba(0,0,0,0.65)"
+              color="whiteAlpha.800"
+              backdropFilter="blur(4px)"
+              _hover={{ bg: '#FFD700', color: '#000000', transform: 'scale(1.1)' }}
+              transition="all 0.2s"
               variant="ghost"
               onClick={(e) => {
                 e.stopPropagation();
@@ -134,15 +152,17 @@ function CarCard({ car, onView, onEdit, onAvailability, onDelete, onCardClick }:
               }}
             />
           </Tooltip>
-          <Tooltip label="Delete Car" hasArrow>
+          <Tooltip label={t('cars.deleteCar')} hasArrow>
             <IconButton
-              aria-label="Delete Car"
+              aria-label={t('cars.deleteCar')}
               icon={<FiTrash2 />}
               size="sm"
               borderRadius="full"
-              bg="blackAlpha.500"
-              color="white"
-              _hover={{ bg: 'red.500', color: 'white' }}
+              bg="rgba(0,0,0,0.65)"
+              color="whiteAlpha.800"
+              backdropFilter="blur(4px)"
+              _hover={{ bg: 'red.500', color: 'white', transform: 'scale(1.1)' }}
+              transition="all 0.2s"
               variant="ghost"
               onClick={(e) => {
                 e.stopPropagation();
@@ -515,14 +535,12 @@ function StatItem({
 /*  Main page component                                                */
 /* ------------------------------------------------------------------ */
 export default function AdminCarsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const { user } = useAuthStore();
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const titleAccent = useColorModeValue('accent.500', 'accent.400');
-  const titleColor = useColorModeValue('text.primary', 'white');
 
   // Prefetch common navigation targets for instant transitions
   useEffect(() => {
@@ -582,15 +600,24 @@ export default function AdminCarsPage() {
 
   return (
     <Box>
-      {/* Page Title */}
-      <Heading size="xl" mb={8} fontWeight="bold">
-        <Text as="span" color={titleAccent}>
-          Available
-        </Text>{' '}
-        <Text as="span" color={titleColor}>
-          Cars
+      {/* Page Header */}
+      <Box mb={8}>
+        <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
+        <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
+          Fleet Management
         </Text>
-      </Heading>
+        <Text
+          fontFamily="var(--font-display)"
+          fontSize="3xl"
+          fontWeight="black"
+          letterSpacing="0.02em"
+          textTransform="uppercase"
+          color="gray.500"
+        >
+          {t('cars.title')}
+        </Text>
+        <Text fontSize="sm" color="gray.500" mt={1}>{t('cars.subtitle')}</Text>
+      </Box>
 
       {/* Top section: 2-col grid + sidebar */}
       <Flex gap={5} align="flex-start" mb={bottomCars.length > 0 ? 5 : 0}>
@@ -623,14 +650,15 @@ export default function AdminCarsPage() {
           leftIcon={<FiPlus />}
           size="lg"
           bg="brand.400"
-          color="white"
-          _hover={{ bg: 'brand.500' }}
+          color="#000000"
+          fontWeight="bold"
+          _hover={{ bg: 'lightGold.400' }}
           onClick={() => router.push('/admin/cars/new')}
           boxShadow="xl"
           borderRadius="full"
           px={8}
         >
-          Add Car
+          {t('cars.addCar')}
         </Button>
       </Box>
 
@@ -639,7 +667,7 @@ export default function AdminCarsPage() {
         onClose={onClose}
         onConfirm={handleDelete}
         title="Delete Car"
-        message="Are you sure you want to delete this car? This action cannot be undone."
+        message={t('cars.confirmDeleteMsg')}
         confirmText="Delete"
         isLoading={deleteMutation.isPending}
       />

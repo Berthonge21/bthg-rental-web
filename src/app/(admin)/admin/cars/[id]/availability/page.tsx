@@ -28,6 +28,7 @@ import {
   FiX,
 } from 'react-icons/fi';
 import { LoadingSpinner, useMinLoading, ProgressButton } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 import { useCar, useCarAvailabilityCalendar, useBlockDates, useUnblockDates } from '@/hooks';
 import type { BlockedDate, RentalBlock } from '@berthonge21/sdk';
 import {
@@ -49,6 +50,7 @@ import {
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function CarAvailabilityPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
   const toast = useToast();
@@ -164,8 +166,8 @@ export default function CarAvailabilityPage() {
 
     if (status === 'rental') {
       toast({
-        title: 'Cannot modify',
-        description: 'This date has an active rental',
+        title: t('availability.cannotModify'),
+        description: t('availability.activRentalDate'),
         status: 'warning',
         duration: 2000,
       });
@@ -208,8 +210,8 @@ export default function CarAvailabilityPage() {
 
     if (datesToBlock.length === 0) {
       toast({
-        title: 'No dates to block',
-        description: 'Selected dates are already blocked or have rentals',
+        title: t('availability.noDatesToBlock'),
+        description: t('availability.noDatesToBlockDesc'),
         status: 'info',
         duration: 2000,
       });
@@ -219,8 +221,8 @@ export default function CarAvailabilityPage() {
     try {
       await blockMutation.mutateAsync({ carId, dates: datesToBlock });
       toast({
-        title: 'Dates blocked',
-        description: `${datesToBlock.length} date(s) blocked successfully`,
+        title: t('availability.datesBlocked'),
+        description: t('availability.datesBlockedDesc', { count: datesToBlock.length }),
         status: 'success',
         duration: 2000,
       });
@@ -228,7 +230,7 @@ export default function CarAvailabilityPage() {
       refetch();
     } catch (error) {
       toast({
-        title: 'Failed to block dates',
+        title: t('availability.failedToBlock'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 5000,
@@ -243,8 +245,8 @@ export default function CarAvailabilityPage() {
 
     if (datesToUnblock.length === 0) {
       toast({
-        title: 'No dates to unblock',
-        description: 'Selected dates are not blocked',
+        title: t('availability.noDatesToUnblock'),
+        description: t('availability.noDatesToUnblockDesc'),
         status: 'info',
         duration: 2000,
       });
@@ -254,8 +256,8 @@ export default function CarAvailabilityPage() {
     try {
       await unblockMutation.mutateAsync({ carId, dates: datesToUnblock });
       toast({
-        title: 'Dates unblocked',
-        description: `${datesToUnblock.length} date(s) unblocked successfully`,
+        title: t('availability.datesUnblocked'),
+        description: t('availability.datesUnblockedDesc', { count: datesToUnblock.length }),
         status: 'success',
         duration: 2000,
       });
@@ -263,7 +265,7 @@ export default function CarAvailabilityPage() {
       refetch();
     } catch (error) {
       toast({
-        title: 'Failed to unblock dates',
+        title: t('availability.failedToUnblock'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 5000,
@@ -272,15 +274,15 @@ export default function CarAvailabilityPage() {
   };
 
   if (showLoading) {
-    return <LoadingSpinner text="Loading availability..." />;
+    return <LoadingSpinner text={t('availability.loadingAvailability')} />;
   }
 
   if (!car) {
     return (
       <Box textAlign="center" py={10}>
-        <Text>Car not found</Text>
+        <Text>{t('cars.carNotFound')}</Text>
         <Button mt={4} onClick={() => router.back()}>
-          Go Back
+          {t('common.goBack')}
         </Button>
       </Box>
     );
@@ -311,7 +313,7 @@ export default function CarAvailabilityPage() {
                 {car.brand} {car.model}
               </Text>
               <Text fontSize="sm" color={mutedTextColor}>
-                Availability Calendar
+                {t('availability.title')}
               </Text>
             </Box>
           </HStack>
@@ -422,14 +424,14 @@ export default function CarAvailabilityPage() {
                   key={dateStr}
                   label={
                     status === 'rental'
-                      ? 'Booked'
+                      ? t('availability.booked')
                       : status === 'blocked'
-                      ? 'Blocked'
+                      ? t('availability.blocked')
                       : isPast
-                      ? 'Past date'
+                      ? t('availability.pastDate')
                       : rangeStart && !rangeEnd
-                      ? 'Click to complete range'
-                      : 'Available'
+                      ? t('availability.clickToCompleteRange')
+                      : t('availability.available')
                   }
                   hasArrow
                   placement="top"
@@ -514,7 +516,7 @@ export default function CarAvailabilityPage() {
             >
               <Flex justify="space-between" align="center" mb={3}>
                 <Text fontSize="sm" fontWeight="bold" color={headerTextColor}>
-                  Selection
+                  {t('availability.selection')}
                 </Text>
                 <IconButton
                   aria-label="Clear selection"
@@ -527,7 +529,7 @@ export default function CarAvailabilityPage() {
               </Flex>
               <VStack align="stretch" spacing={2}>
                 <Flex justify="space-between">
-                  <Text fontSize="sm" color={statLabelColor}>Start</Text>
+                  <Text fontSize="sm" color={statLabelColor}>{t('availability.start')}</Text>
                   <Text fontSize="sm" fontWeight="semibold" color={statValueColor}>
                     {format(rangeStart, 'MMM d, yyyy')}
                   </Text>
@@ -535,13 +537,13 @@ export default function CarAvailabilityPage() {
                 {rangeEnd && (
                   <>
                     <Flex justify="space-between">
-                      <Text fontSize="sm" color={statLabelColor}>End</Text>
+                      <Text fontSize="sm" color={statLabelColor}>{t('availability.end')}</Text>
                       <Text fontSize="sm" fontWeight="semibold" color={statValueColor}>
                         {format(rangeEnd, 'MMM d, yyyy')}
                       </Text>
                     </Flex>
                     <Flex justify="space-between">
-                      <Text fontSize="sm" color={statLabelColor}>Days</Text>
+                      <Text fontSize="sm" color={statLabelColor}>{t('availability.days')}</Text>
                       <Badge colorScheme="brand" borderRadius="full" px={2}>
                         {selectedDates.length}
                       </Badge>
@@ -550,7 +552,7 @@ export default function CarAvailabilityPage() {
                 )}
                 {!rangeEnd && (
                   <Text fontSize="xs" color="orange.500" fontWeight="medium">
-                    Click another date to complete range
+                    {t('availability.clickToCompleteRange')}
                   </Text>
                 )}
               </VStack>
@@ -560,12 +562,12 @@ export default function CarAvailabilityPage() {
           {/* Stats section */}
           <Box p={4}>
             <Text fontSize="sm" fontWeight="bold" color={headerTextColor} mb={4}>
-              Monthly Overview
+              {t('availability.monthlyOverview')}
             </Text>
             {calendar && (
               <VStack align="stretch" spacing={2}>
                 <Flex justify="space-between" align="center">
-                  <Text fontSize="sm" color={statLabelColor}>Total Days</Text>
+                  <Text fontSize="sm" color={statLabelColor}>{t('availability.totalDays')}</Text>
                   <Text fontSize="sm" fontWeight="bold" color={statValueColor}>
                     {calendar.stats.totalDays}
                   </Text>
@@ -573,7 +575,7 @@ export default function CarAvailabilityPage() {
                 <Flex justify="space-between" align="center">
                   <HStack spacing={2}>
                     <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
-                    <Text fontSize="sm" color={statLabelColor}>Available</Text>
+                    <Text fontSize="sm" color={statLabelColor}>{t('availability.available')}</Text>
                   </HStack>
                   <Text fontSize="sm" fontWeight="bold" color="green.500">
                     {calendar.stats.availableDays}
@@ -582,7 +584,7 @@ export default function CarAvailabilityPage() {
                 <Flex justify="space-between" align="center">
                   <HStack spacing={2}>
                     <Box w="8px" h="8px" borderRadius="full" bg="orange.400" />
-                    <Text fontSize="sm" color={statLabelColor}>Booked</Text>
+                    <Text fontSize="sm" color={statLabelColor}>{t('availability.booked')}</Text>
                   </HStack>
                   <Text fontSize="sm" fontWeight="bold" color="orange.500">
                     {calendar.stats.rentalBlockedDays}
@@ -591,7 +593,7 @@ export default function CarAvailabilityPage() {
                 <Flex justify="space-between" align="center">
                   <HStack spacing={2}>
                     <Box w="8px" h="8px" borderRadius="full" bg="red.400" />
-                    <Text fontSize="sm" color={statLabelColor}>Blocked</Text>
+                    <Text fontSize="sm" color={statLabelColor}>{t('availability.blocked')}</Text>
                   </HStack>
                   <Text fontSize="sm" fontWeight="bold" color="red.500">
                     {calendar.stats.manuallyBlockedDays}
@@ -606,24 +608,24 @@ export default function CarAvailabilityPage() {
           {/* Legend section */}
           <Box p={4}>
             <Text fontSize="sm" fontWeight="bold" color={headerTextColor} mb={3}>
-              Legend
+              {t('availability.legend')}
             </Text>
             <Flex flexWrap="wrap" gap={3}>
               <HStack spacing={2}>
                 <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
-                <Text fontSize="xs" color={statLabelColor}>Available</Text>
+                <Text fontSize="xs" color={statLabelColor}>{t('availability.available')}</Text>
               </HStack>
               <HStack spacing={2}>
                 <Box w="8px" h="8px" borderRadius="full" bg="orange.400" />
-                <Text fontSize="xs" color={statLabelColor}>Booked (Rental)</Text>
+                <Text fontSize="xs" color={statLabelColor}>{t('availability.bookedRental')}</Text>
               </HStack>
               <HStack spacing={2}>
                 <Box w="8px" h="8px" borderRadius="full" bg="red.400" />
-                <Text fontSize="xs" color={statLabelColor}>Manually Blocked</Text>
+                <Text fontSize="xs" color={statLabelColor}>{t('availability.manuallyBlocked')}</Text>
               </HStack>
               <HStack spacing={2}>
                 <Box w="8px" h="8px" borderRadius="full" bg="gray.300" />
-                <Text fontSize="xs" color={statLabelColor}>Past Date</Text>
+                <Text fontSize="xs" color={statLabelColor}>{t('availability.pastDate')}</Text>
               </HStack>
               <HStack spacing={2}>
                 <Box
@@ -633,7 +635,7 @@ export default function CarAvailabilityPage() {
                   border="2px solid"
                   borderColor="accent.400"
                 />
-                <Text fontSize="xs" color={statLabelColor}>Today</Text>
+                <Text fontSize="xs" color={statLabelColor}>{t('availability.today')}</Text>
               </HStack>
             </Flex>
           </Box>
@@ -643,7 +645,7 @@ export default function CarAvailabilityPage() {
           {/* Actions section */}
           <Box p={4}>
             <Text fontSize="sm" fontWeight="bold" color={headerTextColor} mb={3}>
-              Actions
+              {t('availability.actions')}
             </Text>
             <HStack spacing={2}>
               <ProgressButton
@@ -656,7 +658,7 @@ export default function CarAvailabilityPage() {
                 isDisabled={selectedDates.length === 0 || !rangeEnd}
                 borderRadius="lg"
               >
-                Block ({selectedDates.length})
+                {t('availability.blockDates')} ({selectedDates.length})
               </ProgressButton>
               <ProgressButton
                 flex={1}
@@ -669,7 +671,7 @@ export default function CarAvailabilityPage() {
                 isDisabled={selectedDates.length === 0 || !rangeEnd}
                 borderRadius="lg"
               >
-                Unblock
+                {t('availability.unblockDates')}
               </ProgressButton>
               <IconButton
                 aria-label="Clear selection"

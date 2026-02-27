@@ -24,10 +24,13 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { FiSearch, FiCalendar, FiUser, FiLogOut, FiMenu } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
 import { Logo } from '@/components/ui/Logo';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 
 function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -74,7 +77,7 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
             _hover={{ color: 'brand.400', bg: 'transparent' }}
             display={{ base: 'none', md: 'inline-flex' }}
           >
-            Browse Cars
+            {t('landing.browseCars')}
           </Button>
           {/* Mobile: icon only */}
           <IconButton
@@ -93,6 +96,7 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
         {isAuthenticated && user ? (
           isAdmin ? (
             <HStack spacing={2}>
+              <LanguageSwitcher />
               <Button
                 as={NextLink}
                 href={user.role === 'superAdmin' ? '/super-admin/dashboard' : '/admin/dashboard'}
@@ -103,7 +107,7 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
                 _hover={{ bg: 'lightGold.400' }}
                 display={{ base: 'none', md: 'inline-flex' }}
               >
-                Go to Dashboard
+                {t('landing.goToDashboard')}
               </Button>
               {/* Mobile hamburger */}
               <IconButton
@@ -120,6 +124,7 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
             </HStack>
           ) : (
             <HStack spacing={3}>
+              <LanguageSwitcher />
               <Button
                 as={NextLink}
                 href="/rentals"
@@ -131,7 +136,7 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
                 display={{ base: 'none', md: 'inline-flex' }}
                 _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               >
-                My Rentals
+                {t('landing.myRentals')}
               </Button>
               <Button
                 as={NextLink}
@@ -144,7 +149,7 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
                 display={{ base: 'none', md: 'inline-flex' }}
                 _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               >
-                Profile
+                {t('nav.profile')}
               </Button>
               <HStack spacing={2}>
                 <Avatar
@@ -190,6 +195,7 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
           )
         ) : (
           <HStack spacing={3}>
+            <LanguageSwitcher />
             <Button
               as={NextLink}
               href="/auth/login"
@@ -200,7 +206,7 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
               display={{ base: 'none', md: 'inline-flex' }}
               _hover={{ bg: 'rgba(255,215,0,0.08)' }}
             >
-              Sign In
+              {t('auth.signIn')}
             </Button>
             <Button
               as={NextLink}
@@ -212,7 +218,7 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
               borderRadius="lg"
               display={{ base: 'none', md: 'inline-flex' }}
             >
-              Sign Up
+              {t('auth.signUp')}
             </Button>
             {/* Mobile hamburger */}
             <IconButton
@@ -234,6 +240,7 @@ function PublicNav({ onMenuOpen }: { onMenuOpen: () => void }) {
 }
 
 function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const { user, isAuthenticated, logout } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -247,9 +254,9 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   };
 
   const clientNavItems = [
-    { label: 'Browse Cars', href: '/cars', icon: FiSearch },
-    { label: 'My Rentals', href: '/rentals', icon: FiCalendar },
-    { label: 'Profile', href: '/profile', icon: FiUser },
+    { label: t('landing.browseCars'), href: '/cars', icon: FiSearch },
+    { label: t('landing.myRentals'), href: '/rentals', icon: FiCalendar },
+    { label: t('nav.profile'), href: '/profile', icon: FiUser },
   ];
 
   return (
@@ -264,6 +271,9 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         </DrawerHeader>
         <DrawerBody px={3} py={4}>
           <VStack spacing={1} align="stretch">
+            <Box px={4} py={2}>
+              <LanguageSwitcher />
+            </Box>
             {isAuthenticated && user ? (
               isAdmin ? (
                 <Box
@@ -277,7 +287,7 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   _hover={{ bg: 'lightGold.400', textDecoration: 'none' }}
                 >
                   <Icon as={FiSearch} boxSize={5} />
-                  <Text>Go to Dashboard</Text>
+                  <Text>{t('landing.goToDashboard')}</Text>
                 </Box>
               ) : (
                 clientNavItems.map((item) => {
@@ -313,7 +323,7 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   _hover={{ bg: 'rgba(255,215,0,0.08)', textDecoration: 'none' }}
                 >
                   <Icon as={FiSearch} boxSize={5} />
-                  <Text>Browse Cars</Text>
+                  <Text>{t('landing.browseCars')}</Text>
                 </Box>
                 <Box
                   as={NextLink} href="/auth/login" onClick={onClose}
@@ -323,7 +333,7 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   _hover={{ bg: 'rgba(255,215,0,0.08)', textDecoration: 'none' }}
                 >
                   <Icon as={FiUser} boxSize={5} />
-                  <Text>Sign In</Text>
+                  <Text>{t('auth.signIn')}</Text>
                 </Box>
                 <Box
                   as={NextLink} href="/register" onClick={onClose}
@@ -334,7 +344,7 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   _hover={{ bg: 'lightGold.400', textDecoration: 'none' }}
                 >
                   <Icon as={FiUser} boxSize={5} />
-                  <Text>Sign Up</Text>
+                  <Text>{t('auth.signUp')}</Text>
                 </Box>
               </>
             )}
@@ -352,7 +362,7 @@ function PublicMobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   onClick={handleLogout}
                 >
                   <Icon as={FiLogOut} boxSize={5} />
-                  <Text>Logout</Text>
+                  <Text>{t('nav.logout')}</Text>
                 </Box>
               </>
             )}

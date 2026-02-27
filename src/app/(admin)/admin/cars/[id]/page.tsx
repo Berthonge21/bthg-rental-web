@@ -17,12 +17,15 @@ import {
 } from '@chakra-ui/react';
 import { FiArrowLeft, FiEdit2, FiCalendar } from 'react-icons/fi';
 import { LoadingSpinner, useMinLoading } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 import { useCar } from '@/hooks';
 import { parseCarImages } from '@/lib/imageUtils';
+import { CarPlaceholder } from '@/components/ui/CarPlaceholder';
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/400x300?text=No+Image';
 
 export default function CarDetailsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
   const carId = Number(params.id);
@@ -47,15 +50,15 @@ export default function CarDetailsPage() {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   if (showLoading) {
-    return <LoadingSpinner text="Loading car details..." />;
+    return <LoadingSpinner text={t('cars.loadingCarDetails')} />;
   }
 
   if (!car) {
     return (
       <Box textAlign="center" py={10}>
-        <Text>Car not found</Text>
+        <Text>{t('cars.carNotFound')}</Text>
         <Button mt={4} onClick={() => router.back()}>
-          Go Back
+          {t('common.goBack')}
         </Button>
       </Box>
     );
@@ -74,7 +77,7 @@ export default function CarDetailsPage() {
             leftIcon={<FiArrowLeft />}
             onClick={() => router.back()}
           >
-            Back
+            {t('common.back')}
           </Button>
           <Heading size="lg">
             {car.brand} {car.model}
@@ -88,14 +91,14 @@ export default function CarDetailsPage() {
             variant="outline"
             onClick={() => router.push(`/admin/cars/${carId}/availability`)}
           >
-            Manage Availability
+            {t('cars.manageAvailability')}
           </Button>
           <Button
             leftIcon={<FiEdit2 />}
             colorScheme="brand"
             onClick={() => router.push(`/admin/cars/${carId}/edit`)}
           >
-            Edit Car
+            {t('cars.editCar')}
           </Button>
         </HStack>
       </HStack>
@@ -104,15 +107,19 @@ export default function CarDetailsPage() {
         {/* Car Image Gallery */}
         <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
           {/* Main Image */}
-          <Image
-            src={mainImage}
-            alt={`${car.brand} ${car.model}`}
-            w="full"
-            h="300px"
-            objectFit="cover"
-            borderRadius="lg"
-            fallbackSrc={FALLBACK_IMAGE}
-          />
+          {hasImages ? (
+            <Image
+              src={mainImage}
+              alt={`${car.brand} ${car.model}`}
+              w="full"
+              h="300px"
+              objectFit="cover"
+              borderRadius="lg"
+              fallbackSrc={FALLBACK_IMAGE}
+            />
+          ) : (
+            <CarPlaceholder h="300px" />
+          )}
 
           {/* Thumbnail Strip -- only rendered when there are multiple images */}
           {images.length > 1 && (
@@ -156,31 +163,31 @@ export default function CarDetailsPage() {
         {/* Car Info */}
         <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
           <Heading size="md" mb={4}>
-            Vehicle Information
+            {t('cars.vehicleInfo')}
           </Heading>
           <VStack align="start" spacing={4}>
             <HStack justify="space-between" w="full">
-              <Text color="gray.500">Brand</Text>
+              <Text color="gray.500">{t('cars.brand')}</Text>
               <Text fontWeight="medium">{car.brand}</Text>
             </HStack>
             <Divider />
             <HStack justify="space-between" w="full">
-              <Text color="gray.500">Model</Text>
+              <Text color="gray.500">{t('cars.model')}</Text>
               <Text fontWeight="medium">{car.model}</Text>
             </HStack>
             <Divider />
             <HStack justify="space-between" w="full">
-              <Text color="gray.500">Year</Text>
+              <Text color="gray.500">{t('cars.year')}</Text>
               <Text fontWeight="medium">{car.year}</Text>
             </HStack>
             <Divider />
             <HStack justify="space-between" w="full">
-              <Text color="gray.500">Registration</Text>
+              <Text color="gray.500">{t('cars.registration')}</Text>
               <Text fontWeight="medium">{car.registration}</Text>
             </HStack>
             <Divider />
             <HStack justify="space-between" w="full">
-              <Text color="gray.500">Price per Day</Text>
+              <Text color="gray.500">{t('cars.pricePerDay')}</Text>
               <Text fontWeight="bold" color="brand.500" fontSize="xl">
                 ${car.price}
               </Text>
@@ -191,12 +198,12 @@ export default function CarDetailsPage() {
         {/* Technical Specs */}
         <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
           <Heading size="md" mb={4}>
-            Technical Specifications
+            {t('cars.technicalSpecs')}
           </Heading>
           <SimpleGrid columns={2} spacing={4}>
             <Box>
               <Text color="gray.500" fontSize="sm">
-                Fuel Type
+                {t('cars.fuelType')}
               </Text>
               <Badge colorScheme="blue" mt={1}>
                 {car.fuel}
@@ -204,7 +211,7 @@ export default function CarDetailsPage() {
             </Box>
             <Box>
               <Text color="gray.500" fontSize="sm">
-                Transmission
+                {t('cars.transmission')}
               </Text>
               <Badge colorScheme="purple" mt={1}>
                 {car.gearBox}
@@ -212,13 +219,13 @@ export default function CarDetailsPage() {
             </Box>
             <Box>
               <Text color="gray.500" fontSize="sm">
-                Doors
+                {t('cars.doors')}
               </Text>
               <Text fontWeight="medium">{car.door}</Text>
             </Box>
             <Box>
               <Text color="gray.500" fontSize="sm">
-                Mileage
+                {t('cars.mileage')}
               </Text>
               <Text fontWeight="medium">{car.mileage.toLocaleString()} km</Text>
             </Box>
@@ -228,10 +235,10 @@ export default function CarDetailsPage() {
         {/* Description */}
         <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
           <Heading size="md" mb={4}>
-            Description
+            {t('cars.description')}
           </Heading>
           <Text color={descriptionColor}>
-            {car.description || 'No description available for this vehicle.'}
+            {car.description || t('cars.noDescription')}
           </Text>
         </Box>
       </SimpleGrid>

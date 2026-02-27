@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useRentals, useCancelRental } from '@/hooks';
 import { ConfirmDialog } from '@/components/ui';
 import { RentalStatus } from '@berthonge21/sdk';
@@ -19,6 +20,7 @@ import { format, parseISO, isValid } from 'date-fns';
 import type { Rental } from '@berthonge21/sdk';
 import { parseCarImages } from '@/lib/imageUtils';
 import { FadeInOnScroll } from '@/components/ui/FadeInOnScroll';
+import { CarPlaceholder } from '@/components/ui/CarPlaceholder';
 
 const MotionBox = motion.create(Box);
 
@@ -29,9 +31,10 @@ const STATUS_META: Record<string, { color: string; bg: string; label: string; ic
   cancelled: { color: '#E53E3E', bg: 'rgba(229,62,62,0.15)',   label: 'Cancelled', icon: FiXCircle },
 };
 
-function RentalCard({ rental, onCancel }: { rental: Rental; onCancel?: (id: number) => void }) {
+function RentalCard({ rental, onCancel, t }: { rental: Rental; onCancel?: (id: number) => void; t: (key: string, opts?: Record<string, unknown>) => string }) {
   const images = parseCarImages(rental.car?.image);
-  const coverImage = images[0] || 'https://via.placeholder.com/400x220?text=Car';
+  const hasImages = images.length > 0;
+  const coverImage = images[0];
   const meta = STATUS_META[rental.status] ?? STATUS_META.reserved;
   const StatusIcon = meta.icon;
 
@@ -61,7 +64,11 @@ function RentalCard({ rental, onCancel }: { rental: Rental; onCancel?: (id: numb
       <Box position="absolute" left={0} top={0} bottom={0} w="3px" bg="brand.400" zIndex={1} borderLeftRadius="2xl" />
       {/* Cover image */}
       <Box h="220px" bg="navy.800" position="relative" overflow="hidden">
-        <Image src={coverImage} alt={`${rental.car?.brand} ${rental.car?.model}`} w="100%" h="100%" objectFit="cover" />
+        {hasImages ? (
+          <Image src={coverImage} alt={`${rental.car?.brand} ${rental.car?.model}`} w="100%" h="100%" objectFit="cover" />
+        ) : (
+          <CarPlaceholder h="220px" />
+        )}
         {/* Gradient fade — image to card */}
         <Box
           position="absolute"
@@ -115,7 +122,7 @@ function RentalCard({ rental, onCancel }: { rental: Rental; onCancel?: (id: numb
               leftIcon={<FiX />} borderRadius="xl" flexShrink={0}
               onClick={() => onCancel(rental.id)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
           )}
           <Button
@@ -124,7 +131,7 @@ function RentalCard({ rental, onCancel }: { rental: Rental; onCancel?: (id: numb
             borderRadius="xl" rightIcon={<FiArrowRight />}
             _hover={{ bg: 'brand.500' }}
           >
-            View Details
+            {t('rentals.viewDetails')}
           </Button>
         </HStack>
       </Box>
@@ -133,6 +140,7 @@ function RentalCard({ rental, onCancel }: { rental: Rental; onCancel?: (id: numb
 }
 
 export default function RentalsPage() {
+  const { t } = useTranslation();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [cancelId, setCancelId] = useState<number | null>(null);
@@ -156,9 +164,9 @@ export default function RentalsPage() {
     if (!cancelId) return;
     try {
       await cancelMutation.mutateAsync(cancelId);
-      toast({ title: 'Rental cancelled', status: 'success', duration: 3000 });
+      toast({ title: t('rentals.rentalCancelled'), status: 'success', duration: 3000 });
     } catch (err) {
-      toast({ title: 'Failed to cancel', description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
+      toast({ title: t('rentals.failedToCancel'), description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
     } finally {
       onClose();
       setCancelId(null);
@@ -172,21 +180,21 @@ export default function RentalsPage() {
         {/* Decorative gold line */}
         <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
         <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
-          My Account
+          {t('rentals.myAccount')}
         </Text>
         <Text fontFamily="var(--font-display)" fontSize="3xl" fontWeight="black" letterSpacing="0.02em" textTransform="uppercase" color="white">
-          My Rentals
+          {t('rentals.myRentals')}
         </Text>
-        <Text fontSize="sm" color="gray.500" mt={1}>Track and manage your car reservations</Text>
+        <Text fontSize="sm" color="gray.500" mt={1}>{t('rentals.trackManage')}</Text>
       </Box>
 
       {/* Stats */}
       <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={8}>
         {([
-          { icon: FiCalendar,   label: 'Active',      value: String(activeRentals.length),      color: 'brand.400' },
-          { icon: FiTrendingUp, label: 'Completed',   value: String(historyRentals.length),     color: 'accent.400' },
-          { icon: FiXCircle,    label: 'Cancelled',   value: String(cancelledRentals.length),   color: '#E53E3E' },
-          { icon: FiDollarSign, label: 'Total Spent', value: `$${totalSpent.toLocaleString()}`, color: 'accent.400' },
+          { icon: FiCalendar,   label: t('rentals.active'),      value: String(activeRentals.length),      color: 'brand.400' },
+          { icon: FiTrendingUp, label: t('rentals.completed'),   value: String(historyRentals.length),     color: 'accent.400' },
+          { icon: FiXCircle,    label: t('rentals.cancelled'),   value: String(cancelledRentals.length),   color: '#E53E3E' },
+          { icon: FiDollarSign, label: t('rentals.totalSpent'), value: `$${totalSpent.toLocaleString()}`, color: 'accent.400' },
         ] as const).map((s) => (
           <Box
             key={s.label}
@@ -228,7 +236,7 @@ export default function RentalsPage() {
             _hover={{ bg: activeTab === tab ? 'brand.500' : 'rgba(255,255,255,0.08)' }}
             onClick={() => setActiveTab(tab)}
           >
-            {tab === 'active' ? `Active (${activeRentals.length})` : `History (${historyRentals.length})`}
+            {tab === 'active' ? t('rentals.activeCount', { count: activeRentals.length }) : t('rentals.historyCount', { count: historyRentals.length })}
           </Button>
         ))}
       </Box>
@@ -244,11 +252,11 @@ export default function RentalsPage() {
                 <Icon as={FiSearch} boxSize={8} color="brand.400" />
               </Box>
               <VStack spacing={1}>
-                <Text fontWeight="semibold" color={useColorModeValue('navy.800', 'white')}>No active rentals</Text>
-                <Text fontSize="sm" color={textMuted}>Browse our fleet and book your next ride</Text>
+                <Text fontWeight="semibold" color={useColorModeValue('navy.800', 'white')}>{t('rentals.noActiveRentals')}</Text>
+                <Text fontSize="sm" color={textMuted}>{t('rentals.browseFleetPrompt')}</Text>
               </VStack>
-              <Button as={NextLink} href="/cars" bg="brand.400" color="white" borderRadius="lg" _hover={{ bg: 'brand.500' }}>
-                Browse Cars
+              <Button as={NextLink} href="/cars" bg="brand.400" color="#000000" fontWeight="semibold" borderRadius="lg" _hover={{ bg: 'lightGold.400' }}>
+                {t('landing.browseCars')}
               </Button>
             </VStack>
           </Center>
@@ -256,7 +264,7 @@ export default function RentalsPage() {
           <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={5}>
             {activeRentals.map((r, i: number) => (
               <FadeInOnScroll key={r.id} delay={Math.min(i, 4) * 0.07} direction="up">
-                <RentalCard rental={r} onCancel={handleCancelRequest} />
+                <RentalCard rental={r} onCancel={handleCancelRequest} t={t} />
               </FadeInOnScroll>
             ))}
           </SimpleGrid>
@@ -274,8 +282,8 @@ export default function RentalsPage() {
                 <Icon as={FiCalendar} boxSize={8} color="accent.400" />
               </Box>
               <VStack spacing={1}>
-                <Text fontWeight="semibold" color={useColorModeValue('navy.800', 'white')}>No rental history yet</Text>
-                <Text fontSize="sm" color={textMuted}>Your completed rentals will appear here</Text>
+                <Text fontWeight="semibold" color={useColorModeValue('navy.800', 'white')}>{t('rentals.noHistory')}</Text>
+                <Text fontSize="sm" color={textMuted}>{t('rentals.completedRentalsAppear')}</Text>
               </VStack>
             </VStack>
           </Center>
@@ -283,7 +291,7 @@ export default function RentalsPage() {
           <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={5}>
             {historyRentals.map((r: Rental, i: number) => (
               <FadeInOnScroll key={r.id} delay={Math.min(i, 4) * 0.07} direction="up">
-                <RentalCard rental={r} />
+                <RentalCard rental={r} t={t} />
               </FadeInOnScroll>
             ))}
           </SimpleGrid>
@@ -292,9 +300,9 @@ export default function RentalsPage() {
 
       <ConfirmDialog
         isOpen={isOpen} onClose={onClose} onConfirm={handleConfirmCancel}
-        title="Cancel Rental"
-        message="Are you sure you want to cancel this reservation? This action cannot be undone."
-        confirmText="Cancel Booking"
+        title={t('rentals.cancelRental')}
+        message={t('rentals.cancelConfirm')}
+        confirmText={t('rentals.cancelBooking')}
         isLoading={cancelMutation.isPending}
         colorScheme="red"
       />

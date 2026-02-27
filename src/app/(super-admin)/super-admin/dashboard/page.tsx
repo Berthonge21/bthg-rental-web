@@ -29,6 +29,7 @@ import {
   FiMoreHorizontal,
 } from 'react-icons/fi';
 import NextLink from 'next/link';
+import { motion } from 'framer-motion';
 import {
   PieChart,
   Pie,
@@ -42,10 +43,13 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { DataTable, LoadingSpinner, type Column } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 import { useSuperAdminDashboard, useSuperAdminAgencies, useSuperAdminUsers } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
 import type { Agency, AdminUser, Status, UserRole } from '@berthonge21/sdk';
 import { useMemo } from 'react';
+
+const MotionBox = motion.create(Box);
 
 const statusColors: Record<Status, string> = {
   activate: 'green',
@@ -65,6 +69,7 @@ const BAR_COLORS = {
 };
 
 export default function SuperAdminDashboardPage() {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const { data: stats, isLoading: statsLoading } = useSuperAdminDashboard();
   const { data: agenciesData, isLoading: agenciesLoading } = useSuperAdminAgencies({
@@ -126,6 +131,21 @@ export default function SuperAdminDashboardPage() {
       revenue: index === currentMonth ? (stats?.monthlyRevenue || 0) : Math.floor(Math.random() * 25000) + 10000,
       rentals: index === currentMonth ? (stats?.totalRentals || 0) : Math.floor(Math.random() * 80) + 30,
     }));
+  }, [stats]);
+
+  // Derive stat-card change % from real data
+  // agencies → % of agencies that are active
+  // revenue  → current month vs year-to-date monthly average
+  const statChanges = useMemo(() => {
+    const monthsElapsed = Math.max(new Date().getMonth() + 1, 1);
+    const avgMonthly    = (stats?.totalRevenue || 0) / monthsElapsed;
+    const revenueChange = avgMonthly > 0
+      ? parseFloat((((stats?.monthlyRevenue || 0) - avgMonthly) / avgMonthly * 100).toFixed(1))
+      : undefined;
+    const agencyRate = stats?.totalAgencies
+      ? parseFloat(((stats.activeAgencies || 0) / stats.totalAgencies * 100).toFixed(1))
+      : undefined;
+    return { agencies: agencyRate, revenue: revenueChange };
   }, [stats]);
 
   if (statsLoading) {
@@ -259,62 +279,64 @@ export default function SuperAdminDashboardPage() {
   return (
     <Box>
       {/* Header Row */}
-      <Flex justify="space-between" align="center" mb={6} flexWrap="wrap" gap={4}>
-        <Heading size="lg" color="text.primary">
-          Welcome back, {user?.firstname}
-        </Heading>
+      <Flex justify="space-between" align="flex-end" mb={8} flexWrap="wrap" gap={4}>
+        <Box>
+          <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
+          <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
+            {t('dashboard.superAdminPanel')}
+          </Text>
+          <Text
+            fontFamily="var(--font-display)"
+            fontSize="3xl"
+            fontWeight="black"
+            letterSpacing="0.02em"
+            textTransform="uppercase"
+            color="gray.500"
+          >
+            {t('dashboard.welcome', { name: user?.firstname })}
+          </Text>
+          <Text fontSize="sm" color="gray.500" mt={1}>{t('dashboard.superAdminSubtitle')}</Text>
+        </Box>
         <Button
           size="sm"
           bg="brand.400"
-          color="white"
+          color="#000000"
+          fontWeight="semibold"
           leftIcon={<FiDownload />}
-          _hover={{ bg: 'brand.500' }}
+          _hover={{ bg: 'lightGold.400' }}
         >
-          Export
+          {t('common.export')}
         </Button>
       </Flex>
 
       {/* Top Stats Row - 5 cards */}
       <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={4} mb={6}>
-        <StatCardMini
-          label="Total Agencies"
-          value={stats?.totalAgencies || 0}
-          icon={FiGrid}
-          cardBg={cardBg}
-          textMuted={textMuted}
-        />
-        <StatCardMini
-          label="Total Cars"
-          value={stats?.totalCars || 0}
-          icon={FiTruck}
-          change={8.2}
-          cardBg={cardBg}
-          textMuted={textMuted}
-        />
-        <StatCardMini
-          label="Total Admins"
-          value={stats?.totalAdmins || 0}
-          icon={FiUserCheck}
-          change={5.5}
-          cardBg={cardBg}
-          textMuted={textMuted}
-        />
-        <StatCardMini
-          label="Total Clients"
-          value={stats?.totalClients || 0}
-          icon={FiUsers}
-          change={12.3}
-          cardBg={cardBg}
-          textMuted={textMuted}
-        />
-        <StatCardMini
-          label="Total Revenue"
-          value={`$${(stats?.totalRevenue || 0).toLocaleString()}`}
-          icon={FiDollarSign}
-          cardBg={cardBg}
-          textMuted={textMuted}
-          valueColor="accent.400"
-        />
+        {([
+          { label: t('dashboard.totalAgencies'), value: stats?.totalAgencies || 0,   icon: FiGrid,      iconColor: '#FFD700', iconBg: 'rgba(255,215,0,0.1)',    change: statChanges.agencies },
+          { label: t('dashboard.totalCars'),     value: stats?.totalCars || 0,        icon: FiTruck,     iconColor: '#1BC5BD', iconBg: 'rgba(27,197,189,0.1)'   },
+          { label: t('dashboard.totalAdmins'),   value: stats?.totalAdmins || 0,      icon: FiUserCheck, iconColor: '#6366F1', iconBg: 'rgba(99,102,241,0.1)'   },
+          { label: t('dashboard.totalClients'),  value: stats?.totalClients || 0,     icon: FiUsers,     iconColor: '#F6AD55', iconBg: 'rgba(246,173,85,0.1)'   },
+          { label: t('dashboard.totalRevenue'),  value: `$${(stats?.totalRevenue || 0).toLocaleString()}`, icon: FiDollarSign, iconColor: '#68D391', iconBg: 'rgba(104,211,145,0.1)', valueColor: 'accent.400', change: statChanges.revenue },
+        ] as Array<{ label: string; value: string | number; icon: React.ElementType; iconColor: string; iconBg: string; change?: number; valueColor?: string }>).map((card, i) => (
+          <MotionBox
+            key={card.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <StatCardMini
+              label={card.label}
+              value={card.value}
+              icon={card.icon}
+              change={card.change}
+              cardBg={cardBg}
+              textMuted={textMuted}
+              valueColor={card.valueColor}
+              iconColor={card.iconColor}
+              iconBg={card.iconBg}
+            />
+          </MotionBox>
+        ))}
       </SimpleGrid>
 
       {/* Charts Row - 3 columns */}
@@ -323,7 +345,7 @@ export default function SuperAdminDashboardPage() {
         <GridItem>
           <Box bg={cardBg} borderRadius="xl" boxShadow="card" p={5} h="full">
             <Flex justify="space-between" align="center" mb={4}>
-              <Text fontWeight="semibold" color="text.primary">Agency Status</Text>
+              <Text fontWeight="semibold" color="text.primary">{t('dashboard.agencyStatus')}</Text>
               <IconButton
                 icon={<FiMoreHorizontal />}
                 aria-label="More"
@@ -369,7 +391,7 @@ export default function SuperAdminDashboardPage() {
           <Box bg={cardBg} borderRadius="xl" boxShadow="card" p={5} h="full">
             <Flex justify="space-between" align="center" mb={4}>
               <Box>
-                <Text fontWeight="semibold" color="text.primary" mb={1}>Platform Revenue</Text>
+                <Text fontWeight="semibold" color="text.primary" mb={1}>{t('dashboard.platformRevenue')}</Text>
                 <HStack spacing={2}>
                   <Text fontSize="2xl" fontWeight="bold" color="text.primary">
                     ${(stats?.totalRevenue || 0).toLocaleString()}
@@ -406,7 +428,7 @@ export default function SuperAdminDashboardPage() {
         {/* Admin Roles Donut Chart */}
         <GridItem>
           <Box bg={cardBg} borderRadius="xl" boxShadow="card" p={5} h="full">
-            <Text fontWeight="semibold" color="text.primary" mb={4}>Admin Roles</Text>
+            <Text fontWeight="semibold" color="text.primary" mb={4}>{t('dashboard.adminRoles')}</Text>
             <Box h="180px">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -454,7 +476,7 @@ export default function SuperAdminDashboardPage() {
             align="center"
           >
             <Text fontWeight="semibold" color="text.primary" fontSize="lg">
-              Recent Agencies
+              {t('dashboard.recentAgencies')}
             </Text>
             <Button
               as={NextLink}
@@ -463,7 +485,7 @@ export default function SuperAdminDashboardPage() {
               variant="outline"
               borderColor={cardBorder}
             >
-              See All
+              {t('common.seeAll')}
             </Button>
           </Flex>
           <Box p={5}>
@@ -488,7 +510,7 @@ export default function SuperAdminDashboardPage() {
             align="center"
           >
             <Text fontWeight="semibold" color="text.primary" fontSize="lg">
-              Admin Users
+              {t('dashboard.adminUsers')}
             </Text>
             <Button
               as={NextLink}
@@ -497,7 +519,7 @@ export default function SuperAdminDashboardPage() {
               variant="outline"
               borderColor={cardBorder}
             >
-              See All
+              {t('common.seeAll')}
             </Button>
           </Flex>
           <Box p={5}>
@@ -515,7 +537,7 @@ export default function SuperAdminDashboardPage() {
   );
 }
 
-// Mini stat card component matching the admin dashboard style
+// Mini stat card component
 function StatCardMini({
   label,
   value,
@@ -524,6 +546,8 @@ function StatCardMini({
   cardBg,
   textMuted,
   valueColor = 'text.primary',
+  iconColor = '#FFD700',
+  iconBg = 'rgba(255,215,0,0.1)',
 }: {
   label: string;
   value: string | number;
@@ -532,16 +556,38 @@ function StatCardMini({
   cardBg: string;
   textMuted: string;
   valueColor?: string;
+  iconColor?: string;
+  iconBg?: string;
 }) {
   const isPositive = change && change > 0;
 
   return (
-    <Box bg={cardBg} borderRadius="xl" boxShadow="card" p={4}>
-      <Flex justify="space-between" align="flex-start" mb={2}>
+    <Box
+      bg={cardBg}
+      borderRadius="xl"
+      boxShadow="card"
+      p={4}
+      position="relative"
+      overflow="hidden"
+      transition="all 0.2s"
+      _hover={{ transform: 'translateY(-2px)', boxShadow: 'cardHover' }}
+    >
+      <Box position="absolute" left={0} top={0} bottom={0} w="3px" bg={iconColor} borderLeftRadius="xl" />
+      <Flex justify="space-between" align="flex-start" mb={3}>
         <Text fontSize="sm" color={textMuted} fontWeight="medium">
           {label}
         </Text>
-        <Icon as={icon} color={textMuted} boxSize={4} />
+        <Box
+          w={8} h={8}
+          borderRadius="lg"
+          bg={iconBg}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          flexShrink={0}
+        >
+          <Icon as={icon} color={iconColor} boxSize={4} />
+        </Box>
       </Flex>
       <HStack spacing={2} align="baseline">
         <Text fontSize="2xl" fontWeight="bold" color={valueColor}>

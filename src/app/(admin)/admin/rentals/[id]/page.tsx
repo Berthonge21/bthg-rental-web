@@ -36,6 +36,7 @@ import {
   FiTruck,
 } from 'react-icons/fi';
 import { LoadingSpinner, useMinLoading, ProgressButton } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 import { useAdminRental, useUpdateRentalStatus } from '@/hooks';
 import type { RentalStatus } from '@berthonge21/sdk';
 import { format, differenceInDays } from 'date-fns';
@@ -162,6 +163,7 @@ function DetailRow({
 // --- Main page component ---
 
 export default function RentalDetailsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
   const toast = useToast();
@@ -189,14 +191,14 @@ export default function RentalDetailsPage() {
     try {
       await updateStatusMutation.mutateAsync({ id: rentalId, status });
       toast({
-        title: 'Status updated',
-        description: `Rental status changed to ${status}.`,
+        title: t('rentals.statusUpdated'),
+        description: t('rentals.statusUpdatedDesc', { status }),
         status: 'success',
         duration: 2000,
       });
     } catch (error) {
       toast({
-        title: 'Failed to update status',
+        title: t('rentals.failedToUpdateStatus'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 5000,
@@ -214,7 +216,7 @@ export default function RentalDetailsPage() {
   }, [rental]);
 
   if (showLoading) {
-    return <LoadingSpinner text="Loading rental details..." />;
+    return <LoadingSpinner text={t('rentals.loadingRentalDetails')} />;
   }
 
   if (!rental) {
@@ -222,17 +224,17 @@ export default function RentalDetailsPage() {
       <Box textAlign="center" py={16}>
         <Icon as={FiTruck} boxSize={12} color="gray.300" mb={4} />
         <Heading size="md" color="gray.500" mb={2}>
-          Rental not found
+          {t('rentals.rentalNotFound')}
         </Heading>
         <Text color="gray.400" mb={6}>
-          The rental you are looking for does not exist or has been removed.
+          {t('rentals.rentalNotFoundDesc')}
         </Text>
         <Button
           leftIcon={<FiArrowLeft />}
           variant="outline"
           onClick={() => router.push('/admin/rentals')}
         >
-          Back to Rentals
+          {t('rentals.backToRentals')}
         </Button>
       </Box>
     );
@@ -261,7 +263,7 @@ export default function RentalDetailsPage() {
             size="sm"
             fontWeight="medium"
           >
-            Back
+            {t('common.back')}
           </Button>
           <Divider orientation="vertical" h="20px" borderColor={dividerColor} />
           <Heading size="md" color="text.primary">
@@ -289,7 +291,7 @@ export default function RentalDetailsPage() {
                 onClick={() => handleStatusUpdate('ongoing' as RentalStatus)}
                 isLoading={updateStatusMutation.isPending}
               >
-                Start Rental
+                {t('rentals.startRental')}
               </ProgressButton>
               <ProgressButton
                 leftIcon={<FiX />}
@@ -299,7 +301,7 @@ export default function RentalDetailsPage() {
                 onClick={() => handleStatusUpdate('cancelled' as RentalStatus)}
                 isLoading={updateStatusMutation.isPending}
               >
-                Cancel
+                {t('common.cancel')}
               </ProgressButton>
             </>
           )}
@@ -311,7 +313,7 @@ export default function RentalDetailsPage() {
               onClick={() => handleStatusUpdate('completed' as RentalStatus)}
               isLoading={updateStatusMutation.isPending}
             >
-              Complete Rental
+              {t('rentals.completeRental')}
             </ProgressButton>
           )}
         </HStack>
@@ -362,7 +364,7 @@ export default function RentalDetailsPage() {
                 <SimpleGrid columns={{ base: 2, md: 3 }} spacing={4}>
                   <Box>
                     <Text fontSize="xs" color="gray.500" fontWeight="medium" textTransform="uppercase" letterSpacing="wider">
-                      Duration
+                      {t('rentals.duration')}
                     </Text>
                     <Text fontSize="lg" fontWeight="bold" color="text.primary">
                       {rentalDays} {rentalDays === 1 ? 'day' : 'days'}
@@ -370,7 +372,7 @@ export default function RentalDetailsPage() {
                   </Box>
                   <Box>
                     <Text fontSize="xs" color="gray.500" fontWeight="medium" textTransform="uppercase" letterSpacing="wider">
-                      Daily Rate
+                      {t('rentals.dailyRate')}
                     </Text>
                     <Text fontSize="lg" fontWeight="bold" color="text.primary">
                       ${rental.car?.price}
@@ -378,7 +380,7 @@ export default function RentalDetailsPage() {
                   </Box>
                   <Box>
                     <Text fontSize="xs" color="gray.500" fontWeight="medium" textTransform="uppercase" letterSpacing="wider">
-                      Total
+                      {t('rentals.total')}
                     </Text>
                     <Text fontSize="lg" fontWeight="bold" color="brand.500">
                       ${rental.total.toFixed(2)}
@@ -401,7 +403,7 @@ export default function RentalDetailsPage() {
         mb={6}
       >
         <Text fontSize="sm" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={5}>
-          Rental Progress
+          {t('rentals.rentalProgress')}
         </Text>
 
         {isCancelled ? (
@@ -409,10 +411,10 @@ export default function RentalDetailsPage() {
             <AlertIcon />
             <Box>
               <Text fontWeight="semibold" color="red.600">
-                Rental Cancelled
+                {t('rentals.rentalCancelledTitle')}
               </Text>
               <Text fontSize="sm" color="red.500">
-                This rental has been cancelled and is no longer active.
+                {t('rentals.rentalCancelledDesc')}
               </Text>
             </Box>
           </Alert>
@@ -526,24 +528,24 @@ export default function RentalDetailsPage() {
               <Icon as={FiUser} color="blue.500" boxSize={4} />
             </Box>
             <Heading size="sm" color="text.primary">
-              Client Information
+              {t('rentals.clientInfo')}
             </Heading>
           </HStack>
 
           <VStack align="stretch" spacing={4}>
             <DetailRow
               icon={FiUser}
-              label="Full Name"
+              label={t('rentals.fullName')}
               value={`${rental.client?.firstname ?? ''} ${rental.client?.name ?? ''}`.trim() || 'N/A'}
             />
             <DetailRow
               icon={FiMail}
-              label="Email Address"
+              label={t('rentals.emailAddress')}
               value={rental.client?.email || 'N/A'}
             />
             <DetailRow
               icon={FiPhone}
-              label="Phone Number"
+              label={t('rentals.phoneNumber')}
               value={(rental.client as any)?.telephone || 'N/A'}
             />
           </VStack>
@@ -566,24 +568,24 @@ export default function RentalDetailsPage() {
               <Icon as={FiTruck} color="purple.500" boxSize={4} />
             </Box>
             <Heading size="sm" color="text.primary">
-              Vehicle Information
+              {t('rentals.vehicleInfo')}
             </Heading>
           </HStack>
 
           <VStack align="stretch" spacing={4}>
             <DetailRow
               icon={FiTruck}
-              label="Vehicle"
+              label={t('rentals.vehicle')}
               value={carName}
             />
             <DetailRow
               icon={FiCalendar}
-              label="Year"
+              label={t('cars.year')}
               value={String(rental.car?.year ?? 'N/A')}
             />
             <DetailRow
               icon={FiDollarSign}
-              label="Daily Rate"
+              label={t('rentals.dailyRate')}
               value={`$${rental.car?.price ?? 0} / day`}
               valueColor="brand.500"
             />
@@ -607,7 +609,7 @@ export default function RentalDetailsPage() {
               <Icon as={FiCalendar} color="green.500" boxSize={4} />
             </Box>
             <Heading size="sm" color="text.primary">
-              Rental Period
+              {t('rentals.rentalPeriod')}
             </Heading>
           </HStack>
 
@@ -621,7 +623,7 @@ export default function RentalDetailsPage() {
               borderColor={pickupBorder}
             >
               <Text fontSize="xs" color="green.500" fontWeight="bold" textTransform="uppercase" letterSpacing="wider" mb={2}>
-                Pick-up
+                {t('rentals.pickup')}
               </Text>
               <Text fontWeight="semibold" fontSize="md" color="text.primary">
                 {format(new Date(rental.startDate), 'MMM d, yyyy')}
@@ -643,7 +645,7 @@ export default function RentalDetailsPage() {
               borderColor={returnBorder}
             >
               <Text fontSize="xs" color="red.400" fontWeight="bold" textTransform="uppercase" letterSpacing="wider" mb={2}>
-                Return
+                {t('rentals.return')}
               </Text>
               <Text fontWeight="semibold" fontSize="md" color="text.primary">
                 {format(new Date(rental.endDate), 'MMM d, yyyy')}
@@ -675,14 +677,14 @@ export default function RentalDetailsPage() {
               <Icon as={FiDollarSign} color="brand.500" boxSize={4} />
             </Box>
             <Heading size="sm" color="text.primary">
-              Payment Summary
+              {t('rentals.paymentSummary')}
             </Heading>
           </HStack>
 
           <VStack align="stretch" spacing={3}>
             <Flex justify="space-between" align="center">
               <Text color="gray.500" fontSize="sm">
-                Daily Rate
+                {t('rentals.dailyRate')}
               </Text>
               <Text fontWeight="medium" fontSize="sm">
                 ${rental.car?.price ?? 0}
@@ -690,7 +692,7 @@ export default function RentalDetailsPage() {
             </Flex>
             <Flex justify="space-between" align="center">
               <Text color="gray.500" fontSize="sm">
-                Duration
+                {t('rentals.duration')}
               </Text>
               <Text fontWeight="medium" fontSize="sm">
                 {rentalDays} {rentalDays === 1 ? 'day' : 'days'}
@@ -701,7 +703,7 @@ export default function RentalDetailsPage() {
 
             <Flex justify="space-between" align="center">
               <Text fontWeight="bold" color="text.primary">
-                Total Amount
+                {t('rentals.totalAmount')}
               </Text>
               <Text fontWeight="bold" fontSize="2xl" color="brand.500">
                 ${rental.total.toFixed(2)}

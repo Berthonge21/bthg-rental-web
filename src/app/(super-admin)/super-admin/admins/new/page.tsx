@@ -23,6 +23,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCreateAdminUser } from '@/hooks';
 import { ProgressButton } from '@/components/ui/ProgressButton';
 import { UserRole } from '@berthonge21/sdk';
@@ -38,6 +39,7 @@ const adminSchema = z.object({
 type AdminFormData = z.infer<typeof adminSchema>;
 
 export default function NewAdminPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const [showPassword, setShowPassword] = useState(false);
@@ -63,15 +65,15 @@ export default function NewAdminPage() {
         role: data.role as UserRole,
       });
       toast({
-        title: 'Admin created',
-        description: 'The admin user has been created successfully',
+        title: t('admins.adminCreated'),
+        description: t('admins.adminCreatedDesc'),
         status: 'success',
         duration: 3000,
       });
       router.push('/super-admin/admins');
     } catch (error) {
       toast({
-        title: 'Failed to create admin',
+        title: t('admins.failedToCreateAdmin'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 5000,
@@ -87,31 +89,31 @@ export default function NewAdminPage() {
           leftIcon={<FiArrowLeft />}
           onClick={() => router.back()}
         >
-          Back
+          {t('common.back')}
         </Button>
-        <Heading size="lg">Create Admin User</Heading>
+        <Heading size="lg">{t('admins.createAdminUser')}</Heading>
       </HStack>
 
       <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
         <form onSubmit={handleSubmit(onSubmit)}>
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
             <FormControl isInvalid={!!errors.firstname}>
-              <FormLabel>First Name</FormLabel>
+              <FormLabel>{t('profile.firstName')}</FormLabel>
               <Input placeholder="John" {...register('firstname')} />
               <FormErrorMessage>{errors.firstname?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.name}>
-              <FormLabel>Last Name</FormLabel>
+              <FormLabel>{t('profile.lastName')}</FormLabel>
               <Input placeholder="Doe" {...register('name')} />
               <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.email}>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t('profile.email')}</FormLabel>
               <Input type="email" placeholder="admin@example.com" {...register('email')} />
               <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.password}>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{t('auth.password')}</FormLabel>
               <InputGroup>
                 <Input type={showPassword ? 'text' : 'password'} placeholder="Min 6 characters" {...register('password')} />
                 <InputRightElement>
@@ -121,7 +123,7 @@ export default function NewAdminPage() {
               <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.role} gridColumn={{ md: 'span 2' }}>
-              <FormLabel>Role</FormLabel>
+              <FormLabel>{t('admins.role')}</FormLabel>
               <Select {...register('role')}>
                 <option value="admin">Admin</option>
                 <option value="superAdmin">Super Admin</option>
@@ -130,7 +132,7 @@ export default function NewAdminPage() {
             </FormControl>
           </SimpleGrid>
           <ProgressButton type="submit" colorScheme="brand" size="lg" isLoading={createMutation.isPending} w="full" mt={4}>
-            Create Admin
+            {t('admins.createAdmin')}
           </ProgressButton>
         </form>
       </Box>

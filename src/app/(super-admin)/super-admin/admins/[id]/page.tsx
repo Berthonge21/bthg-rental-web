@@ -28,6 +28,7 @@ import { FiArrowLeft, FiSave, FiLink, FiUserCheck, FiUserX } from 'react-icons/f
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { LoadingSpinner, ConfirmDialog } from '@/components/ui';
 import { useSuperAdminUsers, useSuperAdminAgencies, useAssignAgency, useUpdateUserStatus } from '@/hooks';
 import { ProgressButton } from '@/components/ui/ProgressButton';
@@ -46,6 +47,7 @@ const roleColors: Record<UserRole, string> = {
 };
 
 export default function AdminDetailsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -86,8 +88,8 @@ export default function AdminDetailsPage() {
     try {
       await assignMutation.mutateAsync({ userId: adminId, agencyId: data.agencyId });
       toast({
-        title: 'Agency assigned',
-        description: 'The admin has been assigned to the agency successfully',
+        title: t('admins.agencyAssigned'),
+        description: t('admins.agencyAssignedDesc'),
         status: 'success',
         duration: 3000,
       });
@@ -95,7 +97,7 @@ export default function AdminDetailsPage() {
       router.push('/super-admin/admins');
     } catch (error) {
       toast({
-        title: 'Failed to assign agency',
+        title: t('admins.failedToAssignAgency'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 5000,
@@ -115,14 +117,14 @@ export default function AdminDetailsPage() {
         status: newStatus,
       });
       toast({
-        title: newStatus === Status.ACTIVATE ? 'Admin activated' : 'Admin deactivated',
-        description: `${admin.firstname} ${admin.name} has been ${newStatus === Status.ACTIVATE ? 'activated' : 'deactivated'}.`,
+        title: newStatus === Status.ACTIVATE ? t('admins.adminActivated') : t('admins.adminDeactivated'),
+        description: t('admins.statusUpdateDesc', { name: `${admin.firstname} ${admin.name}`, action: newStatus === Status.ACTIVATE ? 'activated' : 'deactivated' }),
         status: 'success',
         duration: 3000,
       });
     } catch (error) {
       toast({
-        title: 'Failed to update status',
+        title: t('rentals.failedToUpdateStatus'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 5000,
@@ -133,15 +135,15 @@ export default function AdminDetailsPage() {
   };
 
   if (usersLoading) {
-    return <LoadingSpinner text="Loading admin..." />;
+    return <LoadingSpinner text={t('admins.loadingAdmin')} />;
   }
 
   if (!admin) {
     return (
       <Box textAlign="center" py={10}>
-        <Text>Admin not found</Text>
+        <Text>{t('admins.adminNotFound')}</Text>
         <Button mt={4} onClick={() => router.back()}>
-          Go Back
+          {t('common.goBack')}
         </Button>
       </Box>
     );
@@ -159,14 +161,14 @@ export default function AdminDetailsPage() {
             leftIcon={<FiArrowLeft />}
             onClick={() => router.push('/super-admin/admins')}
           >
-            Back
+            {t('common.back')}
           </Button>
-          <Heading size="lg">Admin Details</Heading>
+          <Heading size="lg">{t('admins.adminDetails')}</Heading>
         </HStack>
         <HStack spacing={2}>
           {isAdminRole && !admin.agencyId && !isAssigning && (
             <Button leftIcon={<FiLink />} colorScheme="brand" onClick={() => setIsAssigning(true)}>
-              Assign Agency
+              {t('admins.assignAgency')}
             </Button>
           )}
           {/* Status toggle button -- only for non-superAdmin */}
@@ -177,7 +179,7 @@ export default function AdminDetailsPage() {
               variant="outline"
               onClick={statusToggleDialog.onOpen}
             >
-              {isActive ? 'Deactivate' : 'Activate'}
+              {isActive ? t('admins.deactivate') : t('admins.activate')}
             </Button>
           )}
         </HStack>
@@ -214,29 +216,29 @@ export default function AdminDetailsPage() {
 
           <VStack spacing={4} align="stretch">
             <HStack justify="space-between">
-              <Text color={textMuted}>Agency</Text>
+              <Text color={textMuted}>{t('admins.agency')}</Text>
               <Text fontWeight="medium">
                 {admin.agency?.name || admin.agencyName || (
-                  <Badge colorScheme="orange" variant="subtle">Not assigned</Badge>
+                  <Badge colorScheme="orange" variant="subtle">{t('admins.notAssigned')}</Badge>
                 )}
               </Text>
             </HStack>
             <HStack justify="space-between">
               <Text color={textMuted}>Status</Text>
               <Text fontWeight="medium">
-                {isActive ? 'Active' : 'Deactivated'}
+                {isActive ? t('common.status.active') : t('common.status.inactive')}
               </Text>
             </HStack>
             {admin.deactivatedAt && (
               <HStack justify="space-between">
-                <Text color={textMuted}>Deactivated At</Text>
+                <Text color={textMuted}>{t('admins.deactivatedAt')}</Text>
                 <Text fontWeight="medium" color="red.400">
                   {new Date(admin.deactivatedAt).toLocaleString()}
                 </Text>
               </HStack>
             )}
             <HStack justify="space-between">
-              <Text color={textMuted}>Created</Text>
+              <Text color={textMuted}>{t('admins.created')}</Text>
               <Text fontWeight="medium">
                 {admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : 'N/A'}
               </Text>
@@ -247,7 +249,7 @@ export default function AdminDetailsPage() {
         {/* Assign Agency Form */}
         {isAssigning && admin.role === 'admin' && (
           <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-            <Heading size="md" mb={6}>Assign to Agency</Heading>
+            <Heading size="md" mb={6}>{t('admins.assignToAgency')}</Heading>
 
             {admin.agencyId ? (
               <Alert status="info" borderRadius="md">
@@ -260,10 +262,10 @@ export default function AdminDetailsPage() {
             <form onSubmit={handleSubmit(onAssignAgency)}>
               <VStack spacing={6} align="stretch" mt={admin.agencyId ? 4 : 0}>
                 <FormControl isInvalid={!!errors.agencyId}>
-                  <FormLabel>Select Agency</FormLabel>
+                  <FormLabel>{t('admins.selectAgency')}</FormLabel>
                   <Select
                     {...register('agencyId')}
-                    placeholder="Choose an agency"
+                    placeholder={t('admins.chooseAgency')}
                     isDisabled={agenciesLoading}
                   >
                     {availableAgencies.map((agency) => (
@@ -275,14 +277,14 @@ export default function AdminDetailsPage() {
                   <FormErrorMessage>{errors.agencyId?.message}</FormErrorMessage>
                   {availableAgencies.length === 0 && !agenciesLoading && (
                     <Text fontSize="sm" color="orange.500" mt={1}>
-                      No active agencies available. Create an agency first.
+                      {t('admins.noActiveAgencies')}
                     </Text>
                   )}
                 </FormControl>
 
                 <HStack justify="flex-end">
                   <Button variant="ghost" onClick={() => setIsAssigning(false)}>
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                   <ProgressButton
                     type="submit"
@@ -291,7 +293,7 @@ export default function AdminDetailsPage() {
                     isLoading={assignMutation.isPending}
                     isDisabled={availableAgencies.length === 0}
                   >
-                    Assign Agency
+                    {t('admins.assignAgency')}
                   </ProgressButton>
                 </HStack>
               </VStack>
@@ -304,17 +306,17 @@ export default function AdminDetailsPage() {
           <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
             <Alert status="info" borderRadius="md">
               <AlertIcon />
-              Super Admins have access to all agencies and do not need to be assigned to a specific one.
+              {t('admins.superAdminAccess')}
             </Alert>
           </Box>
         )}
 
         {!isAssigning && admin.role === 'admin' && admin.agencyId && (
           <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-            <Heading size="md" mb={4}>Agency Information</Heading>
+            <Heading size="md" mb={4}>{t('admins.agencyInfo')}</Heading>
             <VStack spacing={3} align="stretch">
               <HStack justify="space-between">
-                <Text color={textMuted}>Agency Name</Text>
+                <Text color={textMuted}>{t('admins.agencyName')}</Text>
                 <Text fontWeight="medium">{admin.agency?.name || admin.agencyName}</Text>
               </HStack>
               <Button
@@ -323,7 +325,7 @@ export default function AdminDetailsPage() {
                 size="sm"
                 onClick={() => router.push(`/super-admin/agencies/${admin.agencyId}`)}
               >
-                View Agency Details
+                {t('admins.viewAgencyDetails')}
               </Button>
             </VStack>
           </Box>
@@ -335,13 +337,13 @@ export default function AdminDetailsPage() {
         isOpen={statusToggleDialog.isOpen}
         onClose={statusToggleDialog.onClose}
         onConfirm={handleStatusToggle}
-        title={isActive ? 'Deactivate Admin' : 'Activate Admin'}
+        title={isActive ? t('admins.deactivateAdmin') : t('admins.activateAdmin')}
         message={
           isActive
-            ? `Are you sure you want to deactivate ${admin.firstname} ${admin.name}? They will be logged out and their agency's cars will be hidden from clients.`
-            : `Are you sure you want to reactivate ${admin.firstname} ${admin.name}? They will be able to log in and manage their agency again.`
+            ? t('admins.deactivateAdminConfirm', { name: `${admin.firstname} ${admin.name}` })
+            : t('admins.activateAdminConfirm', { name: `${admin.firstname} ${admin.name}` })
         }
-        confirmText={isActive ? 'Deactivate' : 'Activate'}
+        confirmText={isActive ? t('admins.deactivate') : t('admins.activate')}
         isLoading={updateStatusMutation.isPending}
         colorScheme={isActive ? 'red' : 'green'}
       />

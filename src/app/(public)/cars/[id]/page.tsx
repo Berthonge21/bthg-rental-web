@@ -13,9 +13,11 @@ import {
   InputLeftElement, InputRightElement, IconButton,
 } from '@chakra-ui/react';
 import { FiArrowLeft, FiCalendar, FiUsers, FiZap, FiCheckCircle, FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import { useCar, useCarAvailabilityCalendar, useCreateRental } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
 import { parseCarImages } from '@/lib/imageUtils';
+import { CarPlaceholder } from '@/components/ui/CarPlaceholder';
 import { format, addDays, differenceInCalendarDays, parseISO, isValid } from 'date-fns';
 import { Suspense } from 'react';
 import { useForm } from 'react-hook-form';
@@ -40,6 +42,7 @@ function AuthGateModal({
   onClose: () => void;
   onAuthSuccess: () => void;
 }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const { login, isLoading } = useAuthStore();
@@ -55,7 +58,7 @@ function AuthGateModal({
       onAuthSuccess();
     } catch (error) {
       toast({
-        title: 'Login failed',
+        title: t('auth.loginFailed'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 4000,
@@ -76,8 +79,8 @@ function AuthGateModal({
       <ModalOverlay backdropFilter="blur(6px)" bg="blackAlpha.600" />
       <ModalContent borderRadius="2xl" mx={4}>
         <ModalHeader pb={1}>
-          <Text fontSize="lg" fontWeight="bold" color="navy.800">Sign in to continue</Text>
-          <Text fontSize="sm" fontWeight="normal" color="gray.500">Log in to book this car</Text>
+          <Text fontSize="lg" fontWeight="bold" color="navy.800">{t('auth.signInToContinue')}</Text>
+          <Text fontSize="sm" fontWeight="normal" color="gray.500">{t('auth.logInToBook')}</Text>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
@@ -143,13 +146,13 @@ function AuthGateModal({
                 isLoading={isLoading}
                 _hover={{ bg: 'brand.500' }}
               >
-                Sign In & Continue Booking
+                {t('auth.signInContinue')}
               </Button>
 
               <Text fontSize="sm" color="gray.500" textAlign="center">
-                No account?{' '}
+                {t('auth.noAccount')}{' '}
                 <Text as="span" color="brand.400" fontWeight="medium" cursor="pointer" onClick={handleSignUp}>
-                  Create one free
+                  {t('auth.createOneFree')}
                 </Text>
               </Text>
             </VStack>
@@ -162,6 +165,7 @@ function AuthGateModal({
 
 /* ── Availability calendar (read-only) ── */
 function MiniCalendar({ carId }: { carId: number }) {
+  const { t } = useTranslation();
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth() + 1);
@@ -222,8 +226,8 @@ function MiniCalendar({ carId }: { carId: number }) {
         })}
       </Grid>
       <HStack mt={3} spacing={4} fontSize="xs" color={textMuted}>
-        <HStack><Box w={3} h={3} borderRadius="full" bg="green.50" border="1px solid" borderColor="green.200" /><Text>Available</Text></HStack>
-        <HStack><Box w={3} h={3} borderRadius="full" bg="red.100" /><Text>Unavailable</Text></HStack>
+        <HStack><Box w={3} h={3} borderRadius="full" bg="green.50" border="1px solid" borderColor="green.200" /><Text>{t('cars.available')}</Text></HStack>
+        <HStack><Box w={3} h={3} borderRadius="full" bg="red.100" /><Text>{t('cars.unavailable')}</Text></HStack>
       </HStack>
     </Box>
   );
@@ -245,6 +249,7 @@ interface BookingData {
 }
 
 function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; pricePerDay: number; onSuccess: () => void }) {
+  const { t } = useTranslation();
   const toast = useToast();
   const { user } = useAuthStore();
   const { activeStep, setActiveStep } = useSteps({ index: 0, count: STEPS.length });
@@ -290,10 +295,10 @@ function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; price
         endTime: endDateTime,
         total,
       });
-      toast({ title: 'Booking confirmed!', description: 'Your reservation is now active.', status: 'success', duration: 4000 });
+      toast({ title: t('booking.bookingConfirmed'), description: t('booking.bookingConfirmedDesc'), status: 'success', duration: 4000 });
       onSuccess();
     } catch (err) {
-      toast({ title: 'Booking failed', description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
+      toast({ title: t('booking.bookingFailed'), description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
     }
   };
 
@@ -316,19 +321,19 @@ function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; price
         <VStack spacing={4} align="stretch">
           <SimpleGrid columns={2} spacing={4}>
             <FormControl>
-              <FormLabel fontSize="sm">Pick-up Date</FormLabel>
+              <FormLabel fontSize="sm">{t('booking.pickupDate')}</FormLabel>
               <Input type="date" value={form.startDate} onChange={setField('startDate')} min={format(addDays(new Date(), 1), 'yyyy-MM-dd')} />
             </FormControl>
             <FormControl>
-              <FormLabel fontSize="sm">Return Date</FormLabel>
+              <FormLabel fontSize="sm">{t('booking.returnDate')}</FormLabel>
               <Input type="date" value={form.endDate} onChange={setField('endDate')} min={form.startDate} />
             </FormControl>
             <FormControl>
-              <FormLabel fontSize="sm">Pick-up Time</FormLabel>
+              <FormLabel fontSize="sm">{t('booking.pickupTime')}</FormLabel>
               <Input type="time" value={form.startTime} onChange={setField('startTime')} />
             </FormControl>
             <FormControl>
-              <FormLabel fontSize="sm">Return Time</FormLabel>
+              <FormLabel fontSize="sm">{t('booking.returnTime')}</FormLabel>
               <Input type="time" value={form.endTime} onChange={setField('endTime')} />
             </FormControl>
           </SimpleGrid>
@@ -354,9 +359,9 @@ function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; price
             </VStack>
           </Box>
           <FormControl>
-            <FormLabel fontSize="sm">Additional Notes (optional)</FormLabel>
+            <FormLabel fontSize="sm">{t('booking.additionalNotes')}</FormLabel>
             <Textarea
-              placeholder="Any special requests or information for the agency..."
+              placeholder={t('booking.notesPlaceholder')}
               value={form.notes}
               onChange={setField('notes')}
               rows={3}
@@ -405,12 +410,12 @@ function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; price
           Back
         </Button>
         {activeStep < STEPS.length - 1 ? (
-          <Button bg="brand.400" color="white" _hover={{ bg: 'brand.500' }} onClick={() => setActiveStep(activeStep + 1)} isDisabled={!canGoNext()}>
+          <Button bg="brand.400" color="#000000" fontWeight="semibold" _hover={{ bg: 'lightGold.400' }} onClick={() => setActiveStep(activeStep + 1)} isDisabled={!canGoNext()}>
             Next
           </Button>
         ) : (
           <Button bg="accent.400" color="white" _hover={{ bg: 'accent.500' }} onClick={handleConfirm} isLoading={createRental.isPending} leftIcon={<FiCheckCircle />}>
-            Confirm Booking
+            {t('booking.confirmBooking')}
           </Button>
         )}
       </HStack>
@@ -420,6 +425,7 @@ function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; price
 
 /* ── Inner page content ── */
 function CarDetailContent() {
+  const { t } = useTranslation();
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -474,7 +480,7 @@ function CarDetailContent() {
     <Center h="60vh"><Spinner size="xl" color="brand.400" thickness="4px" /></Center>
   );
   if (!car) return (
-    <Center h="60vh"><VStack><Text>Car not found</Text><Button onClick={() => router.back()}>Go Back</Button></VStack></Center>
+    <Center h="60vh"><VStack><Text>{t('cars.carNotFound')}</Text><Button onClick={() => router.back()}>{t('common.goBack')}</Button></VStack></Center>
   );
 
   const specs = [
@@ -488,7 +494,7 @@ function CarDetailContent() {
     <Box>
       {/* Back */}
       <Button variant="ghost" leftIcon={<FiArrowLeft />} mb={4} onClick={() => router.back()}>
-        Back to Cars
+        {t('cars.backToCars')}
       </Button>
 
       <Grid templateColumns={{ base: '1fr', lg: '1fr 380px' }} gap={6}>
@@ -535,7 +541,7 @@ function CarDetailContent() {
               </Box>
               <Box textAlign="right">
                 <Text fontSize="2xl" fontWeight="bold" color="accent.400">${car.price}</Text>
-                <Text fontSize="sm" color={textMuted}>per day</Text>
+                <Text fontSize="sm" color={textMuted}>{t('cars.perDay')}</Text>
               </Box>
             </Flex>
 
@@ -576,9 +582,9 @@ function CarDetailContent() {
               <Flex justify="space-between" align="center" mb={4}>
                 <Box>
                   <Text fontSize="2xl" fontWeight="bold" color="accent.400">${car.price}</Text>
-                  <Text fontSize="sm" color={textMuted}>per day</Text>
+                  <Text fontSize="sm" color={textMuted}>{t('cars.perDay')}</Text>
                 </Box>
-                <Badge colorScheme="green" borderRadius="full" px={3} py={1}>Available</Badge>
+                <Badge colorScheme="green" borderRadius="full" px={3} py={1}>{t('cars.available')}</Badge>
               </Flex>
               <Button
                 w="full"
@@ -590,7 +596,7 @@ function CarDetailContent() {
                 leftIcon={<FiCalendar />}
                 onClick={handleBookClick}
               >
-                Book This Car
+                {t('cars.bookThisCar')}
               </Button>
             </Box>
 
@@ -613,7 +619,7 @@ function CarDetailContent() {
         <ModalOverlay />
         <ModalContent borderRadius="2xl">
           <ModalHeader>
-            Book {car.brand} {car.model}
+            {t('booking.book', { brand: car.brand, model: car.model })}
             <Text fontSize="sm" color={textMuted} fontWeight="normal">${car.price}/day</Text>
           </ModalHeader>
           <ModalCloseButton />

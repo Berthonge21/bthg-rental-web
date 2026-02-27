@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Heading,
@@ -32,6 +33,7 @@ interface ProfileFormData {
 }
 
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const toast = useToast();
   const { user, fetchUser } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -121,14 +123,29 @@ export default function ProfilePage() {
 
   return (
     <Box>
-      <Heading size="lg" mb={6} color="text.primary">
-        Profile
-      </Heading>
+      <Box mb={8}>
+        <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
+        <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
+          Super Admin Panel
+        </Text>
+        <Text
+          fontFamily="var(--font-display)"
+          fontSize="3xl"
+          fontWeight="black"
+          letterSpacing="0.02em"
+          textTransform="uppercase"
+          color="gray.500"
+        >
+          {t('profile.title')}
+        </Text>
+        <Text fontSize="sm" color="gray.500" mt={1}>{t('profile.subtitle')}</Text>
+      </Box>
 
       <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6}>
         {/* Profile Card */}
-        <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
-          <VStack spacing={4}>
+        <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm" position="relative" overflow="hidden">
+          <Box position="absolute" top={0} left={0} right={0} h="3px" bg="brand.400" borderTopRadius="xl" />
+          <VStack spacing={4} pt={3}>
             <Box position="relative">
               <Avatar
                 size="2xl"
@@ -163,11 +180,11 @@ export default function ProfilePage() {
                 leftIcon={<FiX />}
                 onClick={handleRemoveImage}
               >
-                Remove Photo
+                {t('profile.removePhoto')}
               </Button>
             )}
             <Text fontSize="xs" color={subtleTextColor} mt={1}>
-              Click the camera icon to upload a profile photo
+              {t('profile.photoHint')}
             </Text>
             <VStack spacing={1}>
               <Text fontWeight="bold" fontSize="xl">
@@ -200,25 +217,25 @@ export default function ProfilePage() {
           gridColumn={{ lg: 'span 2' }}
         >
           <Heading size="md" mb={6} color="text.primary">
-            Edit Profile
+            {t('profile.editProfile')}
           </Heading>
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <VStack spacing={6} align="stretch">
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 <FormControl>
-                  <FormLabel>First Name</FormLabel>
+                  <FormLabel>{t('profile.firstName')}</FormLabel>
                   <Input {...register('firstname')} />
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Last Name</FormLabel>
+                  <FormLabel>{t('profile.lastName')}</FormLabel>
                   <Input {...register('name')} />
                 </FormControl>
               </SimpleGrid>
 
               <FormControl>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t('profile.email')}</FormLabel>
                 <Input value={user?.email || ''} isReadOnly bg={readOnlyBg} />
               </FormControl>
 
@@ -231,7 +248,7 @@ export default function ProfilePage() {
                   isLoading={isLoading}
                   isDisabled={!isDirty}
                 >
-                  Save Changes
+                  {t('common.save')}
                 </ProgressButton>
               </HStack>
             </VStack>

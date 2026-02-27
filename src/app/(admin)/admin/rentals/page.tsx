@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import {
   Box,
-  Heading,
+  Flex,
   HStack,
   Badge,
   Text,
@@ -36,6 +37,7 @@ const statusLabels: Record<RentalStatus, string> = {
 };
 
 export default function AdminRentalsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const [page, setPage] = useState(1);
@@ -79,10 +81,26 @@ export default function AdminRentalsPage() {
 
   return (
     <Box>
-      <HStack justify="space-between" mb={6}>
-        <Heading size="lg" color="text.primary">Rentals</Heading>
+      <Flex justify="space-between" align="flex-end" mb={8} flexWrap="wrap" gap={4}>
+        <Box>
+          <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
+          <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
+            Admin Panel
+          </Text>
+          <Text
+            fontFamily="var(--font-display)"
+            fontSize="3xl"
+            fontWeight="black"
+            letterSpacing="0.02em"
+            textTransform="uppercase"
+            color="gray.500"
+          >
+            {t('rentals.title')}
+          </Text>
+          <Text fontSize="sm" color="gray.500" mt={1}>{t('rentals.subtitle')}</Text>
+        </Box>
         <Select
-          placeholder="All Statuses"
+          placeholder={t('rentals.allStatuses')}
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value as RentalStatus | ''); setPage(1); }}
           maxW="200px"
@@ -95,7 +113,7 @@ export default function AdminRentalsPage() {
           <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
         </Select>
-      </HStack>
+      </Flex>
 
       {/* Rentals Table */}
       <Box bg={cardBg} borderRadius="2xl" boxShadow="sm" overflow="hidden">
@@ -113,7 +131,7 @@ export default function AdminRentalsPage() {
                   borderBottom="1px"
                   borderColor={borderColor}
                 >
-                  Renter name
+                  {t('rentals.client')}
                 </Box>
                 <Box
                   as="th"
@@ -125,7 +143,7 @@ export default function AdminRentalsPage() {
                   borderBottom="1px"
                   borderColor={borderColor}
                 >
-                  Email
+                  {t('rentals.email')}
                 </Box>
                 <Box
                   as="th"
@@ -137,7 +155,7 @@ export default function AdminRentalsPage() {
                   borderBottom="1px"
                   borderColor={borderColor}
                 >
-                  Phone number
+                  {t('rentals.phone')}
                 </Box>
                 <Box
                   as="th"
@@ -149,7 +167,7 @@ export default function AdminRentalsPage() {
                   borderBottom="1px"
                   borderColor={borderColor}
                 >
-                  Pick-up date
+                  {t('rentals.pickupDate')}
                 </Box>
                 <Box
                   as="th"
@@ -161,7 +179,7 @@ export default function AdminRentalsPage() {
                   borderBottom="1px"
                   borderColor={borderColor}
                 >
-                  Return date
+                  {t('rentals.returnDate')}
                 </Box>
                 <Box
                   as="th"
@@ -173,7 +191,7 @@ export default function AdminRentalsPage() {
                   borderBottom="1px"
                   borderColor={borderColor}
                 >
-                  Amount
+                  {t('rentals.amount')}
                 </Box>
                 <Box
                   as="th"

@@ -29,6 +29,7 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
+  useDisclosure,
 } from '@chakra-ui/react';
 import {
   FiTruck,
@@ -56,11 +57,14 @@ import {
   useInView,
   useMotionValue,
 } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
 import { useCars } from '@/hooks';
 import { parseCarImages } from '@/lib/imageUtils';
 import { CarLoader } from '@/components/ui/CarLoader';
+import { CarPlaceholder } from '@/components/ui/CarPlaceholder';
 import { Logo } from '@/components/ui/Logo';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { FadeInOnScroll, ScrollProgressBar } from '@/components/ui/FadeInOnScroll';
 import type { Car } from '@berthonge21/sdk';
 
@@ -70,6 +74,8 @@ const MotionIconButton = motion.create(IconButton);
 
 /* ── Featured car card ── */
 function FeaturedCarCard({ car }: { car: Car }) {
+  const { t } = useTranslation();
+  const images = parseCarImages(car.image);
   return (
     <Box
       as={NextLink}
@@ -92,16 +98,20 @@ function FeaturedCarCard({ car }: { car: Car }) {
     >
       <Box position="absolute" left={0} top={0} bottom={0} w="3px" bg="brand.400" zIndex={1} borderLeftRadius="2xl" />
       <Box h="220px" bg="#080808" overflow="hidden" position="relative">
-        <Image
-          src={parseCarImages(car.image)[0] || 'https://via.placeholder.com/400x220?text=Car'}
-          alt={`${car.brand} ${car.model}`}
-          w="100%"
-          h="100%"
-          objectFit="cover"
-        />
+        {images.length > 0 ? (
+          <Image
+            src={images[0]}
+            alt={`${car.brand} ${car.model}`}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+          />
+        ) : (
+          <CarPlaceholder h="220px" />
+        )}
         <Box position="absolute" top={0} right={0}>
-          <Box bg="brand.400" px={3} py={1.5} borderBottomLeftRadius="lg" fontFamily="var(--font-display)" fontSize="xl" color="white" letterSpacing="0.04em" lineHeight="1">
-            ${car.price}<Text as="span" fontSize="xs" fontWeight="normal" letterSpacing="normal">/day</Text>
+          <Box bg="brand.400" px={3} py={1.5} borderBottomLeftRadius="lg" fontFamily="var(--font-display)" fontSize="xl" color="#000000" letterSpacing="0.04em" lineHeight="1">
+            ${car.price}<Text as="span" fontSize="xs" fontWeight="normal" letterSpacing="normal">/{t('cars.perDay')}</Text>
           </Box>
         </Box>
       </Box>
@@ -118,21 +128,21 @@ function FeaturedCarCard({ car }: { car: Car }) {
         </HStack>
         {car.Agency && (
           <HStack spacing={2} mb={3}>
-            <Avatar size="xs" name={car.Agency.name} bg="brand.400" color="white" />
+            <Avatar size="xs" name={car.Agency.name} bg="brand.400" color="#000000" />
             <Text fontSize="xs" color="gray.400">{car.Agency.name}</Text>
           </HStack>
         )}
         <Button
           w="full"
           bg="brand.400"
-          color="white"
+          color="#000000"
           _hover={{ bg: 'brand.500' }}
           borderRadius="xl"
           size="sm"
           rightIcon={<FiArrowRight />}
           onClick={(e) => e.stopPropagation()}
         >
-          View & Book
+          {t('landing.viewAndBook')}
         </Button>
       </Box>
     </Box>
@@ -141,138 +151,271 @@ function FeaturedCarCard({ car }: { car: Car }) {
 
 /* ── Landing page nav ── */
 function LandingNav() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { isAuthenticated, user, logout } = useAuthStore();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const handleLogout = () => {
     logout();
     router.push('/');
   };
 
+  const isAdmin = user?.role === 'admin' || user?.role === 'superAdmin';
+
   return (
-    <Box
-      as="nav"
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      zIndex={1000}
-      bg="#00903"
-      backdropFilter="blur(12px)"
-      px={{ base: 4, md: 8, lg: 12 }}
-      py={3}
-    >
-      <Flex align="center" justify="space-between" maxW="1200px" mx="auto">
-        {/* Logo */}
-        <HStack spacing={3} as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
-          <Logo size="md"/>
-        </HStack>
+    <>
+      <Box
+        as="nav"
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        zIndex={1000}
+        bg="rgba(0,0,0,0.92)"
+        backdropFilter="blur(12px)"
+        borderBottom="1px solid rgba(255,215,0,0.08)"
+        px={{ base: 4, md: 8, lg: 12 }}
+        py={3}
+      >
+        <Flex align="center" justify="space-between" maxW="1200px" mx="auto">
+          {/* Logo */}
+          <Box as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
+            <Logo size="sm" />
+          </Box>
 
-        {/* Center -- Browse Cars link */}
-        <Button
-          as={NextLink}
-          href="/cars"
-          variant="ghost"
-          color="white"
-          fontWeight="medium"
-          fontSize="sm"
-          _hover={{ color: 'brand.400', bg: 'transparent' }}
-          display={{ base: 'none', md: 'inline-flex' }}
-        >
-          Browse Cars
-        </Button>
+          {/* Center -- Browse Cars link (desktop only) */}
+          <Button
+            as={NextLink}
+            href="/cars"
+            variant="ghost"
+            color="white"
+            fontWeight="medium"
+            fontSize="sm"
+            _hover={{ color: 'brand.400', bg: 'transparent' }}
+            display={{ base: 'none', md: 'inline-flex' }}
+          >
+            {t('landing.browseCars')}
+          </Button>
 
-        {/* Right */}
-        {isAuthenticated && user ? (
-          <HStack spacing={3}>
-            <Button
-              as={NextLink}
-              href="/rentals"
-              variant="ghost"
-              size="sm"
-              color="white"
-              fontWeight="medium"
-              leftIcon={<FiCalendar />}
-              _hover={{ color: 'brand.400', bg: 'transparent' }}
-              display={{ base: 'none', md: 'inline-flex' }}
-            >
-              My Rentals
-            </Button>
-            <Button
-              as={NextLink}
-              href="/profile"
-              variant="ghost"
-              size="sm"
-              color="white"
-              fontWeight="medium"
-              leftIcon={<FiUser />}
-              _hover={{ color: 'brand.400', bg: 'transparent' }}
-              display={{ base: 'none', md: 'inline-flex' }}
-            >
-              Profile
-            </Button>
-            <HStack spacing={2}>
-              <Avatar
-                size="sm"
-                name={`${user.firstname} ${user.name}`}
-                src={user.image}
-                bg="brand.400"
-                color="white"
-              />
-              <Text
-                fontSize="sm"
-                fontWeight="medium"
-                color="white"
-                display={{ base: 'none', lg: 'block' }}
-              >
-                {user.firstname}
-              </Text>
-              <Tooltip label="Logout" hasArrow>
-                <IconButton
-                  aria-label="Logout"
-                  icon={<FiLogOut />}
+          {/* Right */}
+          <HStack spacing={2}>
+            {/* Language switcher — always visible (desktop + mobile) */}
+            <LanguageSwitcher />
+
+            {/* Desktop auth links */}
+            {isAuthenticated && user ? (
+              <HStack spacing={2} display={{ base: 'none', md: 'flex' }}>
+                <Button
+                  as={NextLink}
+                  href={isAdmin ? (user.role === 'superAdmin' ? '/super-admin/dashboard' : '/admin/dashboard') : '/rentals'}
                   variant="ghost"
                   size="sm"
-                  color="red.400"
-                  _hover={{ bg: 'whiteAlpha.100' }}
-                  onClick={handleLogout}
+                  color="white"
+                  fontWeight="medium"
+                  leftIcon={<FiCalendar />}
+                  _hover={{ color: 'brand.400', bg: 'transparent' }}
+                >
+                  {isAdmin ? t('landing.goToDashboard') : t('landing.myRentals')}
+                </Button>
+                <Avatar
+                  size="sm"
+                  name={`${user.firstname} ${user.name}`}
+                  src={user.image}
+                  bg="brand.400"
+                  color="#000000"
                 />
-              </Tooltip>
-            </HStack>
-          </HStack>
-        ) : (
-          <HStack spacing={3}>
-            <Button
-              as={NextLink}
-              href="/auth/login"
+                <Tooltip label={t('nav.logout')} hasArrow>
+                  <IconButton
+                    aria-label={t('nav.logout')}
+                    icon={<FiLogOut />}
+                    variant="ghost"
+                    size="sm"
+                    color="red.400"
+                    _hover={{ bg: 'whiteAlpha.100' }}
+                    onClick={handleLogout}
+                  />
+                </Tooltip>
+              </HStack>
+            ) : (
+              <HStack spacing={2} display={{ base: 'none', md: 'flex' }}>
+                <Button
+                  as={NextLink}
+                  href="/auth/login"
+                  variant="ghost"
+                  color="white"
+                  size="sm"
+                  fontWeight="medium"
+                  _hover={{ color: 'brand.400', bg: 'transparent' }}
+                >
+                  {t('auth.signIn')}
+                </Button>
+                <Button
+                  as={NextLink}
+                  href="/register"
+                  bg="brand.400"
+                  color="#000000"
+                  fontWeight="semibold"
+                  _hover={{ bg: 'lightGold.400' }}
+                  size="sm"
+                  borderRadius="lg"
+                >
+                  {t('auth.signUp')}
+                </Button>
+              </HStack>
+            )}
+
+            {/* Mobile hamburger */}
+            <IconButton
+              aria-label="Open menu"
+              icon={<FiMenu />}
               variant="ghost"
               color="white"
-              size="sm"
-              fontWeight="medium"
-              _hover={{ color: 'brand.400', bg: 'transparent' }}
-            >
-              Sign In
-            </Button>
-            <Button
-              as={NextLink}
-              href="/register"
-              bg="brand.400"
-              color="white"
-              _hover={{ bg: 'brand.500' }}
-              size="sm"
+              size="md"
               borderRadius="lg"
-            >
-              Sign Up
-            </Button>
+              display={{ base: 'flex', md: 'none' }}
+              onClick={onOpen}
+              _hover={{ bg: 'rgba(255,215,0,0.08)' }}
+            />
           </HStack>
-        )}
-      </Flex>
-    </Box>
+        </Flex>
+      </Box>
+
+      {/* Mobile Drawer */}
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xs">
+        <DrawerOverlay backdropFilter="blur(4px)" />
+        <DrawerContent bg="#000000" borderLeft="1px solid rgba(255,215,0,0.12)">
+          <DrawerCloseButton color="white" top={4} right={4} />
+          <DrawerHeader borderBottomWidth="1px" borderColor="rgba(255,215,0,0.1)" pb={4} pt={5}>
+            <Box as={NextLink} href="/" onClick={onClose} _hover={{ textDecoration: 'none' }}>
+              <Logo size="sm" />
+            </Box>
+          </DrawerHeader>
+          <DrawerBody px={4} py={5}>
+            <VStack spacing={2} align="stretch">
+              {/* Browse Cars */}
+              <Box
+                as={NextLink}
+                href="/cars"
+                onClick={onClose}
+                display="flex"
+                alignItems="center"
+                gap={3}
+                px={4}
+                py={3}
+                borderRadius="xl"
+                color="white"
+                fontWeight="medium"
+                fontSize="sm"
+                _hover={{ bg: 'rgba(255,215,0,0.08)', color: 'brand.400', textDecoration: 'none' }}
+                transition="all 0.2s"
+              >
+                <Icon as={FiSearch} boxSize={4} color="brand.400" />
+                <Text>{t('landing.browseCars')}</Text>
+              </Box>
+
+              {isAuthenticated && user ? (
+                <>
+                  <Box
+                    as={NextLink}
+                    href={isAdmin ? (user.role === 'superAdmin' ? '/super-admin/dashboard' : '/admin/dashboard') : '/rentals'}
+                    onClick={onClose}
+                    display="flex"
+                    alignItems="center"
+                    gap={3}
+                    px={4}
+                    py={3}
+                    borderRadius="xl"
+                    color="white"
+                    fontWeight="medium"
+                    fontSize="sm"
+                    _hover={{ bg: 'rgba(255,215,0,0.08)', color: 'brand.400', textDecoration: 'none' }}
+                    transition="all 0.2s"
+                  >
+                    <Icon as={FiCalendar} boxSize={4} color="brand.400" />
+                    <Text>{isAdmin ? t('landing.goToDashboard') : t('landing.myRentals')}</Text>
+                  </Box>
+                  {!isAdmin && (
+                    <Box
+                      as={NextLink}
+                      href="/profile"
+                      onClick={onClose}
+                      display="flex"
+                      alignItems="center"
+                      gap={3}
+                      px={4}
+                      py={3}
+                      borderRadius="xl"
+                      color="white"
+                      fontWeight="medium"
+                      fontSize="sm"
+                      _hover={{ bg: 'rgba(255,215,0,0.08)', color: 'brand.400', textDecoration: 'none' }}
+                      transition="all 0.2s"
+                    >
+                      <Icon as={FiUser} boxSize={4} color="brand.400" />
+                      <Text>{t('nav.profile')}</Text>
+                    </Box>
+                  )}
+                  <Box pt={2} borderTop="1px solid rgba(255,215,0,0.08)" mt={1}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      gap={3}
+                      px={4}
+                      py={3}
+                      borderRadius="xl"
+                      color="red.400"
+                      fontWeight="medium"
+                      fontSize="sm"
+                      cursor="pointer"
+                      _hover={{ bg: 'rgba(229,62,62,0.08)', textDecoration: 'none' }}
+                      transition="all 0.2s"
+                      onClick={() => { handleLogout(); onClose(); }}
+                    >
+                      <Icon as={FiLogOut} boxSize={4} />
+                      <Text>{t('nav.logout')}</Text>
+                    </Box>
+                  </Box>
+                </>
+              ) : (
+                <VStack spacing={3} pt={4} align="stretch">
+                  <Button
+                    as={NextLink}
+                    href="/auth/login"
+                    onClick={onClose}
+                    variant="outline"
+                    borderColor="rgba(255,255,255,0.15)"
+                    color="white"
+                    borderRadius="xl"
+                    _hover={{ borderColor: 'brand.400', color: 'brand.400', bg: 'transparent' }}
+                  >
+                    {t('auth.signIn')}
+                  </Button>
+                  <Button
+                    as={NextLink}
+                    href="/register"
+                    onClick={onClose}
+                    bg="brand.400"
+                    color="#000000"
+                    fontWeight="bold"
+                    borderRadius="xl"
+                    _hover={{ bg: 'lightGold.400' }}
+                  >
+                    {t('auth.signUp')}
+                  </Button>
+                </VStack>
+              )}
+            </VStack>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 }
 
 /* ── Quick search bar ── */
 function QuickSearchBar() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [searchBrand, setSearchBrand] = useState('');
   const [fuel, setFuel] = useState('');
@@ -301,10 +444,10 @@ function QuickSearchBar() {
       >
         <Box flex={1}>
           <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1}>
-            Brand / Model
+            {t('landing.brandModel')}
           </Text>
           <Input
-            placeholder="e.g. Toyota, BMW..."
+            placeholder={t('landing.brandModelPlaceholder')}
             value={searchBrand}
             onChange={(e) => setSearchBrand(e.target.value)}
             borderRadius="lg"
@@ -316,10 +459,10 @@ function QuickSearchBar() {
         </Box>
         <Box flex={1}>
           <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1}>
-            Fuel Type
+            {t('landing.fuelType')}
           </Text>
           <Select
-            placeholder="Any fuel type"
+            placeholder={t('landing.anyFuelType')}
             value={fuel}
             onChange={(e) => setFuel(e.target.value)}
             borderRadius="lg"
@@ -328,18 +471,18 @@ function QuickSearchBar() {
             borderColor="gray.200"
             _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #C9A227' }}
           >
-            <option value="Petrol">Petrol</option>
-            <option value="Diesel">Diesel</option>
-            <option value="Electric">Electric</option>
-            <option value="Hybrid">Hybrid</option>
+            <option value="Petrol">{t('landing.petrol')}</option>
+            <option value="Diesel">{t('landing.diesel')}</option>
+            <option value="Electric">{t('landing.electric')}</option>
+            <option value="Hybrid">{t('landing.hybrid')}</option>
           </Select>
         </Box>
         <Box flex={1}>
           <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1}>
-            Gearbox
+            {t('landing.gearbox')}
           </Text>
           <Select
-            placeholder="Any gearbox"
+            placeholder={t('landing.anyGearbox')}
             value={gearBox}
             onChange={(e) => setGearBox(e.target.value)}
             borderRadius="lg"
@@ -348,14 +491,15 @@ function QuickSearchBar() {
             borderColor="gray.200"
             _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #C9A227' }}
           >
-            <option value="Automatic">Automatic</option>
-            <option value="Manual">Manual</option>
+            <option value="Automatic">{t('landing.automatic')}</option>
+            <option value="Manual">{t('landing.manual')}</option>
           </Select>
         </Box>
         <Button
           bg="brand.400"
-          color="white"
-          _hover={{ bg: 'brand.500' }}
+          color="#000000"
+          fontWeight="semibold"
+          _hover={{ bg: 'lightGold.400' }}
           borderRadius="lg"
           h={12}
           px={8}
@@ -363,7 +507,7 @@ function QuickSearchBar() {
           leftIcon={<FiSearch />}
           onClick={handleSearch}
         >
-          Search Cars
+          {t('landing.searchCars')}
         </Button>
       </Flex>
     </Box>
@@ -372,6 +516,7 @@ function QuickSearchBar() {
 
 /* ── Scroll indicator ── */
 function ScrollIndicator() {
+  const { t } = useTranslation();
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 80], [1, 0]);
 
@@ -391,7 +536,7 @@ function ScrollIndicator() {
         <Icon as={FiChevronsDown} boxSize={6} color="whiteAlpha.700" />
       </MotionBox>
       <Text fontSize="xs" color="whiteAlpha.500" mt={1}>
-        Scroll
+        {t('landing.scroll')}
       </Text>
     </MotionBox>
   );
@@ -421,11 +566,11 @@ function FloatingBackToTop() {
           right={8}
           zIndex={1000}
           bg="brand.400"
-          color="white"
+          color="#000000"
           borderRadius="full"
           size="lg"
           boxShadow="lg"
-          _hover={{ bg: 'brand.500' }}
+          _hover={{ bg: 'lightGold.400' }}
           onClick={scrollToTop}
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -500,6 +645,7 @@ function TiltCard({ children }: { children: React.ReactNode }) {
 
 /* ── Landing page (public) ── */
 function LandingPage() {
+  const { t } = useTranslation();
   const { isAuthenticated, user } = useAuthStore();
   const { data: carsData } = useCars({ limit: 6 });
   const cars = carsData?.data ?? [];
@@ -523,28 +669,28 @@ function LandingPage() {
   const whyOrb2Y = useTransform(whyP, [0, 1], [90, -90]);
 
   const stats = [
-    { value: '500+', label: 'Vehicles' },
-    { value: '50+', label: 'Agencies' },
-    { value: '10K+', label: 'Clients' },
+    { value: '500+', label: t('landing.vehicles') },
+    { value: '50+', label: t('landing.agencies') },
+    { value: '10K+', label: t('landing.clients') },
   ];
 
   const steps = [
     {
       icon: FiSearch,
-      title: 'Choose Your Car',
-      desc: 'Browse our extensive fleet and find the perfect vehicle for your trip.',
+      title: t('landing.chooseYourCar'),
+      desc: t('landing.chooseYourCarDesc'),
       number: '01',
     },
     {
       icon: FiCalendar,
-      title: 'Book Online',
-      desc: 'Select your dates, confirm details, and reserve in just a few clicks.',
+      title: t('landing.bookOnline'),
+      desc: t('landing.bookOnlineDesc'),
       number: '02',
     },
     {
       icon: FiCheckCircle,
-      title: 'Hit the Road',
-      desc: 'Pick up your car and enjoy the ride. It is that simple.',
+      title: t('landing.hitTheRoad'),
+      desc: t('landing.hitTheRoadDesc'),
       number: '03',
     },
   ];
@@ -552,33 +698,33 @@ function LandingPage() {
   const features = [
     {
       icon: FiShield,
-      title: 'Fully Insured',
-      desc: 'All rentals come with comprehensive insurance coverage for your peace of mind.',
+      title: t('landing.fullyInsured'),
+      desc: t('landing.fullyInsuredDesc'),
     },
     {
       icon: FiUsers,
-      title: 'Top Agencies',
-      desc: 'Vetted, professional rental agencies with the best fleet in the market.',
+      title: t('landing.topAgencies'),
+      desc: t('landing.topAgenciesDesc'),
     },
     {
       icon: FiAward,
-      title: 'Best Price',
-      desc: 'Transparent daily rates with no hidden fees. What you see is what you pay.',
+      title: t('landing.bestPrice'),
+      desc: t('landing.bestPriceDesc'),
     },
     {
       icon: FiClock,
-      title: '24/7 Support',
-      desc: 'Round-the-clock customer support to assist you whenever you need help.',
+      title: t('landing.support247'),
+      desc: t('landing.support247Desc'),
     },
     {
       icon: FiCalendar,
-      title: 'Easy Booking',
-      desc: 'Reserve your vehicle in minutes with our simple and intuitive booking system.',
+      title: t('landing.easyBooking'),
+      desc: t('landing.easyBookingDesc'),
     },
     {
       icon: FiCheckCircle,
-      title: 'Instant Confirmation',
-      desc: 'Get immediate booking confirmation and access your rental details anytime.',
+      title: t('landing.instantConfirmation'),
+      desc: t('landing.instantConfirmationDesc'),
     },
   ];
 
@@ -674,7 +820,7 @@ function LandingPage() {
                 textTransform="uppercase"
                 letterSpacing="wider"
               >
-                Premium Car Rental
+                {t('landing.premiumCarRental')}
               </Text>
             </MotionBox>
 
@@ -689,7 +835,7 @@ function LandingPage() {
                 fontFamily="var(--font-display)"
                 textTransform="uppercase"
               >
-                Drive Your
+                {t('landing.driveYour')}
               </Text>
               <MotionText
                 fontSize={{ base: '6xl', md: '8xl', lg: '9xl' }}
@@ -708,7 +854,7 @@ function LandingPage() {
                 }}
                 transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
               >
-                Dream Car
+                {t('landing.dreamCar')}
               </MotionText>
             </Box>
 
@@ -722,9 +868,9 @@ function LandingPage() {
               textTransform="uppercase"
               fontWeight="medium"
             >
-              Book from hundreds of premium vehicles across top-rated agencies.{' '}
+              {t('landing.heroSubtitle')}{' '}
               <Text as="span" color="brand.400" fontWeight="semibold">
-                Fast. Simple. Reliable.
+                {t('landing.fastSimpleReliable')}
               </Text>
             </Text>
 
@@ -735,7 +881,7 @@ function LandingPage() {
                 href="/cars"
                 size="lg"
                 bg="brand.400"
-                color="white"
+                color="#000"
                 _hover={{
                   bg: 'brand.500',
                   transform: 'translateY(-2px)',
@@ -745,7 +891,7 @@ function LandingPage() {
                 px={10}
                 rightIcon={<FiArrowRight />}
               >
-                Browse Cars
+                {t('landing.browseCars')}
               </Button>
               {isClient ? (
                 <Button
@@ -759,7 +905,7 @@ function LandingPage() {
                   borderRadius="full"
                   px={10}
                 >
-                  My Rentals
+                  {t('landing.myRentals')}
                 </Button>
               ) : (
                 !isAuthenticated && (
@@ -774,7 +920,7 @@ function LandingPage() {
                     borderRadius="full"
                     px={10}
                   >
-                    Sign Up Free
+                    {t('auth.signUpFree')}
                   </Button>
                 )
               )}
@@ -860,14 +1006,14 @@ function LandingPage() {
           <FadeInOnScroll>
             <VStack spacing={3} textAlign="center">
               <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
-                Simple Process
+                {t('landing.simpleProcess')}
               </Text>
               <Box w="32px" h="2px" bg="brand.400" mb={3} mx="auto" />
               <Heading fontFamily="var(--font-display)" fontSize={{ base: '4xl', md: '5xl' }} color="white" letterSpacing="0.02em" textTransform="uppercase">
-                How It Works
+                {t('landing.howItWorks')}
               </Heading>
               <Text color="gray.400" fontSize="md" maxW="420px">
-                Renting a car has never been easier — three steps and you&apos;re on your way.
+                {t('landing.howItWorksSubtitle')}
               </Text>
             </VStack>
           </FadeInOnScroll>
@@ -1045,10 +1191,10 @@ function LandingPage() {
               <VStack spacing={3} textAlign="center">
                 <Box w="32px" h="2px" bg="brand.400" mb={3} mx="auto" />
                 <Heading fontFamily="var(--font-display)" fontSize={{ base: '4xl', md: '5xl' }} color="white" letterSpacing="0.02em" textTransform="uppercase">
-                  Featured Cars
+                  {t('landing.featuredCars')}
                 </Heading>
                 <Text color="gray.400" maxW="500px">
-                  Discover our selection of premium vehicles from trusted agencies
+                  {t('landing.featuredCarsSubtitle')}
                 </Text>
               </VStack>
             </FadeInOnScroll>
@@ -1073,7 +1219,7 @@ function LandingPage() {
                 size="lg"
                 _hover={{ bg: 'rgba(255,215,0,0.08)' }}
               >
-                View All Cars
+                {t('landing.viewAllCars')}
               </Button>
             </FadeInOnScroll>
           </VStack>
@@ -1102,10 +1248,10 @@ function LandingPage() {
             <VStack spacing={3} textAlign="center">
               <Box w="32px" h="2px" bg="brand.400" mb={3} mx="auto" />
               <Heading fontFamily="var(--font-display)" fontSize={{ base: '4xl', md: '5xl' }} color="white" letterSpacing="0.02em" textTransform="uppercase">
-                Why Choose Us
+                {t('landing.whyChooseUs')}
               </Heading>
               <Text color="gray.400" fontSize="md" maxW="460px">
-                Everything you need for a seamless car rental experience, all in one place.
+                {t('landing.whyChooseUsSubtitle')}
               </Text>
             </VStack>
           </FadeInOnScroll>
@@ -1274,11 +1420,11 @@ function LandingPage() {
             />
 
             <VStack spacing={6} position="relative">
-              <Heading fontFamily="var(--font-display)" fontSize={{ base: '5xl', md: '7xl' }} color="white" letterSpacing="0.03em" textTransform="uppercase" lineHeight="0.95">
-                Ready to<br />Drive?
+              <Heading fontFamily="var(--font-display)" fontSize={{ base: '5xl', md: '7xl' }} color="white" letterSpacing="0.03em" textTransform="uppercase" lineHeight="0.95" whiteSpace="pre-line">
+                {t('landing.readyToDrive')}
               </Heading>
               <Text color="whiteAlpha.700" maxW="500px" fontSize="lg">
-                Join thousands of happy customers who trust us for their car rental needs.
+                {t('landing.ctaSubtitle')}
               </Text>
               <HStack spacing={4} flexWrap="wrap" justify="center" pt={2}>
                 <Button
@@ -1286,12 +1432,13 @@ function LandingPage() {
                   href="/register"
                   size="lg"
                   bg="brand.400"
-                  color="white"
-                  _hover={{ bg: 'brand.500' }}
+                  color="#000000"
+                  fontWeight="bold"
+                  _hover={{ bg: 'lightGold.400' }}
                   borderRadius="lg"
                   px={8}
                 >
-                  Get Started Free
+                  {t('landing.getStartedFree')}
                 </Button>
                 <Button
                   as={NextLink}
@@ -1304,7 +1451,7 @@ function LandingPage() {
                   borderRadius="lg"
                   px={8}
                 >
-                  Browse Cars
+                  {t('landing.browseCars')}
                 </Button>
               </HStack>
             </VStack>
@@ -1333,7 +1480,7 @@ function LandingPage() {
               color="gray.500"
               _hover={{ color: 'white' }}
             >
-              Browse Cars
+              {t('landing.browseCars')}
             </Text>
             <Text
               as={NextLink}
@@ -1342,7 +1489,7 @@ function LandingPage() {
               color="gray.500"
               _hover={{ color: 'white' }}
             >
-              Sign In
+              {t('auth.signIn')}
             </Text>
             <Text
               as={NextLink}
@@ -1351,11 +1498,11 @@ function LandingPage() {
               color="gray.500"
               _hover={{ color: 'white' }}
             >
-              Sign Up
+              {t('auth.signUp')}
             </Text>
           </HStack>
           <Text fontSize="sm" color="gray.400">
-            &copy; {new Date().getFullYear()} BTHG Rental. All rights reserved.
+            &copy; {new Date().getFullYear()} {t('common.brand')}. {t('common.allRightsReserved')}
           </Text>
         </Flex>
       </Box>
@@ -1368,6 +1515,7 @@ function LandingPage() {
 
 /* ── Root page ── */
 export default function HomePage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { isAuthenticated, user, isLoading, isInitializing } = useAuthStore();
 
@@ -1387,12 +1535,12 @@ export default function HomePage() {
 
   // Show loader while initializing auth state
   if (isInitializing) {
-    return <CarLoader fullScreen text="Loading..." />;
+    return <CarLoader fullScreen text={t('loading.loadingText')} />;
   }
 
   // Admin/superAdmin authenticated -- waiting for redirect
   if (isAuthenticated && (user?.role === 'admin' || user?.role === 'superAdmin')) {
-    return <CarLoader fullScreen text="Redirecting..." />;
+    return <CarLoader fullScreen text={t('loading.redirecting')} />;
   }
 
   // Show landing page for guests AND authenticated clients

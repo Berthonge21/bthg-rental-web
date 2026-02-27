@@ -3,12 +3,15 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useTranslation } from 'react-i18next';
 
 const MotionBox = motion.create(Box);
 const MotionFlex = motion.create(Flex);
 const MotionText = motion.create(Text);
 
 export function LoadingScreen() {
+  const { t } = useTranslation();
+
   return (
     <MotionFlex
       initial={{ opacity: 1 }}
@@ -79,38 +82,6 @@ export function LoadingScreen() {
           </MotionBox>
         </MotionBox>
 
-        {/* Brand name — slides in after logo settles */}
-        <MotionText
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 0.9, y: 0 }}
-          transition={{ duration: 1.1, delay: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          mt={8}
-          fontSize="11px"
-          textTransform="uppercase"
-          fontWeight="black"
-          letterSpacing="0.34em"
-          color="rgba(255,255,255,0.88)"
-          textAlign="center"
-        >
-          BTHG RENTAL
-        </MotionText>
-
-        {/* Gold tagline — appears just after brand name */}
-        <MotionText
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 0.65, y: 0 }}
-          transition={{ duration: 0.9, delay: 2.0, ease: 'easeOut' }}
-          mt={1}
-          fontSize="8px"
-          textTransform="uppercase"
-          fontWeight="semibold"
-          letterSpacing="0.42em"
-          color="brand.400"
-          textAlign="center"
-        >
-          Premium Car Rental
-        </MotionText>
-
         {/* Thin loader bar — slower sweep */}
         <MotionBox
           initial={{ opacity: 0 }}
@@ -140,6 +111,38 @@ export function LoadingScreen() {
             }}
           />
         </MotionBox>
+
+        {/* Brand name — slides in after logo settles */}
+        <MotionText
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 0.9, y: 0 }}
+          transition={{ duration: 1.1, delay: 1.4, ease: [0.16, 1, 0.3, 1] }}
+          mt={8}
+          fontSize="11px"
+          textTransform="uppercase"
+          fontWeight="black"
+          letterSpacing="0.34em"
+          color="rgba(255,255,255,0.88)"
+          textAlign="center"
+        >
+          {t('loading.brand')}
+        </MotionText>
+
+        {/* Gold tagline — appears just after brand name */}
+        <MotionText
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 0.65, y: 0 }}
+          transition={{ duration: 0.9, delay: 2.0, ease: 'easeOut' }}
+          mt={1}
+          fontSize="8px"
+          textTransform="uppercase"
+          fontWeight="semibold"
+          letterSpacing="0.42em"
+          color="brand.400"
+          textAlign="center"
+        >
+          {t('loading.tagline')}
+        </MotionText>
       </Box>
     </MotionFlex>
   );

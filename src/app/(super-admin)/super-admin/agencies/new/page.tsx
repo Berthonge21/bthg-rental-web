@@ -19,6 +19,7 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { useCreateAgency, useSuperAdminUsers } from '@/hooks';
 import { ProgressButton } from '@/components/ui/ProgressButton';
 import { Status } from '@berthonge21/sdk';
@@ -35,6 +36,7 @@ const agencySchema = z.object({
 type AgencyFormData = z.infer<typeof agencySchema>;
 
 export default function NewAgencyPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const cardBg = useColorModeValue('white', 'gray.800');
@@ -65,15 +67,15 @@ export default function NewAgencyPage() {
         status: data.status as Status,
       });
       toast({
-        title: 'Agency created',
-        description: 'The agency has been created successfully',
+        title: t('agencies.agencyCreated'),
+        description: t('agencies.agencyCreatedDesc'),
         status: 'success',
         duration: 3000,
       });
       router.push('/super-admin/agencies');
     } catch (error) {
       toast({
-        title: 'Failed to create agency',
+        title: t('agencies.failedToCreateAgency'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 5000,
@@ -89,32 +91,32 @@ export default function NewAgencyPage() {
           leftIcon={<FiArrowLeft />}
           onClick={() => router.back()}
         >
-          Back
+          {t('common.back')}
         </Button>
-        <Heading size="lg">Create New Agency</Heading>
+        <Heading size="lg">{t('agencies.createNewAgency')}</Heading>
       </HStack>
 
       <Box bg={cardBg} p={6} borderRadius="xl" boxShadow="sm">
         <form onSubmit={handleSubmit(onSubmit)}>
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
             <FormControl isInvalid={!!errors.name}>
-              <FormLabel>Agency Name</FormLabel>
+              <FormLabel>{t('agencies.agencyName')}</FormLabel>
               <Input {...register('name')} placeholder="Enter agency name" />
               <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.email}>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t('profile.email')}</FormLabel>
               <Input {...register('email')} type="email" placeholder="agency@example.com" />
               <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.telephone}>
-              <FormLabel>Phone Number</FormLabel>
+              <FormLabel>{t('agencies.phoneNumber')}</FormLabel>
               <Input {...register('telephone')} placeholder="+1234567890" />
               <FormErrorMessage>{errors.telephone?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.responsibleId}>
-              <FormLabel>Assign Admin</FormLabel>
-              <Select {...register('responsibleId', { valueAsNumber: true })} placeholder="Select an admin">
+              <FormLabel>{t('agencies.assignAdmin')}</FormLabel>
+              <Select {...register('responsibleId', { valueAsNumber: true })} placeholder={t('agencies.selectAdmin')}>
                 {availableAdmins.map((admin) => (
                   <option key={admin.id} value={admin.id}>
                     {admin.firstname} {admin.name} ({admin.email})
@@ -123,11 +125,11 @@ export default function NewAgencyPage() {
               </Select>
               <FormErrorMessage>{errors.responsibleId?.message}</FormErrorMessage>
               {availableAdmins.length === 0 && (
-                <Box fontSize="sm" color="orange.500" mt={1}>No unassigned admins available.</Box>
+                <Box fontSize="sm" color="orange.500" mt={1}>{t('agencies.noUnassignedAdmins')}</Box>
               )}
             </FormControl>
             <FormControl isInvalid={!!errors.address} gridColumn={{ md: 'span 2' }}>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>{t('profile.address')}</FormLabel>
               <Input {...register('address')} placeholder="Enter full address" />
               <FormErrorMessage>{errors.address?.message}</FormErrorMessage>
             </FormControl>
@@ -141,8 +143,8 @@ export default function NewAgencyPage() {
             </FormControl>
           </SimpleGrid>
           <HStack justify="flex-end" pt={4}>
-            <Button variant="ghost" onClick={() => router.back()}>Cancel</Button>
-            <ProgressButton type="submit" colorScheme="brand" isLoading={createMutation.isPending}>Create Agency</ProgressButton>
+            <Button variant="ghost" onClick={() => router.back()}>{t('common.cancel')}</Button>
+            <ProgressButton type="submit" colorScheme="brand" isLoading={createMutation.isPending}>{t('agencies.createNewAgency')}</ProgressButton>
           </HStack>
         </form>
       </Box>

@@ -14,6 +14,7 @@ import { api } from '@/lib/api';
 import { ProgressButton } from '@/components/ui/ProgressButton';
 import { ConfirmDialog } from '@/components/ui';
 import { readFileAsDataURL, validateImageFile } from '@/lib/imageUtils';
+import { useTranslation } from 'react-i18next';
 
 interface ProfileFormData {
   firstname: string;
@@ -25,6 +26,7 @@ interface ProfileFormData {
 }
 
 export default function ClientProfilePage() {
+  const { t } = useTranslation();
   const toast = useToast();
   const router = useRouter();
   const { user, fetchUser, deactivateAccount } = useAuthStore();
@@ -70,7 +72,7 @@ export default function ClientProfilePage() {
     if (!file) return;
     const error = validateImageFile(file);
     if (error) {
-      toast({ title: 'Invalid file', description: error, status: 'error', duration: 4000 });
+      toast({ title: t('profile.invalidFile'), description: error, status: 'error', duration: 4000 });
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -79,7 +81,7 @@ export default function ClientProfilePage() {
       setValue('image', dataUrl, { shouldDirty: true });
       setImagePreview(dataUrl);
     } catch {
-      toast({ title: 'Failed to read file', status: 'error', duration: 3000 });
+      toast({ title: t('profile.failedToReadFile'), status: 'error', duration: 3000 });
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -95,9 +97,9 @@ export default function ClientProfilePage() {
     try {
       await api.users.updateProfile(data);
       await fetchUser();
-      toast({ title: 'Profile updated', status: 'success', duration: 3000 });
+      toast({ title: t('profile.profileUpdated'), status: 'success', duration: 3000 });
     } catch (err) {
-      toast({ title: 'Failed to update profile', description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
+      toast({ title: t('profile.failedToUpdate'), description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
     } finally {
       setIsSaving(false);
     }
@@ -107,10 +109,10 @@ export default function ClientProfilePage() {
     setIsDeactivating(true);
     try {
       await deactivateAccount();
-      toast({ title: 'Account deactivated', description: 'You have been logged out.', status: 'info', duration: 5000 });
+      toast({ title: t('profile.accountDeactivated'), description: t('profile.accountDeactivatedDesc'), status: 'info', duration: 5000 });
       router.push('/auth/login');
     } catch (err) {
-      toast({ title: 'Failed to deactivate', description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
+      toast({ title: t('profile.failedToDeactivate'), description: err instanceof Error ? err.message : 'An error occurred', status: 'error', duration: 5000 });
     } finally {
       setIsDeactivating(false);
       deactivateDialog.onClose();
@@ -129,9 +131,9 @@ export default function ClientProfilePage() {
           textTransform="uppercase"
           color="white"
         >
-          My Profile
+          {t('profile.title')}
         </Text>
-        <Text fontSize="sm" color="gray.500" mt={1}>Manage your account details and preferences</Text>
+        <Text fontSize="sm" color="gray.500" mt={1}>{t('profile.subtitle')}</Text>
       </Box>
 
       <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6}>
@@ -157,10 +159,10 @@ export default function ClientProfilePage() {
             </Box>
             {imagePreview && (
               <Button size="xs" variant="ghost" colorScheme="red" leftIcon={<FiX />} onClick={handleRemoveImage}>
-                Remove Photo
+                {t('profile.removePhoto')}
               </Button>
             )}
-            <Text fontSize="xs" color={textMuted}>Click the camera icon to update your photo</Text>
+            <Text fontSize="xs" color={textMuted}>{t('profile.updatePhotoHint')}</Text>
             <VStack spacing={1}>
               <Text fontWeight="bold" fontSize="xl">{user?.firstname} {user?.name}</Text>
               <Text color={textMuted} fontSize="sm">{user?.email}</Text>
@@ -171,42 +173,42 @@ export default function ClientProfilePage() {
         {/* Edit form */}
         <Box bg={cardBg} border="1px" borderColor={cardBorder} borderRadius="2xl" p={6} gridColumn={{ lg: 'span 2' }}>
           <Text fontFamily="var(--font-display)" fontSize="xl" fontWeight="black" letterSpacing="0.03em" textTransform="uppercase" color="white" mb={6}>
-            Edit Profile
+            {t('profile.editProfile')}
           </Text>
           <form onSubmit={handleSubmit(onSubmit)}>
             <VStack spacing={4} align="stretch">
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 <FormControl>
-                  <FormLabel fontSize="sm">First Name</FormLabel>
+                  <FormLabel fontSize="sm">{t('profile.firstName')}</FormLabel>
                   <Input {...register('firstname')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontSize="sm">Last Name</FormLabel>
+                  <FormLabel fontSize="sm">{t('profile.lastName')}</FormLabel>
                   <Input {...register('name')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
               </SimpleGrid>
               <FormControl>
-                <FormLabel fontSize="sm">Email</FormLabel>
+                <FormLabel fontSize="sm">{t('profile.email')}</FormLabel>
                 <Input value={user?.email ?? ''} isReadOnly bg={useColorModeValue('gray.50', 'navy.600')} borderRadius="lg" />
               </FormControl>
               <FormControl>
-                <FormLabel fontSize="sm">Phone</FormLabel>
+                <FormLabel fontSize="sm">{t('profile.phone')}</FormLabel>
                 <Input {...register('telephone')} borderRadius="lg" type="tel" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
               </FormControl>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 <FormControl>
-                  <FormLabel fontSize="sm">Address</FormLabel>
+                  <FormLabel fontSize="sm">{t('profile.address')}</FormLabel>
                   <Input {...register('address')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontSize="sm">City</FormLabel>
+                  <FormLabel fontSize="sm">{t('profile.city')}</FormLabel>
                   <Input {...register('city')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
               </SimpleGrid>
               <Divider />
               <HStack justify="flex-end">
                 <ProgressButton type="submit" colorScheme="brand" isLoading={isSaving} isDisabled={!isDirty}>
-                  Save Changes
+                  {t('common.save')}
                 </ProgressButton>
               </HStack>
             </VStack>
@@ -218,13 +220,13 @@ export default function ClientProfilePage() {
       <Box mt={8} p={6} bg={dangerBg} borderRadius="2xl" border="1px solid" borderColor={dangerBorder}>
         <HStack spacing={3} mb={3}>
           <Box color="red.500"><FiAlertTriangle size={20} /></Box>
-          <Heading size="md" color="red.500">Danger Zone</Heading>
+          <Heading size="md" color="red.500">{t('profile.dangerZone')}</Heading>
         </HStack>
         <Text color={textMuted} fontSize="sm" mb={4}>
-          Deactivating your account will log you out. You can reactivate it yourself at any time from the login page.
+          {t('profile.deactivateWarningClient')}
         </Text>
         <Button colorScheme="red" variant="outline" leftIcon={<FiAlertTriangle />} onClick={deactivateDialog.onOpen}>
-          Deactivate My Account
+          {t('profile.deactivateAccount')}
         </Button>
       </Box>
 
@@ -232,10 +234,10 @@ export default function ClientProfilePage() {
         isOpen={deactivateDialog.isOpen}
         onClose={deactivateDialog.onClose}
         onConfirm={handleDeactivate}
-        title="Deactivate Account"
-        message="Are you sure you want to deactivate your account? You will be logged out, but you can reactivate your account at any time from the login page."
-        confirmText="Deactivate"
-        cancelText="Cancel"
+        title={t('profile.deactivateTitle')}
+        message={t('profile.deactivateConfirmMsg')}
+        confirmText={t('profile.confirmDeactivate')}
+        cancelText={t('common.cancel')}
         isLoading={isDeactivating}
         colorScheme="red"
       />

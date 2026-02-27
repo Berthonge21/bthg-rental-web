@@ -35,8 +35,10 @@ import {
 } from '@chakra-ui/react';
 import { FiSearch, FiFilter, FiArrowRight, FiX } from 'react-icons/fi';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useCars, useAgencies } from '@/hooks';
 import { parseCarImages } from '@/lib/imageUtils';
+import { CarPlaceholder } from '@/components/ui/CarPlaceholder';
 import { FadeInOnScroll } from '@/components/ui/FadeInOnScroll';
 import type { Car } from '@berthonge21/sdk';
 
@@ -75,7 +77,7 @@ function TiltCard({ children }: { children: React.ReactNode }) {
   );
 }
 
-function CarCard({ car }: { car: Car }) {
+function CarCard({ car, t }: { car: Car; t: (key: string, opts?: Record<string, unknown>) => string }) {
   const cardBg = useColorModeValue('white', 'navy.700');
   const cardBorder = useColorModeValue('gray.100', 'navy.600');
   const specColor = useColorModeValue('text.muted', 'gray.400');
@@ -97,15 +99,19 @@ function CarCard({ car }: { car: Car }) {
       <Box position="absolute" left={0} top={0} bottom={0} w="3px" bg="brand.400" zIndex={1} borderLeftRadius="2xl" />
       {/* Image */}
       <Box h="220px" bg="navy.800" position="relative" overflow="hidden">
-        <Image
-          src={firstImage || 'https://via.placeholder.com/400x220?text=No+Image'}
-          alt={`${car.brand} ${car.model}`}
-          w="100%"
-          h="100%"
-          objectFit="cover"
-        />
+        {firstImage ? (
+          <Image
+            src={firstImage}
+            alt={`${car.brand} ${car.model}`}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+          />
+        ) : (
+          <CarPlaceholder h="220px" />
+        )}
         <Box position="absolute" top={0} right={0}>
-          <Box bg="brand.400" px={3} py={1.5} borderBottomLeftRadius="lg" fontFamily="var(--font-display)" fontSize="xl" color="white" letterSpacing="0.04em" lineHeight="1">
+          <Box bg="brand.400" px={3} py={1.5} borderBottomLeftRadius="lg" fontFamily="var(--font-display)" fontSize="xl" color="#000000" letterSpacing="0.04em" lineHeight="1">
             ${car.price}<Text as="span" fontSize="xs" fontWeight="normal" letterSpacing="normal">/day</Text>
           </Box>
         </Box>
@@ -123,11 +129,11 @@ function CarCard({ car }: { car: Car }) {
           <Text fontSize="xs" color={specColor}>·</Text>
           <Text fontSize="xs" color={specColor}>{car.gearBox}</Text>
           <Text fontSize="xs" color={specColor}>·</Text>
-          <Text fontSize="xs" color={specColor}>{car.door} doors</Text>
+          <Text fontSize="xs" color={specColor}>{t('public.doorCount', { count: car.door })}</Text>
         </HStack>
         {car.Agency && (
           <HStack spacing={2} mb={3}>
-            <Avatar size="xs" name={car.Agency.name} bg="brand.400" color="white" />
+            <Avatar size="xs" name={car.Agency.name} bg="brand.400" color="#000000" />
             <Text fontSize="xs" color={specColor}>{car.Agency.name}</Text>
           </HStack>
         )}
@@ -136,13 +142,14 @@ function CarCard({ car }: { car: Car }) {
           href={`/cars/${car.id}`}
           w="full"
           bg="brand.400"
-          color="white"
-          _hover={{ bg: 'brand.500' }}
+          color="#000000"
+          fontWeight="semibold"
+          _hover={{ bg: 'lightGold.400' }}
           borderRadius="xl"
           size="sm"
           rightIcon={<FiArrowRight />}
         >
-          View & Book
+          {t('landing.viewAndBook')}
         </Button>
       </Box>
     </Box>
@@ -247,6 +254,7 @@ function FilterPanel({
 }
 
 export default function CarsPage() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [agencyId, setAgencyId] = useState<number | undefined>();
   const [fuel, setFuel] = useState('All');
@@ -287,10 +295,10 @@ export default function CarsPage() {
     <Box>
       <VStack align="start" spacing={1} mb={6}>
         <Heading size="lg">
-          <Text as="span" color="accent.400">Available</Text>{' '}Cars
+          <Text as="span" color="accent.400">{t('cars.available')}</Text>{' '}{t('nav.cars')}
         </Heading>
         <Text color={textMuted} fontSize="sm">
-          {data?.meta?.total ?? 0} vehicles available across all agencies
+          {t('cars.vehiclesAvailable', { count: data?.meta?.total ?? 0 })}
         </Text>
       </VStack>
 
@@ -310,7 +318,7 @@ export default function CarsPage() {
         >
           <Flex align="center" gap={2} mb={5}>
             <Icon as={FiFilter} color="brand.400" />
-            <Text fontWeight="semibold">Filters</Text>
+            <Text fontWeight="semibold">{t('public.filters')}</Text>
           </Flex>
           <FilterPanel
             agencies={agencies}
@@ -339,7 +347,7 @@ export default function CarsPage() {
             onClick={() => setFilterDrawerOpen(true)}
             borderColor={filterBorder}
           >
-            Filters {(fuel !== 'All' || gearBox !== 'All' || agencyId !== undefined || priceRange[0] > 0 || priceRange[1] < 1000) && '·  Active'}
+            {t('public.filters')} {(fuel !== 'All' || gearBox !== 'All' || agencyId !== undefined || priceRange[0] > 0 || priceRange[1] < 1000) && `· ${t('public.filtersActive')}`}
           </Button>
 
           {/* Search bar */}
@@ -348,7 +356,7 @@ export default function CarsPage() {
               <Icon as={FiSearch} color={textMuted} />
             </InputLeftElement>
             <Input
-              placeholder="Search by brand or model..."
+              placeholder={t('public.searchCars')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               borderRadius="xl"
@@ -364,15 +372,15 @@ export default function CarsPage() {
             </SimpleGrid>
           ) : filtered.length === 0 ? (
             <Box textAlign="center" py={20}>
-              <Text fontSize="xl" mb={2}>No cars found</Text>
-              <Text color={textMuted}>Try adjusting your filters</Text>
+              <Text fontSize="xl" mb={2}>{t('cars.noCarsFound')}</Text>
+              <Text color={textMuted}>{t('cars.adjustFilters')}</Text>
             </Box>
           ) : (
             <SimpleGrid columns={{ base: 1, sm: 2, xl: 3 }} spacing={5}>
               {filtered.map((car: Car, index: number) => (
                 <FadeInOnScroll key={car.id} delay={Math.min(index % 3, 2) * 0.08} direction="up">
                   <TiltCard>
-                    <CarCard car={car} />
+                    <CarCard car={car} t={t} />
                   </TiltCard>
                 </FadeInOnScroll>
               ))}
@@ -383,11 +391,11 @@ export default function CarsPage() {
           {totalPages > 1 && (
             <HStack justify="center" mt={8} spacing={2}>
               <Button size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} isDisabled={page === 1} variant="outline">
-                Previous
+                {t('common.previous')}
               </Button>
-              <Text fontSize="sm" color={textMuted}>Page {page} of {totalPages}</Text>
+              <Text fontSize="sm" color={textMuted}>{t('common.page', { current: page, total: totalPages })}</Text>
               <Button size="sm" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} isDisabled={page === totalPages} variant="outline">
-                Next
+                {t('common.next')}
               </Button>
             </HStack>
           )}
@@ -401,7 +409,7 @@ export default function CarsPage() {
           <DrawerHeader borderBottomWidth="1px">
             <Flex align="center" gap={2}>
               <Icon as={FiFilter} color="brand.400" />
-              <Text fontWeight="semibold">Filters</Text>
+              <Text fontWeight="semibold">{t('public.filters')}</Text>
             </Flex>
           </DrawerHeader>
           <DrawerCloseButton />

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
-  Heading,
+  Flex,
   HStack,
   Badge,
   Text,
@@ -25,6 +26,7 @@ const statusColors: Record<RentalStatus, string> = {
 };
 
 export default function SuperAdminRentalsPage() {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<RentalStatus | ''>('');
 
@@ -100,8 +102,24 @@ export default function SuperAdminRentalsPage() {
 
   return (
     <Box>
-      <HStack justify="space-between" mb={6}>
-        <Heading size="lg" color="text.primary">All Rentals</Heading>
+      <Flex justify="space-between" align="flex-end" mb={8} flexWrap="wrap" gap={4}>
+        <Box>
+          <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
+          <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
+            Super Admin Panel
+          </Text>
+          <Text
+            fontFamily="var(--font-display)"
+            fontSize="3xl"
+            fontWeight="black"
+            letterSpacing="0.02em"
+            textTransform="uppercase"
+            color="gray.500"
+          >
+            {t('rentals.allRentals')}
+          </Text>
+          <Text fontSize="sm" color="gray.500" mt={1}>{t('rentals.platformSubtitle')}</Text>
+        </Box>
         <Select
           placeholder="All Statuses"
           value={statusFilter}
@@ -116,7 +134,7 @@ export default function SuperAdminRentalsPage() {
           <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
         </Select>
-      </HStack>
+      </Flex>
 
       <Box
         bg={cardBg}

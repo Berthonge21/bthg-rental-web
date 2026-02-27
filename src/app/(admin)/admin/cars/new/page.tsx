@@ -12,9 +12,11 @@ import {
 import { FiArrowLeft } from 'react-icons/fi';
 import { CarForm } from '@/components/forms/CarForm';
 import { useCreateCar, useSuperAdminAgencies } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
 
 export default function NewCarPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const { user } = useAuthStore();
@@ -41,7 +43,7 @@ export default function NewCarPage() {
       if (!user?.agency?.id) {
         toast({
           title: 'Error',
-          description: 'No agency assigned to your account',
+          description: t('cars.noAgencyError'),
           status: 'error',
           duration: 5000,
         });
@@ -53,7 +55,7 @@ export default function NewCarPage() {
     if (!agencyId) {
       toast({
         title: 'Error',
-        description: 'Please select an agency',
+        description: t('cars.selectAgencyError'),
         status: 'error',
         duration: 5000,
       });
@@ -66,15 +68,15 @@ export default function NewCarPage() {
         agencyId,
       });
       toast({
-        title: 'Car created',
-        description: 'The car has been added successfully',
+        title: t('cars.carCreated'),
+        description: t('cars.carCreatedDesc'),
         status: 'success',
         duration: 3000,
       });
       router.push('/admin/cars');
     } catch (error) {
       toast({
-        title: 'Failed to create car',
+        title: t('cars.failedToCreate'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 5000,
@@ -90,15 +92,15 @@ export default function NewCarPage() {
           leftIcon={<FiArrowLeft />}
           onClick={() => router.back()}
         >
-          Back
+          {t('common.back')}
         </Button>
-        <Heading size="lg">Add New Car</Heading>
+        <Heading size="lg">{t('cars.addNewCar')}</Heading>
       </HStack>
 
       <CarForm
         onSubmit={handleSubmit}
         isLoading={createMutation.isPending}
-        submitLabel="Create Car"
+        submitLabel={t('cars.createCar')}
         isSuperAdmin={isSuperAdmin}
         agencies={agenciesData?.data || []}
         agenciesLoading={agenciesLoading}

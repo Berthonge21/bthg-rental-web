@@ -36,8 +36,10 @@ import {
   FiLogOut,
 } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
 import { Logo } from '@/components/ui/Logo';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 
 interface NavItem {
   label: string;
@@ -51,6 +53,7 @@ interface TopNavigationProps {
 }
 
 export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigationProps) {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const { colorMode, toggleColorMode } = useColorMode();
   const { user, logout } = useAuthStore();
@@ -166,6 +169,9 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
               />
             </Tooltip>
 
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+
             {/* User info + logout icon */}
             <HStack spacing={2} pl={2}>
               <Avatar
@@ -228,6 +234,9 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
                   />
                 );
               })}
+              <Box pt={3} borderTop="1px solid" borderColor="rgba(255,215,0,0.1)" mt={2}>
+                <LanguageSwitcher />
+              </Box>
             </VStack>
           </DrawerBody>
         </DrawerContent>
@@ -237,6 +246,7 @@ export function TopNavigation({ items, brandName = 'BTHG Rental' }: TopNavigatio
 }
 
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
+  const { t } = useTranslation();
   return (
     <Box
       as={NextLink}
@@ -257,7 +267,7 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
       }}
     >
       <Icon as={item.icon} boxSize={4} mr={2} />
-      <Text>{item.label}</Text>
+      <Text>{t(item.label)}</Text>
     </Box>
   );
 }
@@ -271,6 +281,7 @@ function MobileNavLink({
   isActive: boolean;
   onClick: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box
       as={NextLink}
@@ -287,23 +298,24 @@ function MobileNavLink({
       _hover={{ bg: isActive ? '#FFD700' : 'rgba(255,215,0,0.08)' }}
     >
       <Icon as={item.icon} boxSize={5} mr={3} />
-      <Text>{item.label}</Text>
+      <Text>{t(item.label)}</Text>
     </Box>
   );
 }
 
 // Navigation configs
+// Labels use translation keys from the `nav` namespace
 export const adminNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/admin/dashboard', icon: FiHome },
-  { label: 'Cars', href: '/admin/cars', icon: FiTruck },
-  { label: 'Rentals', href: '/admin/rentals', icon: FiCalendar },
-  { label: 'Profile', href: '/admin/profile', icon: FiUser },
+  { label: 'nav.dashboard', href: '/admin/dashboard', icon: FiHome },
+  { label: 'nav.cars', href: '/admin/cars', icon: FiTruck },
+  { label: 'nav.rentals', href: '/admin/rentals', icon: FiCalendar },
+  { label: 'nav.profile', href: '/admin/profile', icon: FiUser },
 ];
 
 export const superAdminNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/super-admin/dashboard', icon: FiHome },
-  { label: 'Agencies', href: '/super-admin/agencies', icon: FiGrid },
-  { label: 'Admins', href: '/super-admin/admins', icon: FiUsers },
-  { label: 'Rentals', href: '/super-admin/rentals', icon: FiCalendar },
-  { label: 'Profile', href: '/super-admin/profile', icon: FiUser },
+  { label: 'nav.dashboard', href: '/super-admin/dashboard', icon: FiHome },
+  { label: 'nav.agencies', href: '/super-admin/agencies', icon: FiGrid },
+  { label: 'nav.admins', href: '/super-admin/admins', icon: FiUsers },
+  { label: 'nav.rentals', href: '/super-admin/rentals', icon: FiCalendar },
+  { label: 'nav.profile', href: '/super-admin/profile', icon: FiUser },
 ];

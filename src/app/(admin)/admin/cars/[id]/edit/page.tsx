@@ -13,9 +13,11 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { CarForm } from '@/components/forms/CarForm';
 import { useCar, useUpdateCar } from '@/hooks';
 import { LoadingSpinner } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
 
 export default function EditCarPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
   const toast = useToast();
@@ -41,15 +43,15 @@ export default function EditCarPage() {
         data: updateData,
       });
       toast({
-        title: 'Car updated',
-        description: 'The car has been updated successfully',
+        title: t('cars.carUpdated'),
+        description: t('cars.carUpdatedDesc'),
         status: 'success',
         duration: 3000,
       });
       router.push('/admin/cars');
     } catch (error) {
       toast({
-        title: 'Failed to update car',
+        title: t('cars.failedToUpdate'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 5000,
@@ -58,13 +60,13 @@ export default function EditCarPage() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner text="Loading car details..." />;
+    return <LoadingSpinner text={t('cars.loadingCarDetails')} />;
   }
 
   if (!car) {
     return (
       <Box textAlign="center" py={10}>
-        Car not found
+        {t('cars.carNotFound')}
       </Box>
     );
   }
@@ -77,10 +79,10 @@ export default function EditCarPage() {
           leftIcon={<FiArrowLeft />}
           onClick={() => router.back()}
         >
-          Back
+          {t('common.back')}
         </Button>
         <Heading size="lg">
-          Edit {car.brand} {car.model}
+          {t('cars.editCar')} — {car.brand} {car.model}
         </Heading>
       </HStack>
 
@@ -88,7 +90,7 @@ export default function EditCarPage() {
         initialData={car}
         onSubmit={handleSubmit}
         isLoading={updateMutation.isPending}
-        submitLabel="Update Car"
+        submitLabel={t('cars.updateCar')}
         isSuperAdmin={isSuperAdmin}
       />
     </Box>

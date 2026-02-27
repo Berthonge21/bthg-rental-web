@@ -31,6 +31,7 @@ import { FiArrowLeft, FiEdit2, FiSave, FiX, FiTruck, FiUsers, FiCalendar, FiDoll
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { LoadingSpinner, StatCard, DataTable, type Column } from '@/components/ui';
 import { useAgency, useAgencyStats, useAgencyCars, useUpdateAgency, useSuperAdminUsers } from '@/hooks';
 import { ProgressButton } from '@/components/ui/ProgressButton';
@@ -58,6 +59,7 @@ const roleColors: Record<UserRole, string> = {
 };
 
 export default function AgencyDetailsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
   const toast = useToast();
@@ -104,14 +106,14 @@ export default function AgencyDetailsPage() {
         },
       });
       toast({
-        title: 'Agency updated',
+        title: t('agencies.agencyUpdated'),
         status: 'success',
         duration: 3000,
       });
       setIsEditing(false);
     } catch (error) {
       toast({
-        title: 'Failed to update agency',
+        title: t('agencies.failedToUpdateAgency'),
         description: error instanceof Error ? error.message : 'An error occurred',
         status: 'error',
         duration: 5000,
@@ -175,15 +177,15 @@ export default function AgencyDetailsPage() {
   ];
 
   if (agencyLoading) {
-    return <LoadingSpinner text="Loading agency..." />;
+    return <LoadingSpinner text={t('agencies.loadingAgency')} />;
   }
 
   if (!agency) {
     return (
       <Box textAlign="center" py={10}>
-        <Text>Agency not found</Text>
+        <Text>{t('agencies.agencyNotFound')}</Text>
         <Button mt={4} onClick={() => router.back()}>
-          Go Back
+          {t('common.goBack')}
         </Button>
       </Box>
     );
@@ -198,7 +200,7 @@ export default function AgencyDetailsPage() {
             leftIcon={<FiArrowLeft />}
             onClick={() => router.push('/super-admin/agencies')}
           >
-            Back
+            {t('common.back')}
           </Button>
           <Heading size="lg">{agency.name}</Heading>
           <Badge colorScheme={statusColors[agency.status]} textTransform="capitalize" ml={2}>
@@ -207,12 +209,12 @@ export default function AgencyDetailsPage() {
         </HStack>
         {!isEditing ? (
           <Button leftIcon={<FiEdit2 />} colorScheme="brand" onClick={() => setIsEditing(true)}>
-            Edit Agency
+            {t('agencies.editAgency')}
           </Button>
         ) : (
           <HStack>
             <Button leftIcon={<FiX />} variant="ghost" onClick={handleCancel}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <ProgressButton
               leftIcon={<FiSave />}
@@ -220,7 +222,7 @@ export default function AgencyDetailsPage() {
               onClick={handleSubmit(onSubmit)}
               isLoading={updateMutation.isPending}
             >
-              Save Changes
+              {t('common.save')}
             </ProgressButton>
           </HStack>
         )}
@@ -229,25 +231,25 @@ export default function AgencyDetailsPage() {
       {/* Stats */}
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4} mb={6}>
         <StatCard
-          label="Total Cars"
+          label={t('dashboard.totalCars')}
           value={stats?.totalCars || 0}
           icon={FiTruck}
           iconBg="blue.500"
         />
         <StatCard
-          label="Total Admins"
+          label={t('dashboard.totalAdmins')}
           value={agencyAdmins.length}
           icon={FiUsers}
           iconBg="purple.500"
         />
         <StatCard
-          label="Active Rentals"
+          label={t('dashboard.activeRentals')}
           value={stats?.activeRentals || 0}
           icon={FiCalendar}
           iconBg="accent.400"
         />
         <StatCard
-          label="Total Revenue"
+          label={t('dashboard.totalRevenue')}
           value={`$${stats?.totalRevenue?.toFixed(2) || '0.00'}`}
           icon={FiDollarSign}
           iconBg="brand.400"
@@ -256,7 +258,7 @@ export default function AgencyDetailsPage() {
 
       <Tabs colorScheme="brand">
         <TabList>
-          <Tab>Details</Tab>
+          <Tab>{t('agencies.details')}</Tab>
           <Tab>Cars ({carsData?.data?.length || 0})</Tab>
           <Tab>Admins ({agencyAdmins.length})</Tab>
         </TabList>
@@ -344,7 +346,7 @@ export default function AgencyDetailsPage() {
               data={carsData?.data || []}
               isLoading={carsLoading}
               keyExtractor={(row) => row.id}
-              emptyMessage="No cars found for this agency"
+              emptyMessage={t('agencies.noCarsForAgency')}
             />
           </TabPanel>
 
@@ -355,7 +357,7 @@ export default function AgencyDetailsPage() {
               data={agencyAdmins}
               isLoading={false}
               keyExtractor={(row) => row.id}
-              emptyMessage="No admins assigned to this agency"
+              emptyMessage={t('agencies.noAdminsForAgency')}
             />
           </TabPanel>
         </TabPanels>

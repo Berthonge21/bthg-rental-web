@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import {
   Box,
-  Heading,
+  Flex,
   Button,
   HStack,
   IconButton,
@@ -29,6 +30,7 @@ const roleColors: Record<UserRole, string> = {
 };
 
 export default function SuperAdminAdminsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const [page, setPage] = useState(1);
@@ -193,16 +195,32 @@ export default function SuperAdminAdminsPage() {
 
   return (
     <Box>
-      <HStack justify="space-between" mb={6}>
-        <Heading size="lg" color="text.primary">Admin Users</Heading>
+      <Flex justify="space-between" align="flex-end" mb={8} flexWrap="wrap" gap={4}>
+        <Box>
+          <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
+          <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
+            Super Admin Panel
+          </Text>
+          <Text
+            fontFamily="var(--font-display)"
+            fontSize="3xl"
+            fontWeight="black"
+            letterSpacing="0.02em"
+            textTransform="uppercase"
+            color="gray.500"
+          >
+            {t('admins.title')}
+          </Text>
+          <Text fontSize="sm" color="gray.500" mt={1}>{t('admins.subtitle')}</Text>
+        </Box>
         <Button
           leftIcon={<FiPlus />}
           colorScheme="brand"
           onClick={() => router.push('/super-admin/admins/new')}
         >
-          Create Admin
+          {t('admins.createAdmin')}
         </Button>
-      </HStack>
+      </Flex>
 
       <Box
         bg={cardBg}

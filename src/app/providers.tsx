@@ -8,6 +8,7 @@ import { AnimatePresence } from 'framer-motion';
 import { theme } from '@/theme';
 import { useAuthStore } from '@/stores/auth.store';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { I18nProvider } from '@/i18n/I18nProvider';
 
 // Minimum time (ms) the loading screen stays visible so all animations
 // fully play through — logo entrance (1.8s) + text reveal (2.9s) + breathing room
@@ -53,13 +54,15 @@ export function Providers({ children }: { children: ReactNode }) {
   );
 
   return (
-    <CacheProvider>
-      <ChakraProvider theme={theme}>
-        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-        <QueryClientProvider client={queryClient}>
-          <AuthInitializer>{children}</AuthInitializer>
-        </QueryClientProvider>
-      </ChakraProvider>
-    </CacheProvider>
+    <I18nProvider>
+      <CacheProvider>
+        <ChakraProvider theme={theme}>
+          <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+          <QueryClientProvider client={queryClient}>
+            <AuthInitializer>{children}</AuthInitializer>
+          </QueryClientProvider>
+        </ChakraProvider>
+      </CacheProvider>
+    </I18nProvider>
   );
 }
