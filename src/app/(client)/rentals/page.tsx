@@ -254,7 +254,7 @@ export default function RentalsPage() {
             </VStack>
           </Center>
         ) : (
-          <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={5}>
+          <SimpleGrid columns={{ base: 1, md: 2, xl: 3, '2xl': 4 }} spacing={5}>
             {activeRentals.map((r, i: number) => (
               <FadeInOnScroll key={r.id} delay={Math.min(i, 4) * 0.07} direction="up">
                 <RentalCard rental={r} onCancel={handleCancelRequest} t={t} />
@@ -281,7 +281,7 @@ export default function RentalsPage() {
             </VStack>
           </Center>
         ) : (
-          <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={5}>
+          <SimpleGrid columns={{ base: 1, md: 2, xl: 3, '2xl': 4 }} spacing={5}>
             {historyRentals.map((r: Rental, i: number) => (
               <FadeInOnScroll key={r.id} delay={Math.min(i, 4) * 0.07} direction="up">
                 <RentalCard rental={r} t={t} />

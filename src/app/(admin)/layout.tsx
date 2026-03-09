@@ -39,9 +39,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <Box
         as="main"
         pt="80px"
-        px={{ base: 4, md: 6, lg: 8 }}
+        px={{ base: 4, md: 6, lg: 8, xl: 12, '2xl': 20 }}
         pb={8}
-        maxW="1600px"
+        maxW={{ base: '100%', xl: '1600px', '2xl': '1920px' }}
         mx="auto"
       >
         {children}

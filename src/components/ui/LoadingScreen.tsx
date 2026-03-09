@@ -3,15 +3,12 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useTranslation } from 'react-i18next';
 
 const MotionBox = motion.create(Box);
 const MotionFlex = motion.create(Flex);
 const MotionText = motion.create(Text);
 
 export function LoadingScreen() {
-  const { t } = useTranslation();
-
   return (
     <MotionFlex
       initial={{ opacity: 1 }}
@@ -125,7 +122,7 @@ export function LoadingScreen() {
           color="rgba(255,255,255,0.88)"
           textAlign="center"
         >
-          {t('loading.brand')}
+          BTHG RENTAL
         </MotionText>
 
         {/* Gold tagline — appears just after brand name */}
@@ -141,7 +138,7 @@ export function LoadingScreen() {
           color="brand.400"
           textAlign="center"
         >
-          {t('loading.tagline')}
+          Premium Car Rental
         </MotionText>
       </Box>
     </MotionFlex>

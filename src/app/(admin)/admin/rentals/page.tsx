@@ -81,7 +81,7 @@ export default function AdminRentalsPage() {
 
   return (
     <Box>
-      <Flex justify="space-between" align="flex-end" mb={8} flexWrap="wrap" gap={4}>
+      <Flex justify="space-between" align="center" mb={8} flexWrap="wrap" gap={4}>
         <Box>
           <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
           <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
@@ -106,8 +106,10 @@ export default function AdminRentalsPage() {
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value as RentalStatus | ''); setPage(1); }}
             maxW="200px"
+            h="40px"
             bg={cardBg}
             borderRadius="lg"
+            fontSize="sm"
             sx={{ option: { bg: selectBg } }}
           >
             <option value="reserved">Reserved</option>
@@ -233,7 +235,7 @@ export default function AdminRentalsPage() {
                   cursor="pointer"
                   onClick={() => router.push(`/admin/rentals/${rental.id}`)}
                 >
-                  <Box as="td" p={4}>
+                  <Box as="td" p={4} verticalAlign="middle">
                     <HStack spacing={3}>
                       <Avatar
                         size="sm"
@@ -245,32 +247,32 @@ export default function AdminRentalsPage() {
                       </Text>
                     </HStack>
                   </Box>
-                  <Box as="td" p={4}>
+                  <Box as="td" p={4} verticalAlign="middle">
                     <Text fontSize="sm" color="text.primary">
                       {rental.client?.email}
                     </Text>
                   </Box>
-                  <Box as="td" p={4}>
+                  <Box as="td" p={4} verticalAlign="middle">
                     <Text fontSize="sm" color="text.primary">
                       {(rental.client as any)?.telephone || 'N/A'}
                     </Text>
                   </Box>
-                  <Box as="td" p={4}>
+                  <Box as="td" p={4} verticalAlign="middle">
                     <Text fontSize="sm" color="text.primary">
                       {format(new Date(rental.startDate), 'MMMM dd, yyyy • hh:mm a')}
                     </Text>
                   </Box>
-                  <Box as="td" p={4}>
+                  <Box as="td" p={4} verticalAlign="middle">
                     <Text fontSize="sm" color="text.primary">
                       {format(new Date(rental.endDate), 'MMMM dd, yyyy • hh:mm a')}
                     </Text>
                   </Box>
-                  <Box as="td" p={4}>
+                  <Box as="td" p={4} verticalAlign="middle">
                     <Text fontSize="sm" fontWeight="medium" color="text.primary">
                       ${rental.total?.toFixed(2) || '0.00'}
                     </Text>
                   </Box>
-                  <Box as="td" p={4}>
+                  <Box as="td" p={4} verticalAlign="middle" textAlign="center">
                     <Badge
                       colorScheme={statusColors[rental.status]}
                       textTransform="capitalize"
@@ -283,7 +285,7 @@ export default function AdminRentalsPage() {
                       {statusLabels[rental.status]}
                     </Badge>
                   </Box>
-                  <Box as="td" p={4} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                  <Box as="td" p={4} verticalAlign="middle" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                     <HStack spacing={1} justify="center">
                       <IconButton
                         icon={<FiEye />}

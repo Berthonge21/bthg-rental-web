@@ -378,7 +378,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <Box minH="100vh" bg="#000000">
       <PublicNav onMenuOpen={() => setDrawerOpen(true)} />
-      <Box as="main" pt="80px" px={{ base: 4, md: 6, lg: 8 }} pb={8} maxW="1400px" mx="auto">
+      <Box as="main" pt="80px" px={{ base: 4, md: 6, lg: 8, xl: 12, '2xl': 20 }} pb={8} maxW={{ base: '100%', xl: '1600px', '2xl': '1920px' }} mx="auto">
         {children}
       </Box>
       <PublicMobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />

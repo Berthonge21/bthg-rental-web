@@ -199,7 +199,7 @@ function FilterPanel({
         <Text fontSize="xs" fontWeight="semibold" color={textMuted} mb={2} textTransform="uppercase" letterSpacing="wider">
           Agency
         </Text>
-        <Select size="sm" borderRadius="lg" onChange={onAgencyChange} value={agencyId ?? ''}>
+        <Select size="sm" borderRadius="lg" onChange={onAgencyChange} value={agencyId ?? '' } color={'white'}>
           <option value="">All Agencies</option>
           {agencies.map((a) => (
             <option key={a.id} value={a.id}>{a.name}</option>
@@ -211,7 +211,7 @@ function FilterPanel({
         <Text fontSize="xs" fontWeight="semibold" color={textMuted} mb={2} textTransform="uppercase" letterSpacing="wider">
           Fuel Type
         </Text>
-        <Select size="sm" borderRadius="lg" value={fuel} onChange={(e) => onFuelChange(e.target.value)}>
+        <Select size="sm" borderRadius="lg" value={fuel} onChange={(e) => onFuelChange(e.target.value)} color={'white'}>
           {FUEL_OPTIONS.map((f) => <option key={f}>{f}</option>)}
         </Select>
       </Box>
@@ -220,7 +220,7 @@ function FilterPanel({
         <Text fontSize="xs" fontWeight="semibold" color={textMuted} mb={2} textTransform="uppercase" letterSpacing="wider">
           Transmission
         </Text>
-        <Select size="sm" borderRadius="lg" value={gearBox} onChange={(e) => onGearBoxChange(e.target.value)}>
+        <Select size="sm" borderRadius="lg" value={gearBox} onChange={(e) => onGearBoxChange(e.target.value)} color={'white'}>
           {GEARBOX_OPTIONS.map((g) => <option key={g}>{g}</option>)}
         </Select>
       </Box>
@@ -317,7 +317,7 @@ export default function CarsPage() {
         >
           <Flex align="center" gap={2} mb={5}>
             <Icon as={FiFilter} color="brand.400" />
-            <Text fontWeight="semibold">{t('public.filters')}</Text>
+            <Text fontWeight="semibold" color={'white'}>{t('public.filters')}</Text>
           </Flex>
           <FilterPanel
             agencies={agencies}
@@ -366,7 +366,7 @@ export default function CarsPage() {
           </InputGroup>
 
           {isLoading ? (
-            <SimpleGrid columns={{ base: 1, sm: 2, xl: 3 }} spacing={5}>
+            <SimpleGrid columns={{ base: 1, sm: 2, xl: 3, '2xl': 4 }} spacing={5}>
               {Array.from({ length: 6 }).map((_, i) => <CarCardSkeleton key={i} />)}
             </SimpleGrid>
           ) : filtered.length === 0 ? (
@@ -375,7 +375,7 @@ export default function CarsPage() {
               <Text color={textMuted}>{t('cars.adjustFilters')}</Text>
             </Box>
           ) : (
-            <SimpleGrid columns={{ base: 1, sm: 2, xl: 3 }} spacing={5}>
+            <SimpleGrid columns={{ base: 1, sm: 2, xl: 3, '2xl': 4 }} spacing={5}>
               {filtered.map((car: Car, index: number) => (
                 <FadeInOnScroll key={car.id} delay={Math.min(index % 3, 2) * 0.08} direction="up">
                   <TiltCard>

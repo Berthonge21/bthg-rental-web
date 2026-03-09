@@ -113,11 +113,10 @@ export default function AdminDashboardPage() {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonth = new Date().getMonth();
 
-    // Create monthly data, showing current month with actual revenue
     return months.slice(0, currentMonth + 1).map((month, index) => ({
       month,
-      revenue: index === currentMonth ? (stats?.monthlyRevenue || 0) : Math.floor(Math.random() * 15000) + 5000,
-      rentals: index === currentMonth ? (stats?.totalRentals || 0) : Math.floor(Math.random() * 50) + 20,
+      revenue: index === currentMonth ? (stats?.monthlyRevenue || 0) : 0,
+      rentals: index === currentMonth ? (stats?.totalRentals || 0) : 0,
     }));
   }, [stats]);
 
@@ -252,7 +251,7 @@ export default function AdminDashboardPage() {
       </Flex>
 
       {/* Top Stats Row - 5 cards */}
-      <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={4} mb={6}>
+      <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={{ base: 4, xl: 5, '2xl': 6 }} mb={6}>
         {([
           { label: t('dashboard.totalCars'),      value: stats?.totalCars || 0,      icon: FiTruck,       iconColor: '#FFD700', iconBg: 'rgba(255,215,0,0.1)'    },
           { label: t('dashboard.activeRentals'),  value: stats?.activeRentals || 0,  icon: FiCalendar,    iconColor: '#1BC5BD', iconBg: 'rgba(27,197,189,0.1)',  change: statChanges.active },
@@ -282,7 +281,7 @@ export default function AdminDashboardPage() {
       </SimpleGrid>
 
       {/* Charts Row - 3 columns */}
-      <Grid templateColumns={{ base: '1fr', lg: '1fr 2fr 1fr' }} gap={4} mb={6}>
+      <Grid templateColumns={{ base: '1fr', lg: '1fr 2fr 1fr', xl: '280px 1fr 280px', '2xl': '320px 1fr 320px' }} gap={{ base: 4, xl: 5, '2xl': 6 }} mb={6}>
         {/* Car Types Donut Chart */}
         <GridItem>
           <Box bg={cardBg} borderRadius="xl" boxShadow="card" p={5} h="full">
@@ -336,9 +335,13 @@ export default function AdminDashboardPage() {
                 <Text fontWeight="semibold" color="text.primary" mb={1}>{t('dashboard.revenueOverview')}</Text>
                 <HStack spacing={2}>
                   <Text fontSize="2xl" fontWeight="bold" color="text.primary">
-                    ${(stats?.totalRevenue || 89483).toLocaleString()}
+                    ${(stats?.totalRevenue || 0).toLocaleString()}
                   </Text>
-                  <Badge colorScheme="red" fontSize="xs">-12%</Badge>
+                  {statChanges.revenue !== undefined && (
+                    <Badge colorScheme={statChanges.revenue >= 0 ? 'green' : 'red'} fontSize="xs">
+                      {statChanges.revenue >= 0 ? '+' : ''}{statChanges.revenue}%
+                    </Badge>
+                  )}
                 </HStack>
               </Box>
               <HStack spacing={4} fontSize="xs">

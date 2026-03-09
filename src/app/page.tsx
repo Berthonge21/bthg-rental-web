@@ -178,7 +178,7 @@ function LandingNav() {
         px={{ base: 4, md: 8, lg: 12 }}
         py={3}
       >
-        <Flex align="center" justify="space-between" maxW="1200px" mx="auto">
+        <Flex align="center" justify="space-between" maxW={{ base: '100%', xl: '1600px', '2xl': '1920px' }} mx="auto">
           {/* Logo */}
           <Box as={NextLink} href="/" _hover={{ textDecoration: 'none' }}>
             <Logo size="sm" />
@@ -433,7 +433,7 @@ function QuickSearchBar() {
       borderRadius="2xl"
       p={{ base: 4, md: 6 }}
       boxShadow="0 8px 40px rgba(0,0,0,0.5)"
-      maxW="900px"
+      maxW={{ base: '100%', md: '900px', xl: '1100px', '2xl': '1300px' }}
       mx="auto"
       mt={12}
     >
@@ -443,7 +443,7 @@ function QuickSearchBar() {
         align={{ base: 'stretch', md: 'flex-end' }}
       >
         <Box flex={1}>
-          <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1}>
+          <Text fontSize="xs" fontWeight="semibold" color="whiteAlpha.700" mb={1}>
             {t('landing.brandModel')}
           </Text>
           <Input
@@ -452,13 +452,17 @@ function QuickSearchBar() {
             onChange={(e) => setSearchBrand(e.target.value)}
             borderRadius="lg"
             h={12}
+            color="white"
+            bg="rgba(255,255,255,0.05)"
             border="1px solid"
-            borderColor="gray.200"
-            _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #C9A227' }}
+            borderColor="rgba(255,255,255,0.15)"
+            _placeholder={{ color: 'whiteAlpha.400' }}
+            _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #C9A227', bg: 'rgba(255,255,255,0.08)' }}
+            _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
           />
         </Box>
         <Box flex={1}>
-          <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1}>
+          <Text fontSize="xs" fontWeight="semibold" color="whiteAlpha.700" mb={1}>
             {t('landing.fuelType')}
           </Text>
           <Select
@@ -467,9 +471,13 @@ function QuickSearchBar() {
             onChange={(e) => setFuel(e.target.value)}
             borderRadius="lg"
             h={12}
+            color="white"
+            bg="rgba(255,255,255,0.05)"
             border="1px solid"
-            borderColor="gray.200"
+            borderColor="rgba(255,255,255,0.15)"
             _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #C9A227' }}
+            _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
+            sx={{ option: { bg: '#080808', color: 'white' } }}
           >
             <option value="Petrol">{t('landing.petrol')}</option>
             <option value="Diesel">{t('landing.diesel')}</option>
@@ -478,7 +486,7 @@ function QuickSearchBar() {
           </Select>
         </Box>
         <Box flex={1}>
-          <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={1}>
+          <Text fontSize="xs" fontWeight="semibold" color="whiteAlpha.700" mb={1}>
             {t('landing.gearbox')}
           </Text>
           <Select
@@ -487,9 +495,13 @@ function QuickSearchBar() {
             onChange={(e) => setGearBox(e.target.value)}
             borderRadius="lg"
             h={12}
+            color="white"
+            bg="rgba(255,255,255,0.05)"
             border="1px solid"
-            borderColor="gray.200"
+            borderColor="rgba(255,255,255,0.15)"
             _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #C9A227' }}
+            _hover={{ borderColor: 'rgba(255,255,255,0.3)' }}
+            sx={{ option: { bg: '#080808', color: 'white' } }}
           >
             <option value="Automatic">{t('landing.automatic')}</option>
             <option value="Manual">{t('landing.manual')}</option>
@@ -771,9 +783,9 @@ function LandingPage() {
 
         {/* Main layout — text left, car right */}
         <Flex
-          maxW="1300px"
+          maxW={{ base: '100%', xl: '1600px', '2xl': '1920px' }}
           mx="auto"
-          px={{ base: 4, md: 8, lg: 12 }}
+          px={{ base: 4, md: 8, lg: 12, xl: 16, '2xl': 24 }}
           minH="calc(90vh - 80px)"
           align="center"
           direction={{ base: 'column', lg: 'row' }}
@@ -977,7 +989,7 @@ function LandingPage() {
         </Flex>
 
         {/* Quick search bar */}
-        <Box maxW="1200px" mx="auto" px={{ base: 4, md: 8, lg: 12 }} pb={16}>
+        <Box maxW={{ base: '100%', xl: '1600px', '2xl': '1920px' }} mx="auto" px={{ base: 4, md: 8, lg: 12, xl: 16, '2xl': 24 }} pb={16}>
           <QuickSearchBar />
         </Box>
 
@@ -993,7 +1005,7 @@ function LandingPage() {
         {/* Floating glass panel */}
         <VStack
           spacing={16}
-          maxW="1020px"
+          maxW={{ base: '100%', xl: '1300px', '2xl': '1600px' }}
           mx="auto"
           position="relative"
           bg="rgba(255,255,255,0.02)"
@@ -1186,7 +1198,7 @@ function LandingPage() {
         <Box ref={featuredCarsRef} bg="#000000" py={20} px={{ base: 4, md: 8, lg: 12 }} position="relative" overflow="hidden">
           <MotionBox position="absolute" top="-10%" left="15%" w="580px" h="580px" borderRadius="full" bg="rgba(201,162,39,0.06)" filter="blur(80px)" style={{ y: featOrb1Y }} pointerEvents="none" />
           <MotionBox position="absolute" bottom="-5%" right="10%" w="480px" h="480px" borderRadius="full" bg="rgba(27,197,189,0.06)" filter="blur(70px)" style={{ y: featOrb2Y }} pointerEvents="none" />
-          <VStack spacing={10} maxW="1200px" mx="auto" position="relative">
+          <VStack spacing={10} maxW={{ base: '100%', xl: '1600px', '2xl': '1920px' }} mx="auto" position="relative">
             <FadeInOnScroll>
               <VStack spacing={3} textAlign="center">
                 <Box w="32px" h="2px" bg="brand.400" mb={3} mx="auto" />
@@ -1234,7 +1246,7 @@ function LandingPage() {
         {/* Floating glass panel */}
         <VStack
           spacing={16}
-          maxW="1240px"
+          maxW={{ base: '100%', xl: '1500px', '2xl': '1800px' }}
           mx="auto"
           position="relative"
           bg="rgba(255,255,255,0.02)"
@@ -1387,7 +1399,7 @@ function LandingPage() {
       <Box py={16} px={{ base: 4, md: 8, lg: 12 }} bg="#000000">
         <FadeInOnScroll>
           <Box
-            maxW="1200px"
+            maxW={{ base: '100%', xl: '1600px', '2xl': '1920px' }}
             mx="auto"
             bg="navy.800"
             borderRadius="3xl"
@@ -1462,7 +1474,7 @@ function LandingPage() {
       {/* ---- Footer ---- */}
       <Box bg="#000000" borderTop="1px solid rgba(255,215,0,0.1)" py={10} px={{ base: 4, md: 8, lg: 12 }}>
         <Flex
-          maxW="1200px"
+          maxW={{ base: '100%', xl: '1600px', '2xl': '1920px' }}
           mx="auto"
           justify="space-between"
           align="center"

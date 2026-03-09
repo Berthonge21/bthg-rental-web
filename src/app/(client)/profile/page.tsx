@@ -179,30 +179,30 @@ export default function ClientProfilePage() {
             <VStack spacing={4} align="stretch">
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 <FormControl>
-                  <FormLabel fontSize="sm">{t('profile.firstName')}</FormLabel>
-                  <Input {...register('firstname')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
+                  <FormLabel fontSize="sm" color="whiteAlpha.800">{t('profile.firstName')}</FormLabel>
+                  <Input {...register('firstname')} color="white" borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontSize="sm">{t('profile.lastName')}</FormLabel>
-                  <Input {...register('name')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
+                  <FormLabel fontSize="sm" color="whiteAlpha.800">{t('profile.lastName')}</FormLabel>
+                  <Input {...register('name')} color="white" borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
               </SimpleGrid>
               <FormControl>
-                <FormLabel fontSize="sm">{t('profile.email')}</FormLabel>
-                <Input value={user?.email ?? ''} isReadOnly bg="#141414" borderRadius="lg" />
+                <FormLabel fontSize="sm" color="whiteAlpha.800">{t('profile.email')}</FormLabel>
+                <Input value={user?.email ?? ''} isReadOnly color="white" bg="#141414" borderRadius="lg" />
               </FormControl>
               <FormControl>
-                <FormLabel fontSize="sm">{t('profile.phone')}</FormLabel>
-                <Input {...register('telephone')} borderRadius="lg" type="tel" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
+                <FormLabel fontSize="sm" color="whiteAlpha.800">{t('profile.phone')}</FormLabel>
+                <Input {...register('telephone')} color="white" borderRadius="lg" type="tel" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
               </FormControl>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 <FormControl>
-                  <FormLabel fontSize="sm">{t('profile.address')}</FormLabel>
-                  <Input {...register('address')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
+                  <FormLabel fontSize="sm" color="whiteAlpha.800">{t('profile.address')}</FormLabel>
+                  <Input {...register('address')} color="white" borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontSize="sm">{t('profile.city')}</FormLabel>
-                  <Input {...register('city')} borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
+                  <FormLabel fontSize="sm" color="whiteAlpha.800">{t('profile.city')}</FormLabel>
+                  <Input {...register('city')} color="white" borderRadius="lg" borderColor="rgba(255,215,0,0.12)" _focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px #FFD700' }} _hover={{ borderColor: 'rgba(255,215,0,0.25)' }} />
                 </FormControl>
               </SimpleGrid>
               <Divider />

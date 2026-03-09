@@ -497,11 +497,11 @@ function CarDetailContent() {
         {t('cars.backToCars')}
       </Button>
 
-      <Grid templateColumns={{ base: '1fr', lg: '1fr 380px' }} gap={6}>
+      <Grid templateColumns={{ base: '1fr', lg: '1fr 380px', xl: '1fr 440px', '2xl': '1fr 500px' }} gap={6}>
         {/* Left column */}
         <GridItem>
           {/* Main image */}
-          <Box borderRadius="2xl" overflow="hidden" mb={3} h={{ base: '240px', md: '400px' }} bg="navy.800">
+          <Box borderRadius="2xl" overflow="hidden" mb={3} h={{ base: '240px', md: '400px', xl: '480px', '2xl': '560px' }} bg="navy.800">
             {images[currentImage] ? (
               <Image
                 src={images[currentImage]}

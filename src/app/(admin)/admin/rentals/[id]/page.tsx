@@ -36,6 +36,8 @@ import {
   FiTruck,
 } from 'react-icons/fi';
 import { LoadingSpinner, useMinLoading, ProgressButton } from '@/components/ui';
+import { CarPlaceholder } from '@/components/ui/CarPlaceholder';
+import { parseCarImages } from '@/lib/imageUtils';
 import { useTranslation } from 'react-i18next';
 import { useAdminRental, useUpdateRentalStatus } from '@/hooks';
 import type { RentalStatus } from '@berthonge21/sdk';
@@ -337,15 +339,18 @@ export default function RentalDetailsPage() {
             justifyContent="center"
             p={6}
           >
-            <Image
-              src={rental.car?.image || '/placeholder-car.jpg'}
-              alt={carName}
-              maxW="100%"
-              maxH="220px"
-              objectFit="contain"
-              borderRadius="xl"
-              fallbackSrc="https://via.placeholder.com/360x200?text=Vehicle"
-            />
+            {parseCarImages(rental.car?.image)[0] ? (
+              <Image
+                src={parseCarImages(rental.car?.image)[0]}
+                alt={carName}
+                maxW="100%"
+                maxH="220px"
+                objectFit="contain"
+                borderRadius="xl"
+              />
+            ) : (
+              <CarPlaceholder h="220px" />
+            )}
           </GridItem>
 
           {/* Summary panel */}

@@ -138,7 +138,7 @@ export default function RentalDetailPage() {
       </MotionBox>
 
       {/* 2x2 Grid */}
-      <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} templateRows={{ lg: 'auto auto' }} gap={5}>
+      <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr', '2xl': '1fr 1fr' }} templateRows={{ lg: 'auto auto' }} gap={{ base: 5, xl: 6, '2xl': 8 }}>
 
         {/* TOP-LEFT: Trip Details */}
         <GridItem>

@@ -205,7 +205,7 @@ export function ExcelImportButton({ type }: ExcelImportButtonProps) {
   };
 
   return (
-    <>
+    <Box display="flex" alignItems="center" gap={2}>
       <input
         type="file"
         accept=".xlsx,.xls"
@@ -215,7 +215,7 @@ export function ExcelImportButton({ type }: ExcelImportButtonProps) {
       />
 
       {progress && (
-        <Box minW="140px" display="flex" flexDir="column" justifyContent="center">
+        <Box minW="120px" display="flex" flexDir="column" justifyContent="center">
           <Progress
             value={(progress.done / progress.total) * 100}
             size="xs"
@@ -234,10 +234,12 @@ export function ExcelImportButton({ type }: ExcelImportButtonProps) {
           as={Button}
           leftIcon={<FiUpload />}
           rightIcon={<FiChevronDown />}
-          borderColor="rgba(255,215,0,0.3)"
+          bg="brand.400"
           color="#000"
-          _hover={{ bg: 'brand.200', borderColor: 'brand.400' }}
+          borderColor="rgba(255,215,0,0.3)"
+          _hover={{ bg: 'brand.500', borderColor: 'brand.400' }}
           size="sm"
+          h="40px"
           isLoading={isImporting}
           loadingText="Importing..."
           borderRadius="lg"
@@ -267,6 +269,6 @@ export function ExcelImportButton({ type }: ExcelImportButtonProps) {
           </MenuItem>
         </MenuList>
       </Menu>
-    </>
+    </Box>
   );
 }

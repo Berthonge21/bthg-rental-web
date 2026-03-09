@@ -276,13 +276,17 @@ function RecentActivitySidebar() {
               flexShrink={0}
               bg={imageThumbnailBg}
             >
-              <Image
-                src={featuredRental.car?.image || 'https://via.placeholder.com/100x70'}
-                alt={featuredRental.car?.brand}
-                w="100%"
-                h="100%"
-                objectFit="contain"
-              />
+              {parseCarImages(featuredRental.car?.image)[0] ? (
+                <Image
+                  src={parseCarImages(featuredRental.car?.image)[0]}
+                  alt={featuredRental.car?.brand}
+                  w="100%"
+                  h="100%"
+                  objectFit="cover"
+                />
+              ) : (
+                <CarPlaceholder h="70px" />
+              )}
             </Box>
             <VStack align="flex-start" spacing={1} flex="1" minW={0}>
               <Text fontSize="sm" fontWeight="bold" color={sidebarTitleColor} noOfLines={1}>
@@ -630,14 +634,14 @@ export default function AdminCarsPage() {
       {/* Top section: 2-col grid + sidebar */}
       <Flex gap={5} align="flex-start" mb={bottomCars.length > 0 ? 5 : 0}>
         <Box flex="1" minW={0}>
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={5}>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, xl: 5, '2xl': 6 }}>
             {topCars.map(renderCard)}
           </SimpleGrid>
         </Box>
 
         {/* Recent Activity Sidebar */}
         <Box
-          w={{ base: '100%', lg: '340px' }}
+          w={{ base: '100%', lg: '340px', xl: '380px', '2xl': '420px' }}
           flexShrink={0}
           display={{ base: 'none', lg: 'block' }}
         >
@@ -647,7 +651,7 @@ export default function AdminCarsPage() {
 
       {/* Bottom section: 3-col full width after sidebar */}
       {bottomCars.length > 0 && (
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={5}>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3, '2xl': 4 }} spacing={5}>
           {bottomCars.map(renderCard)}
         </SimpleGrid>
       )}
