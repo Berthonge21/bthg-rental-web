@@ -7,7 +7,7 @@ import {
   Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter,
   ModalHeader, ModalOverlay, SimpleGrid, Spinner, Step, StepIcon,
   StepIndicator, StepNumber, Stepper, StepSeparator, StepStatus,
-  StepTitle, Text, Textarea, useColorModeValue, useDisclosure,
+  StepTitle, Text, Textarea, useDisclosure,
   useSteps, useToast, VStack, Badge, Avatar, FormControl,
   FormLabel, Input, Center, FormErrorMessage, InputGroup,
   InputLeftElement, InputRightElement, IconButton,
@@ -172,9 +172,9 @@ function MiniCalendar({ carId }: { carId: number }) {
   const { data } = useCarAvailabilityCalendar(carId, viewYear, viewMonth);
 
   const blockedSet = new Set<string>((data?.blockedDates ?? []).map((b: { date: string }) => b.date));
-  const textMuted = useColorModeValue('text.muted', 'gray.400');
-  const calBg = useColorModeValue('white', 'navy.700');
-  const calBorder = useColorModeValue('gray.100', 'navy.600');
+  const textMuted = 'gray.400';
+  const calBg = '#080808';
+  const calBorder = 'rgba(255,215,0,0.08)';
 
   const firstDay = new Date(viewYear, viewMonth - 1, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth, 0).getDate();
@@ -262,8 +262,8 @@ function BookingWizard({ carId, pricePerDay, onSuccess }: { carId: number; price
   });
   const createRental = useCreateRental();
 
-  const textMuted = useColorModeValue('text.muted', 'gray.400');
-  const infoBg = useColorModeValue('gray.50', 'navy.600');
+  const textMuted = 'gray.400';
+  const infoBg = '#141414';
 
   const days = (() => {
     try {
@@ -460,10 +460,10 @@ function CarDetailContent() {
     }
   }, [isAuthenticated, car, carId, searchParams, onBookingOpen, router]);
 
-  const cardBg = useColorModeValue('white', 'navy.700');
-  const cardBorder = useColorModeValue('gray.100', 'navy.600');
-  const textMuted = useColorModeValue('text.muted', 'gray.400');
-  const specBg = useColorModeValue('gray.50', 'navy.600');
+  const cardBg = '#080808';
+  const cardBorder = 'rgba(255,215,0,0.08)';
+  const textMuted = 'gray.400';
+  const specBg = '#141414';
 
   const [currentImage, setCurrentImage] = useState(0);
   const images = car ? parseCarImages(car.image) : [];
@@ -502,13 +502,17 @@ function CarDetailContent() {
         <GridItem>
           {/* Main image */}
           <Box borderRadius="2xl" overflow="hidden" mb={3} h={{ base: '240px', md: '400px' }} bg="navy.800">
-            <Image
-              src={images[currentImage] || 'https://via.placeholder.com/800x400?text=No+Image'}
-              alt={`${car.brand} ${car.model}`}
-              w="100%"
-              h="100%"
-              objectFit="cover"
-            />
+            {images[currentImage] ? (
+              <Image
+                src={images[currentImage]}
+                alt={`${car.brand} ${car.model}`}
+                w="100%"
+                h="100%"
+                objectFit="cover"
+              />
+            ) : (
+              <CarPlaceholder h={{ base: '240px', md: '400px' }} />
+            )}
           </Box>
           {/* Thumbnails */}
           {images.length > 1 && (
@@ -590,7 +594,7 @@ function CarDetailContent() {
                 w="full"
                 size="lg"
                 bg="brand.400"
-                color="white"
+                color="#000"
                 _hover={{ bg: 'brand.500' }}
                 borderRadius="xl"
                 leftIcon={<FiCalendar />}

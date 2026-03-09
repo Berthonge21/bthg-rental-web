@@ -12,8 +12,6 @@ import {
   Text,
   IconButton,
   Avatar,
-  useColorMode,
-  useColorModeValue,
   Drawer,
   DrawerBody,
   DrawerHeader,
@@ -22,7 +20,7 @@ import {
   DrawerCloseButton,
   Divider,
 } from '@chakra-ui/react';
-import { FiSearch, FiCalendar, FiUser, FiLogOut, FiSun, FiMoon, FiMenu } from 'react-icons/fi';
+import { FiSearch, FiCalendar, FiUser, FiLogOut, FiMenu } from 'react-icons/fi';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
 import { CarLoader } from '@/components/ui/CarLoader';
@@ -36,7 +34,6 @@ const navItems = [
 
 function ClientNav({ onMenuOpen }: { onMenuOpen: () => void }) {
   const pathname = usePathname();
-  const { colorMode, toggleColorMode } = useColorMode();
   const { user, logout } = useAuthStore();
   const router = useRouter();
 
@@ -95,18 +92,6 @@ function ClientNav({ onMenuOpen }: { onMenuOpen: () => void }) {
 
         {/* Right side */}
         <HStack spacing={2}>
-          {/* Theme toggle */}
-          <IconButton
-            aria-label="Toggle color mode"
-            icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
-            variant="ghost"
-            color="white"
-            borderRadius="full"
-            size="md"
-            onClick={toggleColorMode}
-            _hover={{ bg: 'rgba(255,215,0,0.08)' }}
-          />
-
           {/* Desktop: avatar + name + logout */}
           <HStack spacing={2} pl={1} display={{ base: 'none', md: 'flex' }}>
             <Avatar size="sm" name={`${user?.firstname} ${user?.name}`} src={user?.image} bg="brand.400" color="#000000" />
@@ -144,7 +129,6 @@ function ClientNav({ onMenuOpen }: { onMenuOpen: () => void }) {
 
 function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname();
-  const { colorMode, toggleColorMode } = useColorMode();
   const { user, logout } = useAuthStore();
   const router = useRouter();
 
@@ -201,26 +185,6 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             })}
 
             <Divider my={2} borderColor="rgba(255,215,0,0.1)" />
-
-            {/* Theme toggle */}
-            <Box
-              as="button"
-              display="flex"
-              alignItems="center"
-              gap={3}
-              px={4} py={3}
-              borderRadius="xl"
-              color="white"
-              fontWeight="medium"
-              fontSize="sm"
-              w="full"
-              transition="all 0.2s"
-              _hover={{ bg: 'rgba(255,215,0,0.08)' }}
-              onClick={toggleColorMode}
-            >
-              <Icon as={colorMode === 'light' ? FiMoon : FiSun} boxSize={5} />
-              <Text>{colorMode === 'light' ? 'Dark Mode' : 'Light Mode'}</Text>
-            </Box>
 
             {/* Logout */}
             <Box

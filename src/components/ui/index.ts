@@ -8,3 +8,4 @@ export { LoadingSpinner, useMinLoading } from './LoadingSpinner';
 export { ProgressButton } from './ProgressButton';
 export { DataTable, type Column } from './DataTable';
 export { ConfirmDialog } from './ConfirmDialog';
+export { ExcelImportButton } from './ExcelImportButton';

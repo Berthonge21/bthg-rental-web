@@ -17,7 +17,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { FiEye, FiCheck, FiX, FiPlay } from 'react-icons/fi';
-import { LoadingSpinner } from '@/components/ui';
+import { LoadingSpinner, ExcelImportButton } from '@/components/ui';
 import { useAdminRentals, useUpdateRentalStatus } from '@/hooks';
 import type { Rental, RentalStatus } from '@berthonge21/sdk';
 import { format } from 'date-fns';
@@ -99,20 +99,23 @@ export default function AdminRentalsPage() {
           </Text>
           <Text fontSize="sm" color="gray.500" mt={1}>{t('rentals.subtitle')}</Text>
         </Box>
-        <Select
-          placeholder={t('rentals.allStatuses')}
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value as RentalStatus | ''); setPage(1); }}
-          maxW="200px"
-          bg={cardBg}
-          borderRadius="lg"
-          sx={{ option: { bg: selectBg } }}
-        >
-          <option value="reserved">Reserved</option>
-          <option value="ongoing">Ongoing</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </Select>
+        <HStack spacing={3}>
+          <ExcelImportButton type="rentals" />
+          <Select
+            placeholder={t('rentals.allStatuses')}
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value as RentalStatus | ''); setPage(1); }}
+            maxW="200px"
+            bg={cardBg}
+            borderRadius="lg"
+            sx={{ option: { bg: selectBg } }}
+          >
+            <option value="reserved">Reserved</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </Select>
+        </HStack>
       </Flex>
 
       {/* Rentals Table */}

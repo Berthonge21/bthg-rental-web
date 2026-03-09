@@ -4,7 +4,7 @@ import { Box, Icon, Text, VStack } from '@chakra-ui/react';
 import { FiTruck } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 
-export function CarPlaceholder({ h = '200px' }: { h?: string }) {
+export function CarPlaceholder({ h = '200px' }: { h?: string | Record<string, string> }) {
   const { t } = useTranslation();
 
   return (

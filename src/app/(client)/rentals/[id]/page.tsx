@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import {
   Box, Button, Center, Divider, Flex, Grid, GridItem, HStack,
   Icon, Image, Spinner, Text, VStack,
-  useColorModeValue, useDisclosure, useToast,
+  useDisclosure, useToast,
 } from '@chakra-ui/react';
 import {
   FiArrowLeft, FiCalendar, FiClock, FiDollarSign, FiX,
@@ -15,6 +15,7 @@ import { useRental, useCancelRental } from '@/hooks';
 import { ConfirmDialog } from '@/components/ui';
 import { format, parseISO, isValid } from 'date-fns';
 import { parseCarImages } from '@/lib/imageUtils';
+import { CarPlaceholder } from '@/components/ui/CarPlaceholder';
 import { useTranslation } from 'react-i18next';
 
 const MotionBox = motion.create(Box);
@@ -59,11 +60,11 @@ export default function RentalDetailPage() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelMutation = useCancelRental();
 
-  const textMuted    = useColorModeValue('gray.500', 'gray.400');
-  const cardBg       = useColorModeValue('rgba(255,255,255,0.85)', 'rgba(11,28,45,0.7)');
-  const cardBorder   = useColorModeValue('rgba(255,255,255,0.9)', 'rgba(255,255,255,0.06)');
-  const rowBg        = useColorModeValue('gray.50', 'navy.600');
-  const headingColor = useColorModeValue('navy.800', 'white');
+  const textMuted    = 'gray.400';
+  const cardBg       = 'rgba(8,8,8,0.95)';
+  const cardBorder   = 'rgba(255,215,0,0.08)';
+  const rowBg        = '#141414';
+  const headingColor = 'white';
 
   const handleCancel = async () => {
     try {
@@ -88,7 +89,6 @@ export default function RentalDetailPage() {
   );
 
   const images     = parseCarImages(rental.car?.image);
-  const coverImage = images[0] || 'https://via.placeholder.com/700x260?text=Car';
   const meta       = STATUS_META[rental.status] ?? STATUS_META.reserved;
 
   const days = Math.max(
@@ -196,14 +196,18 @@ export default function RentalDetailPage() {
             minH="240px"
             h="full"
           >
-            <Image
-              src={coverImage}
-              alt={`${rental.car?.brand} ${rental.car?.model}`}
-              w="100%" h="100%"
-              objectFit="cover"
-              position="absolute"
-              inset={0}
-            />
+            {images[0] ? (
+              <Image
+                src={images[0]}
+                alt={`${rental.car?.brand} ${rental.car?.model}`}
+                w="100%" h="100%"
+                objectFit="cover"
+                position="absolute"
+                inset={0}
+              />
+            ) : (
+              <CarPlaceholder h="full" />
+            )}
             {/* Dark gradient overlay */}
             <Box
               position="absolute"

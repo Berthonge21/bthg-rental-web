@@ -4,7 +4,7 @@ import { useState } from 'react';
 import NextLink from 'next/link';
 import {
   Box, Button, Center, Flex, HStack, Icon, Image, SimpleGrid,
-  Spinner, Text, VStack, useColorModeValue, useDisclosure, useToast,
+  Spinner, Text, VStack, useDisclosure, useToast,
 } from '@chakra-ui/react';
 import {
   FiCalendar, FiArrowRight, FiSearch, FiClock, FiZap,
@@ -46,9 +46,9 @@ function RentalCard({ rental, onCancel, t }: { rental: Rental; onCancel?: (id: n
   const startFmt = isValid(parseISO(rental.startDate)) ? format(parseISO(rental.startDate), 'MMM d') : '—';
   const endFmt   = isValid(parseISO(rental.endDate))   ? format(parseISO(rental.endDate),   'MMM d, yyyy') : '—';
 
-  const cardBg     = useColorModeValue('white', '#080808');
-  const cardBorder = useColorModeValue('gray.100', 'rgba(255,215,0,0.08)');
-  const specColor  = useColorModeValue('gray.500', 'gray.400');
+  const cardBg     = '#080808';
+  const cardBorder = 'rgba(255,215,0,0.08)';
+  const specColor  = 'gray.400';
 
   return (
     <Box
@@ -95,7 +95,7 @@ function RentalCard({ rental, onCancel, t }: { rental: Rental; onCancel?: (id: n
 
       {/* Body */}
       <Box p={4}>
-        <Text fontFamily="var(--font-display)" fontSize="2xl" letterSpacing="0.02em" lineHeight="1.1" mb={0.5} color={useColorModeValue('navy.800', 'white')}>
+        <Text fontFamily="var(--font-display)" fontSize="2xl" letterSpacing="0.02em" lineHeight="1.1" mb={0.5} color="white">
           {rental.car?.brand} {rental.car?.model}
         </Text>
         <HStack spacing={3} mb={2} flexWrap="wrap">
@@ -157,7 +157,7 @@ export default function RentalsPage() {
   const cancelledRentals = cancelledData?.data ?? [];
   const totalSpent       = historyRentals.reduce((sum: number, r: Rental) => sum + (r.total ?? 0), 0);
 
-  const textMuted = useColorModeValue('text.muted', 'gray.400');
+  const textMuted = 'gray.400';
 
   const handleCancelRequest  = (id: number) => { setCancelId(id); onOpen(); };
   const handleConfirmCancel  = async () => {
@@ -175,70 +175,63 @@ export default function RentalsPage() {
 
   return (
     <Box minH="calc(100vh - 80px)">
-      {/* Page header */}
-      <Box mb={8} position="relative">
-        {/* Decorative gold line */}
-        <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
-        <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
-          {t('rentals.myAccount')}
-        </Text>
-        <Text fontFamily="var(--font-display)" fontSize="3xl" fontWeight="black" letterSpacing="0.02em" textTransform="uppercase" color="white">
-          {t('rentals.myRentals')}
-        </Text>
-        <Text fontSize="sm" color="gray.500" mt={1}>{t('rentals.trackManage')}</Text>
-      </Box>
+      {/* Single unified panel */}
+      <Box
+        bg="#080808"
+        border="1px solid rgba(255,215,0,0.08)"
+        borderRadius="2xl"
+        overflow="hidden"
+        mb={6}
+      >
+        {/* Header */}
+        <Box px={{ base: 5, md: 8 }} pt={7} pb={6} borderBottom="1px solid rgba(255,215,0,0.06)">
+          <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
+          <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
+            {t('rentals.myAccount')}
+          </Text>
+          <Text fontFamily="var(--font-display)" fontSize="3xl" fontWeight="black" letterSpacing="0.02em" textTransform="uppercase" color="white">
+            {t('rentals.myRentals')}
+          </Text>
+          <Text fontSize="sm" color="gray.500" mt={1}>{t('rentals.trackManage')}</Text>
+        </Box>
 
-      {/* Stats */}
-      <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={8}>
-        {([
-          { icon: FiCalendar,   label: t('rentals.active'),      value: String(activeRentals.length),      color: 'brand.400' },
-          { icon: FiTrendingUp, label: t('rentals.completed'),   value: String(historyRentals.length),     color: 'accent.400' },
-          { icon: FiXCircle,    label: t('rentals.cancelled'),   value: String(cancelledRentals.length),   color: '#E53E3E' },
-          { icon: FiDollarSign, label: t('rentals.totalSpent'), value: `$${totalSpent.toLocaleString()}`, color: 'accent.400' },
-        ] as const).map((s) => (
-          <Box
-            key={s.label}
-            bg="rgba(255,255,255,0.04)"
-            backdropFilter="blur(12px)"
-            border="1px solid rgba(255,255,255,0.07)"
-            borderRadius="2xl" px={5} py={4}
-            boxShadow="0 2px 12px rgba(11,28,45,0.06)"
-          >
-            <HStack spacing={3}>
-              <Box w={10} h={10} borderRadius="xl" bg="rgba(201,162,39,0.08)" display="flex" alignItems="center" justifyContent="center">
+        {/* Stats row */}
+        <SimpleGrid columns={{ base: 2, md: 4 }} px={{ base: 5, md: 8 }} py={5} borderBottom="1px solid rgba(255,215,0,0.06)">
+          {([
+            { icon: FiCalendar,   label: t('rentals.active'),      value: String(activeRentals.length),      color: 'brand.400' },
+            { icon: FiTrendingUp, label: t('rentals.completed'),   value: String(historyRentals.length),     color: 'accent.400' },
+            { icon: FiXCircle,    label: t('rentals.cancelled'),   value: String(cancelledRentals.length),   color: '#E53E3E' },
+            { icon: FiDollarSign, label: t('rentals.totalSpent'), value: `$${totalSpent.toLocaleString()}`, color: 'accent.400' },
+          ] as const).map((s) => (
+            <HStack key={s.label} spacing={3} py={2}>
+              <Box w={10} h={10} borderRadius="xl" bg="rgba(255,215,0,0.06)" display="flex" alignItems="center" justifyContent="center" flexShrink={0}>
                 <Icon as={s.icon} color={s.color} boxSize={5} />
               </Box>
               <Box>
                 <Text fontSize="xs" color={textMuted}>{s.label}</Text>
-                <Text fontWeight="bold" fontSize="lg" color={useColorModeValue('navy.800', 'white')}>{s.value}</Text>
+                <Text fontWeight="bold" fontSize="lg" color="white">{s.value}</Text>
               </Box>
             </HStack>
-          </Box>
-        ))}
-      </SimpleGrid>
+          ))}
+        </SimpleGrid>
 
-      {/* Segmented tabs */}
-      <Box
-        display="flex"
-        w={{ base: 'full', md: 'auto' }}
-        bg="rgba(255,255,255,0.04)"
-        backdropFilter="blur(8px)"
-        border="1px solid rgba(255,255,255,0.07)"
-        borderRadius="xl" p={1} mb={6}
-        boxShadow="0 2px 8px rgba(11,28,45,0.06)"
-      >
-        {(['active', 'history'] as const).map((tab) => (
-          <Button
-            key={tab} size="sm" borderRadius="lg" px={6} flex={1}
-            bg={activeTab === tab ? 'brand.400' : 'transparent'}
-            color={activeTab === tab ? 'white' : 'gray.500'}
-            fontWeight={activeTab === tab ? 'semibold' : 'medium'}
-            _hover={{ bg: activeTab === tab ? 'brand.500' : 'rgba(255,255,255,0.08)' }}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab === 'active' ? t('rentals.activeCount', { count: activeRentals.length }) : t('rentals.historyCount', { count: historyRentals.length })}
-          </Button>
-        ))}
+        {/* Segmented tabs */}
+        <Box px={{ base: 5, md: 8 }} py={4} display="flex" gap={2}>
+          {(['active', 'history'] as const).map((tab) => (
+            <Button
+              key={tab} size="sm" borderRadius="lg" px={6}
+              bg={activeTab === tab ? 'brand.400' : 'rgba(255,255,255,0.04)'}
+              color={activeTab === tab ? '#000000' : 'gray.500'}
+              border="1px solid"
+              borderColor={activeTab === tab ? 'brand.400' : 'rgba(255,255,255,0.06)'}
+              fontWeight={activeTab === tab ? 'semibold' : 'medium'}
+              _hover={{ bg: activeTab === tab ? 'brand.500' : 'rgba(255,255,255,0.08)', color: activeTab === tab ? '#000000' : 'white' }}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab === 'active' ? t('rentals.activeCount', { count: activeRentals.length }) : t('rentals.historyCount', { count: historyRentals.length })}
+            </Button>
+          ))}
+        </Box>
       </Box>
 
       {/* Active */}
@@ -252,7 +245,7 @@ export default function RentalsPage() {
                 <Icon as={FiSearch} boxSize={8} color="brand.400" />
               </Box>
               <VStack spacing={1}>
-                <Text fontWeight="semibold" color={useColorModeValue('navy.800', 'white')}>{t('rentals.noActiveRentals')}</Text>
+                <Text fontWeight="semibold" color="white">{t('rentals.noActiveRentals')}</Text>
                 <Text fontSize="sm" color={textMuted}>{t('rentals.browseFleetPrompt')}</Text>
               </VStack>
               <Button as={NextLink} href="/cars" bg="brand.400" color="#000000" fontWeight="semibold" borderRadius="lg" _hover={{ bg: 'lightGold.400' }}>
@@ -282,7 +275,7 @@ export default function RentalsPage() {
                 <Icon as={FiCalendar} boxSize={8} color="accent.400" />
               </Box>
               <VStack spacing={1}>
-                <Text fontWeight="semibold" color={useColorModeValue('navy.800', 'white')}>{t('rentals.noHistory')}</Text>
+                <Text fontWeight="semibold" color="white">{t('rentals.noHistory')}</Text>
                 <Text fontSize="sm" color={textMuted}>{t('rentals.completedRentalsAppear')}</Text>
               </VStack>
             </VStack>

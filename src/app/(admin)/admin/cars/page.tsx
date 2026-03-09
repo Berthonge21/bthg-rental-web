@@ -31,12 +31,13 @@ import {
   FiInfo,
   FiClock,
 } from 'react-icons/fi';
-import { LoadingSpinner, useMinLoading, ConfirmDialog } from '@/components/ui';
+import { LoadingSpinner, useMinLoading, ConfirmDialog, ExcelImportButton } from '@/components/ui';
 import { useCars, useDeleteCar, useAdminRentals } from '@/hooks';
 import { useAuthStore } from '@/stores/auth.store';
 import type { Car, Rental } from '@berthonge21/sdk';
 import { format } from 'date-fns';
 import { parseCarImages } from '@/lib/imageUtils';
+import { CarPlaceholder } from '@/components/ui/CarPlaceholder';
 
 /* ------------------------------------------------------------------ */
 /*  Car Card Component                                                 */
@@ -77,13 +78,17 @@ function CarCard({ car, onView, onEdit, onAvailability, onDelete, onCardClick }:
     >
       {/* Image area */}
       <Box position="relative" w="100%" h="240px" bg={imageBg}>
-        <Image
-          src={parseCarImages(car.image)[0] || 'https://via.placeholder.com/400x200?text=Car'}
-          alt={`${car.brand} ${car.model}`}
-          w="100%"
-          h="100%"
-          objectFit="cover"
-        />
+        {parseCarImages(car.image)[0] ? (
+          <Image
+            src={parseCarImages(car.image)[0]}
+            alt={`${car.brand} ${car.model}`}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+          />
+        ) : (
+          <CarPlaceholder h="240px" />
+        )}
         {/* Gradient fade — image to card */}
         <Box
           position="absolute"
@@ -601,23 +606,26 @@ export default function AdminCarsPage() {
   return (
     <Box>
       {/* Page Header */}
-      <Box mb={8}>
-        <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
-        <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
-          Fleet Management
-        </Text>
-        <Text
-          fontFamily="var(--font-display)"
-          fontSize="3xl"
-          fontWeight="black"
-          letterSpacing="0.02em"
-          textTransform="uppercase"
-          color="gray.500"
-        >
-          {t('cars.title')}
-        </Text>
-        <Text fontSize="sm" color="gray.500" mt={1}>{t('cars.subtitle')}</Text>
-      </Box>
+      <Flex justify="space-between" align="flex-end" mb={8} flexWrap="wrap" gap={4}>
+        <Box>
+          <Box w="32px" h="2px" bg="brand.400" mb={3} borderRadius="full" />
+          <Text fontSize="xs" fontWeight="bold" color="brand.400" textTransform="uppercase" letterSpacing="widest" mb={1}>
+            Fleet Management
+          </Text>
+          <Text
+            fontFamily="var(--font-display)"
+            fontSize="3xl"
+            fontWeight="black"
+            letterSpacing="0.02em"
+            textTransform="uppercase"
+            color="gray.500"
+          >
+            {t('cars.title')}
+          </Text>
+          <Text fontSize="sm" color="gray.500" mt={1}>{t('cars.subtitle')}</Text>
+        </Box>
+        <ExcelImportButton type="cars" />
+      </Flex>
 
       {/* Top section: 2-col grid + sidebar */}
       <Flex gap={5} align="flex-start" mb={bottomCars.length > 0 ? 5 : 0}>

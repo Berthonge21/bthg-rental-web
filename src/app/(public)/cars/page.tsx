@@ -21,7 +21,6 @@ import {
   RangeSliderTrack,
   RangeSliderFilledTrack,
   RangeSliderThumb,
-  useColorModeValue,
   Skeleton,
   Avatar,
   Drawer,
@@ -78,9 +77,9 @@ function TiltCard({ children }: { children: React.ReactNode }) {
 }
 
 function CarCard({ car, t }: { car: Car; t: (key: string, opts?: Record<string, unknown>) => string }) {
-  const cardBg = useColorModeValue('white', 'navy.700');
-  const cardBorder = useColorModeValue('gray.100', 'navy.600');
-  const specColor = useColorModeValue('text.muted', 'gray.400');
+  const cardBg = '#080808';
+  const cardBorder = 'rgba(255,215,0,0.08)';
+  const specColor = 'gray.400';
 
   const firstImage = parseCarImages(car.image)[0];
 
@@ -119,7 +118,7 @@ function CarCard({ car, t }: { car: Car; t: (key: string, opts?: Record<string, 
 
       {/* Body */}
       <Box p={4}>
-        <Text fontFamily="var(--font-display)" fontSize="2xl" letterSpacing="0.02em" color={useColorModeValue('navy.800', 'white')} mb={0.5} lineHeight="1.1">
+        <Text fontFamily="var(--font-display)" fontSize="2xl" letterSpacing="0.02em" color="white" mb={0.5} lineHeight="1.1">
           {car.brand} {car.model}
         </Text>
         <HStack spacing={3} mb={2} flexWrap="wrap">
@@ -158,7 +157,7 @@ function CarCard({ car, t }: { car: Car; t: (key: string, opts?: Record<string, 
 
 function CarCardSkeleton() {
   return (
-    <Box borderRadius="2xl" overflow="hidden" border="1px" borderColor="gray.100">
+    <Box borderRadius="2xl" overflow="hidden" border="1px" borderColor="rgba(255,215,0,0.08)" bg="#080808">
       <Skeleton h="220px" />
       <Box p={4}>
         <Skeleton h="20px" mb={2} />
@@ -192,7 +191,7 @@ function FilterPanel({
   onPriceChange: (val: [number, number]) => void;
   onClear: () => void;
 }) {
-  const textMuted = useColorModeValue('text.muted', 'gray.400');
+  const textMuted = 'gray.400';
 
   return (
     <VStack spacing={5} align="stretch">
@@ -266,9 +265,9 @@ export default function CarsPage() {
   const { data, isLoading } = useCars({ page, limit: 12, agencyId });
   const { data: agenciesData } = useAgencies({ limit: 100 });
 
-  const filterBg = useColorModeValue('white', 'navy.700');
-  const filterBorder = useColorModeValue('gray.100', 'navy.600');
-  const textMuted = useColorModeValue('text.muted', 'gray.400');
+  const filterBg = '#080808';
+  const filterBorder = 'rgba(255,215,0,0.08)';
+  const textMuted = 'gray.400';
 
   const allCars = data?.data ?? [];
   const agencies = agenciesData?.data ?? [];
@@ -404,15 +403,15 @@ export default function CarsPage() {
 
       {/* Mobile filter drawer */}
       <Drawer isOpen={filterDrawerOpen} placement="left" onClose={() => setFilterDrawerOpen(false)} size="xs">
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader borderBottomWidth="1px">
+        <DrawerOverlay backdropFilter="blur(4px)" />
+        <DrawerContent bg="#000000">
+          <DrawerHeader borderBottomWidth="1px" borderColor="rgba(255,215,0,0.1)">
             <Flex align="center" gap={2}>
               <Icon as={FiFilter} color="brand.400" />
-              <Text fontWeight="semibold">{t('public.filters')}</Text>
+              <Text fontWeight="semibold" color="white">{t('public.filters')}</Text>
             </Flex>
           </DrawerHeader>
-          <DrawerCloseButton />
+          <DrawerCloseButton color="white" />
           <DrawerBody py={5}>
             <FilterPanel
               agencies={agencies}

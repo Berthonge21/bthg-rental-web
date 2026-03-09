@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   Alert, AlertDescription, AlertIcon, Avatar, Box, Button, Divider,
   FormControl, FormLabel, HStack, Heading, IconButton, Input,
-  SimpleGrid, Text, VStack, useColorModeValue, useDisclosure, useToast,
+  SimpleGrid, Text, VStack, useDisclosure, useToast,
 } from '@chakra-ui/react';
 import { FiCamera, FiX, FiAlertTriangle } from 'react-icons/fi';
 import { useForm } from 'react-hook-form';
@@ -36,11 +36,11 @@ export default function ClientProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const deactivateDialog = useDisclosure();
 
-  const cardBg = useColorModeValue('white', '#080808');
-  const cardBorder = useColorModeValue('gray.100', 'rgba(255,215,0,0.08)');
-  const textMuted = useColorModeValue('text.muted', 'gray.400');
-  const dangerBg = useColorModeValue('red.50', 'rgba(254, 178, 178, 0.06)');
-  const dangerBorder = useColorModeValue('red.200', 'red.800');
+  const cardBg = '#080808';
+  const cardBorder = 'rgba(255,215,0,0.08)';
+  const textMuted = 'gray.400';
+  const dangerBg = 'rgba(254,178,178,0.06)';
+  const dangerBorder = 'red.800';
 
   const { register, handleSubmit, reset, setValue, formState: { isDirty } } = useForm<ProfileFormData>({
     defaultValues: {
@@ -189,7 +189,7 @@ export default function ClientProfilePage() {
               </SimpleGrid>
               <FormControl>
                 <FormLabel fontSize="sm">{t('profile.email')}</FormLabel>
-                <Input value={user?.email ?? ''} isReadOnly bg={useColorModeValue('gray.50', 'navy.600')} borderRadius="lg" />
+                <Input value={user?.email ?? ''} isReadOnly bg="#141414" borderRadius="lg" />
               </FormControl>
               <FormControl>
                 <FormLabel fontSize="sm">{t('profile.phone')}</FormLabel>
